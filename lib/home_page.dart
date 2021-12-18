@@ -42,7 +42,7 @@ class MyHomePageState extends State<MyHomePage>{
         selectedItemColor: Colors.black,
         unselectedItemColor: Colors.black,
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home,color: Colors.black,),label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.home,color: Colors.black,),label: "خانه"),
           BottomNavigationBarItem(icon: Icon(Icons.search,color: Colors.black,),label: "Search"),
           BottomNavigationBarItem(icon: Icon(Icons.add_box,color: Colors.black,),label: "Plus"),
           BottomNavigationBarItem(icon: Icon(Icons.favorite,color: Colors.black,),label: "favorite"),

@@ -26,15 +26,45 @@ class Products {
 
     if(response.statusCode == 200){
       var responseBody = json.decode(response.body)['data'];
-      responseBody = responseBody['books']['کتاب-صوتی']['new'];
+      responseBody = responseBody['books'];
 
-      List<Product> products = [];
-      responseBody.forEach((item){
-        products.add(Product.fromJson(item));
+      List<Product> newAudio = [];
+      responseBody['کتاب-صوتی']['new'].forEach((item){
+        newAudio.add(Product.fromJson(item));
+      });
+
+      List<Product> saleAudio = [];
+      responseBody['کتاب-صوتی']['sell'].forEach((item){
+        saleAudio.add(Product.fromJson(item));
+      });
+
+      List<Product> newChild = [];
+      responseBody['کتاب-کودک-و-نوجوان']['new'].forEach((item){
+        newChild.add(Product.fromJson(item));
+      });
+
+      List<Product> saleChild = [];
+      responseBody['کتاب-کودک-و-نوجوان']['sell'].forEach((item){
+        saleChild.add(Product.fromJson(item));
+      });
+
+      List<Product> newLetter = [];
+      responseBody['نامه-صوتی']['new'].forEach((item){
+        newLetter.add(Product.fromJson(item));
+      });
+
+      List<Product> saleLetter = [];
+      responseBody['نامه-صوتی']['sell'].forEach((item){
+        saleLetter.add(Product.fromJson(item));
       });
 
       return {
-        "products" : products
+        "newAudio" : newAudio,
+        "saleAudio" : saleAudio.reversed,
+        "newChild" : newChild,
+        "saleChild" : saleChild.reversed,
+        "newLetter" : newLetter,
+        "saleLetter" : saleLetter.reversed,
       };
     }
   }

@@ -39,9 +39,12 @@ class ProductCard extends StatelessWidget {
                               style: const TextStyle(
                                   fontSize: 13,
                                   color: Colors.black,
-                                  fontFamily: 'Vazir')))
+                                  fontFamily: 'Vazir')
+                          )
+                      )
                   ),
-                ))
+                )
+            )
           ],
         ),
       ),
