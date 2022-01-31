@@ -29,12 +29,6 @@ class MyHomePageState extends State<MyHomePage>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xfff8faf8),
-        elevation: 1.0,
-        title: TextField(),
-        centerTitle: true,
-      ),
       body: this.children[this.currentPage],
       bottomNavigationBar:
       BottomNavigationBar(

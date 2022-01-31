@@ -12,7 +12,7 @@ class Home extends StatefulWidget {
   }
 }
 
-class HomeState extends State<Home> {
+class HomeState extends State<Home> with AutomaticKeepAliveClientMixin<Home> {
   String def =
       "https://purepng.com/public/uploads/large/purepng.com-mariomariofictional-charactervideo-gamefranchisenintendodesigner-1701528634653vywuz.png";
   List<Product> _newAudio = [];
@@ -99,19 +99,24 @@ class HomeState extends State<Home> {
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
           Container(
             height: 40.0,
-            child: RaisedButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                  side: BorderSide(color: Color.fromRGBO(0, 160, 227, 1))),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  side: BorderSide(color: Color.fromRGBO(0, 160, 227, 1)),
+                  primary: Colors.white
+              ),
               onPressed: () {},
-              padding: EdgeInsets.all(5.0),
-              color: Colors.white,
-              textColor: Color.fromRGBO(0, 160, 227, 1),
-              child: Text("مشاهده همه", style: TextStyle(fontSize: 13)),
+              child: const Text('مشاهده همه',style: TextStyle(color: Color.fromRGBO(0, 160, 227, 1),fontSize: 13),),
             ),
           ),
         ],
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

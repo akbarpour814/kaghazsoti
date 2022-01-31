@@ -68,4 +68,24 @@ class Products {
       };
     }
   }
+  static Future search({query = ''}) async {
+    print('http://10.0.2.2/api/books?q=$query');
+    var response = await http.post(Uri.parse('http://10.0.2.2/api/books?q=$query'),
+        headers: {"Host": "kaghazsoti.develop"});
+
+    if(response.statusCode == 200){
+      var responseBody = json.decode(response.body)['data'];
+      if (responseBody.length == 0) return <Product>[];
+      responseBody = responseBody['books'];
+
+
+      List<Product> results = [];
+      responseBody.forEach((item){
+        item['full_image'] = item['full_image'].replaceAll('http://kaghazsoti.develop','http://10.0.2.2');
+        results.add(Product.fromJson(item));
+      });
+
+      return results;
+    }
+  }
 }
