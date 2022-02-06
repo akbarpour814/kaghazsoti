@@ -45,24 +45,6 @@ class MyHomePageState extends State<MyHomePage>{
         onTap: changePage,
         currentIndex: currentPage,
       ),
-
-      // Container(
-      //   height: 50.0,
-      //   alignment: Alignment.center,
-      //   color: Colors.white,
-      //   child: BottomAppBar(
-      //     child: Row(
-      //       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //       children: [
-      //         IconButton(onPressed: () { changePage('library'); }, icon: FaIcon(FontAwesomeIcons.book)),
-      //         IconButton(onPressed: () { changePage('category'); }, icon: FaIcon(FontAwesomeIcons.map)),
-      //         IconButton(onPressed: () { changePage('home'); }, icon: FaIcon(FontAwesomeIcons.home),tooltip: "sdfsdf",),
-      //         IconButton(onPressed: () { changePage('search'); }, icon: FaIcon(FontAwesomeIcons.search)),
-      //         IconButton(onPressed: () { changePage('profile'); }, icon: FaIcon(FontAwesomeIcons.user))
-      //       ],
-      //     ),
-      //   ),
-      // ),
     );
     throw UnimplementedError();
   }

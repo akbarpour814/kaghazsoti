@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kaghazsoti/pages/login_screen.dart';
-import 'package:kaghazsoti/pages/splash_screen.dart';
-import 'home_page.dart';
+import 'package:kaghazsoti/routes.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,11 +10,11 @@ class MyApp extends StatelessWidget{
       title: "کاغذ صوتی",
       debugShowCheckedModeBanner: false,
       initialRoute: "/splash_screen",
-      routes: {
-        "/" : (context) => Directionality(textDirection: TextDirection.rtl,child: MyHomePage(),),
-        "/login" : (context) => Directionality(textDirection: TextDirection.rtl, child: LoginScreen()),
-        "/splash_screen" : (context) => Directionality(textDirection: TextDirection.rtl, child: SplashScreen()),
-      },
+      routes: routes(),
+      builder: (context, widget) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: widget as Widget,
+      ),
       theme: ThemeData(
           fontFamily: "Vazir",
           primaryColor: Colors.black,
