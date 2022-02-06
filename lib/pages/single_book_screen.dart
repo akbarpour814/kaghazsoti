@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:kaghazsoti/models/product.dart';
 import 'package:kaghazsoti/services/product_services.dart';
 
@@ -18,7 +19,7 @@ class SingleBookScreen extends StatelessWidget {
           title: Row(
             children: <Widget>[
               GestureDetector(
-                onTap : () => Navigator.pop(context),
+                onTap: () => Navigator.pop(context),
                 child: Icon(Icons.arrow_back),
               ),
               SizedBox(
@@ -27,7 +28,10 @@ class SingleBookScreen extends StatelessWidget {
               SizedBox(
                 width: 10,
               ),
-              Text(product.title , style: TextStyle(fontSize: 17),)
+              Text(
+                product.title,
+                style: TextStyle(fontSize: 17),
+              )
             ],
           ),
         ),
@@ -42,26 +46,122 @@ class SingleBookScreen extends StatelessWidget {
                     imageUrl: product.image,
                     httpHeaders: {"Host": "kaghazsoti.develop"},
                     fit: BoxFit.cover,
-                    width: 200,
+                    width: 170,
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    padding: EdgeInsets.only(top: 10,bottom: 10,),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          product.title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13,
+                        RatingBarIndicator(
+                          rating: 2.75,
+                          itemBuilder: (context, index) => Icon(
+                            Icons.star,
+                            color: Colors.amber,
                           ),
+                          itemCount: 5,
+                          itemSize: 20.0,
+                          direction: Axis.horizontal,
                         ),
-                        Text("آلن دوباتن"),
+                        Padding(
+                          padding: EdgeInsets.only(right: 30),
+                          child: Text("از ۲ رای"),
+                        )
                       ],
                     ),
                   ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(
+                      product.price,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 19,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10,),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          height: 35.0,
+                          width: 150,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                side: BorderSide(color: Color.fromRGBO(0, 160, 227, 1)),
+                                primary: Color.fromRGBO(32, 151, 245, 1)
+                            ),
+                            onPressed: () {},
+                            child: const Text('خرید',style: TextStyle(fontSize: 15),),
+                          ),
+                        ),
+                        Container(
+                          height: 35.0,
+                          width: 150,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5.0),
+                                ),
+                                side: BorderSide(color: Color.fromRGBO(32, 151, 245, 1)),
+                                primary: Color.fromRGBO(32, 151, 245, 1)
+                            ),
+                            onPressed: () {},
+                            child: const Text('خرید هدیه',style: TextStyle(fontSize: 15),),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  DefaultTabController(
+                    length: 3,
+                    child: SizedBox(
+                      height: 100.0,
+                      child: Column(
+                        children: <Widget>[
+                          TabBar(
+                            indicatorColor: Colors.lime,
+                            tabs: <Widget>[
+                              Tab(
+                                text: "مشخصات",
+                              ),
+                              Tab(
+                                text: "درباره کتاب",
+                              ),
+                              Tab(
+                                text: "نظرات کاربران",
+                              )
+                            ],
+                          ),
+                          Expanded(
+                            child: TabBarView(
+                              children: <Widget>[
+                                Container(
+                                  color: Colors.green,
+                                ),
+                                Container(
+                                  color: Colors.yellow,
+                                ),
+                                Container(
+                                  color: Colors.yellow,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 ],
-              )),
+              )
+          ),
         ),
       ),
     );

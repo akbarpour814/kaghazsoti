@@ -14,7 +14,7 @@ class Product{
     // authorId = parsedJson['author_id'];
     title = parsedJson['title'];
     description = parsedJson['clear_description'];
-    price = parsedJson['price'];
+    price = parsedJson['cast_price'];
     image = parsedJson['full_image'];
     createdAt = parsedJson['created_at'];
     updatedAt = parsedJson['updated_at'];
