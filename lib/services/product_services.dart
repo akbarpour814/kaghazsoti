@@ -22,7 +22,8 @@ class Products {
     }
   }
   static Future home() async {
-    var response = await http.post(Uri.parse('https://kaghazsoti.uage.ir/api/home'));
+    var response = await http.post(Uri.parse('http://10.0.2.2/api/home'),
+        headers: {"Host": "kaghazsoti.develop"});
 
     if(response.statusCode == 200){
       var responseBody = json.decode(response.body)['data'];
@@ -72,6 +73,7 @@ class Products {
     print('http://10.0.2.2/api/books?q=$query');
     var response = await http.post(Uri.parse('http://10.0.2.2/api/books?q=$query'),
         headers: {"Host": "kaghazsoti.develop"});
+    print(response);
 
     if(response.statusCode == 200){
       var responseBody = json.decode(response.body)['data'];

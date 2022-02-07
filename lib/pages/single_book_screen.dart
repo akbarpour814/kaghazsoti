@@ -11,6 +11,7 @@ class SingleBookScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var screenWidth = MediaQuery.of(context).size.width;
     return Container(
       color: Colors.white,
       child: Scaffold(
@@ -35,7 +36,7 @@ class SingleBookScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: Container(
+        body: ListView(shrinkWrap: true, children: [Container(
           alignment: Alignment.center,
           child: Padding(
               padding: EdgeInsets.only(left: 10, right: 10, top: 30),
@@ -49,7 +50,10 @@ class SingleBookScreen extends StatelessWidget {
                     width: 170,
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 10,bottom: 10,),
+                    padding: EdgeInsets.only(
+                      top: 10,
+                      bottom: 10,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -82,7 +86,10 @@ class SingleBookScreen extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.symmetric(vertical: 10,horizontal: 10,),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 10,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,11 +102,14 @@ class SingleBookScreen extends StatelessWidget {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5.0),
                                 ),
-                                side: BorderSide(color: Color.fromRGBO(0, 160, 227, 1)),
-                                primary: Color.fromRGBO(32, 151, 245, 1)
-                            ),
+                                side: BorderSide(
+                                    color: Color.fromRGBO(0, 160, 227, 1)),
+                                primary: Color.fromRGBO(32, 151, 245, 1)),
                             onPressed: () {},
-                            child: const Text('خرید',style: TextStyle(fontSize: 15),),
+                            child: const Text(
+                              'خرید',
+                              style: TextStyle(fontSize: 15),
+                            ),
                           ),
                         ),
                         Container(
@@ -110,61 +120,96 @@ class SingleBookScreen extends StatelessWidget {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(5.0),
                                 ),
-                                side: BorderSide(color: Color.fromRGBO(32, 151, 245, 1)),
-                                primary: Color.fromRGBO(32, 151, 245, 1)
-                            ),
+                                side: BorderSide(
+                                    color: Color.fromRGBO(32, 151, 245, 1)),
+                                primary: Color.fromRGBO(32, 151, 245, 1)),
                             onPressed: () {},
-                            child: const Text('خرید هدیه',style: TextStyle(fontSize: 15),),
+                            child: const Text(
+                              'خرید هدیه',
+                              style: TextStyle(fontSize: 15),
+                            ),
                           ),
                         )
                       ],
                     ),
                   ),
-                  DefaultTabController(
-                    length: 3,
-                    child: SizedBox(
-                      height: 100.0,
-                      child: Column(
-                        children: <Widget>[
-                          TabBar(
-                            indicatorColor: Colors.lime,
-                            tabs: <Widget>[
-                              Tab(
-                                text: "مشخصات",
+                  Container(
+                    height: 300.0,
+                    child: DefaultTabController(
+                        initialIndex: 0,
+                        length: 3,
+                        child: Scaffold(
+                          appBar: AppBar(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                 Radius.circular(5),
                               ),
-                              Tab(
-                                text: "درباره کتاب",
-                              ),
-                              Tab(
-                                text: "نظرات کاربران",
-                              )
-                            ],
-                          ),
-                          Expanded(
-                            child: TabBarView(
-                              children: <Widget>[
-                                Container(
-                                  color: Colors.green,
-                                ),
-                                Container(
-                                  color: Colors.yellow,
-                                ),
-                                Container(
-                                  color: Colors.yellow,
-                                ),
-                              ],
                             ),
+                            toolbarHeight: 10,
+                            backgroundColor: Colors.black,
+                            automaticallyImplyLeading: false,
+                            elevation: 0,
+                            bottom: const TabBar(
+                                indicator: UnderlineTabIndicator(
+                                  borderSide: BorderSide(
+                                      width: 3.0,
+                                      color: Color.fromRGBO(52, 167, 149, 1)),
+                                ),
+                                tabs: [
+                                  Tab(
+                                    text: "مشخصات",
+                                  ),
+                                  Tab(
+                                    text: "درباره کتاب",
+                                  ),
+                                  Tab(
+                                    text: "نظرات کاربران",
+                                  ),
+                                ]),
                           ),
-                        ],
-                      ),
+                          body: TabBarView(children: [
+                            Container(
+                              margin: EdgeInsets.only(top: 10),
+                              padding: EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.black,
+                                borderRadius: BorderRadius.all(Radius.circular(5.0))
+                              ),
+                              child: Column(
+                                children: [
+                                  _book_detail("نام:",product.title,screenWidth),
+                                  _book_detail("دسته:","کتاب صوتی - رمان",screenWidth),
+                                  _book_detail("نویسنده:","آنتوان دو سنت اگزوپری",screenWidth),
+                                  _book_detail("گوینده:","الهام ایرانیا",screenWidth),
+                                  _book_detail("حجم دانلود:","۱۵۲ مگ",screenWidth),
+                                  _book_detail("ناشر چاپی:","آسو",screenWidth),
+                                ],
+                              ),
+                            ),
+                            Icon(Icons.apps),
+                            Icon(Icons.movie),
+                          ]),
+                        )
                     ),
                   )
                 ],
-              )
-          ),
-        ),
+              )),
+        )]),
       ),
     );
     throw UnimplementedError();
+  }
+
+  _book_detail(title,detail,screenWidth){
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 5),
+          width : screenWidth * .4,
+          child: Text(title,style: TextStyle(color: Colors.white),),
+        ),
+        Text(detail,style: TextStyle(color: Colors.white),),
+      ],
+    );
   }
 }
