@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kaghazsoti/models/Category.dart';
+import 'package:kaghazsoti/models/category.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kaghazsoti/services/category_services.dart';
 
@@ -68,9 +68,8 @@ class ProfileState extends State<Profile> {
 }
 
 _getChildren(context, item) async {
-  print(item);
-  // await Navigator.push(
-  // context,
-  // MaterialPageRoute(
-  // builder: (context) => CategoryChildren(children: item)));
+  await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => CategoryChildren(children: item)));
 }
