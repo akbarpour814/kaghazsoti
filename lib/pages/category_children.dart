@@ -53,7 +53,7 @@ class CategoryChildrenState extends State<CategoryChildren> {
         final item = results[index];
 
         return GestureDetector(
-          onTap: (() => _getChildren(context, results[index])),
+          onTap: (() => _getChildren(context, results[index]['id'])),
           child: Padding(
             padding: EdgeInsets.all(10),
             child: Row(
@@ -70,7 +70,7 @@ class CategoryChildrenState extends State<CategoryChildren> {
   }
 }
 
-_getChildren(context, item) async {
+_getChildren(context, id) async {
   await Navigator.push(
       context,
       MaterialPageRoute(
