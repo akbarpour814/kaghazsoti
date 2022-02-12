@@ -3,17 +3,19 @@ import 'package:kaghazsoti/models/Category.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:kaghazsoti/services/category_services.dart';
 
-import 'category_children.dart';
+class CategoryChildren extends StatefulWidget {
+  final List children;
 
-class Profile extends StatefulWidget {
+  const CategoryChildren({Key? key, required this.children}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
-    return ProfileState();
+    return CategoryChildrenState();
     throw UnimplementedError();
   }
 }
 
-class ProfileState extends State<Profile> {
+class CategoryChildrenState extends State<CategoryChildren> {
   var items = [];
   String _query = '';
   final _searchController = TextEditingController();
@@ -33,9 +35,9 @@ class ProfileState extends State<Profile> {
   }
 
   void newBooks() async {
-    var response = await Categories.get();
     setState(() {
-      items = response;
+      print(widget.children);
+      // items = widget.children;
     });
   }
 
@@ -68,9 +70,8 @@ class ProfileState extends State<Profile> {
 }
 
 _getChildren(context, item) async {
-  print(item);
-  // await Navigator.push(
-  // context,
-  // MaterialPageRoute(
-  // builder: (context) => CategoryChildren(children: item)));
+  await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => CategoryChildren(children: item)));
 }
