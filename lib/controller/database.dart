@@ -46,10 +46,26 @@ class Database {
       library: [],
     );
 
-    //
-    httpsResponse = await Https.dio.get('dashboard/my_books', options: Options(headers: {'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA', 'Accept': 'application/json', 'client': 'api'}));
+    Map<String, String> headers = {'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA', 'Accept': 'application/json', 'client': 'api'};
+    //C = httpsResponse.data;
 
-    Map<String, dynamic> data = httpsResponse.data;
+    //initialize markedBooks
+    httpsResponse = await Https.dio.get('dashboard/my_books', options: Options(headers: headers));
+
+
+
+    for(Map<String, dynamic> book in data['data']) {
+      Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+
+      CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+      user.library.add(Book.fromJson(customResponse.data));
+    }
+
+    //initialize library
+    httpsResponse = await Https.dio.get('dashboard/my_books', options: Options(headers: headers));
+
+    data = httpsResponse.data;
 
     for(Map<String, dynamic> book in data['data']) {
       Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
