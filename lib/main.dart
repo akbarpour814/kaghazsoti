@@ -31,7 +31,7 @@ AudioPlayer audioPlayer = AudioPlayer();
 
 late Book audiobookInPlay;
 
-
+//
 
 final PersistentTabController persistentTabController =
     PersistentTabController(initialIndex: 2);
@@ -85,8 +85,9 @@ late List<PersistentBottomNavBarItem> items = [
 // List<Book> books = List.generate(50, (index) => book);
 
 late AudioHandler _audioHandler;
-void main() {
-  Database database = Database();
+Future<void> main() async {
+  database = await Database();
+
   runApp(SharedValue.wrapApp(
     const MyApp(),
   ),);
@@ -165,7 +166,6 @@ class MyApp extends StatelessWidget {
                   foregroundColor: Colors.white,
                 ),
                 inputDecorationTheme: InputDecorationTheme(
-
                   helperStyle: const TextStyle(color: Color(0xFF005C6B)),
                   suffixIconColor: const Color(0xFF005C6B),
                   focusColor: const Color(0xFF005C6B).withOpacity(0.6),

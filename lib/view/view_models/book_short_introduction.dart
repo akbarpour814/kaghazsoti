@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:takfood_seller/model/book.dart';
 import 'package:takfood_seller/view/view_models/book_introduction_page.dart';
@@ -102,6 +103,7 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
     return Flexible(
       child: Text(
         widget.book.name,
+        style: const TextStyle(overflow: TextOverflow.ellipsis),
       ),
     );
   }
@@ -119,7 +121,7 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
     return Flexible(
       child: Text(
         widget.book.author,
-        style: Theme.of(context).textTheme.caption,
+        style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
       ),
     );
   }
@@ -138,7 +140,7 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
     return Flexible(
       child: Text(
         widget.book.publisherOfPrintedVersion,
-        style: Theme.of(context).textTheme.caption,
+        style: Theme.of(context).textTheme.caption?.copyWith(color: Colors.amber),
       ),
     );
   }

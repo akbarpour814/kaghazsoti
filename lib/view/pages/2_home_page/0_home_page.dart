@@ -89,12 +89,14 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
             controller: _smoothPageController,
             itemCount: widget.homePageCategoryData.pathOfSmoothPages.length,
             itemBuilder: (context, index) => Container(
-              // decoration: BoxDecoration(
-              //    image: DecorationImage(
-              //     image: CachedNetworkImageProvider(widget.homePageCategoryData.pathOfSmoothPages[index]),
-              //     fit: BoxFit.cover,
-              //   ),
-              // ),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(
+                    widget.homePageCategoryData.pathOfSmoothPages[index],
+                  ),
+                  fit: BoxFit.cover,
+                ),
+              ),
               width: 100.0.w,
               height: 18.0.h,
             ),

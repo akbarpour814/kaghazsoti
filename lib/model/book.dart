@@ -20,7 +20,8 @@ class Book {
   late String aboutBook;
   late String partOfTheBook;
   late List<String> comments;
-  late String audioPath;
+  late List<String> audioPaths;
+  late String demo;
   late String bookCoverPath;
   late List<Book> otherBooksByThePublisher;
   late List<Book> relatedBooks;
@@ -58,7 +59,8 @@ class Book {
 
     partOfTheBook = 'partOfTheBook';
     comments = [];
-    audioPath = 'audioPath';
+    audioPaths = [];
+    demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}';
     bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
     otherBooksByThePublisher = [];
 

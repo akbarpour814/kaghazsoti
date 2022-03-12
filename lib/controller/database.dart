@@ -10,7 +10,7 @@ import '../model/category.dart';
 import '../model/comment.dart';
 import '../model/user.dart';
 
-Database database = Database();
+late Database database;
 
 class Database {
   late Response<dynamic> httpsResponse;
@@ -24,9 +24,9 @@ class Database {
 
   Database() {
      _initUser();
-     //_initCategories();
-     //_initHomePageCategories();
-     //_initBooks();
+     _initCategories();
+     _initHomePageCategories();
+     _initBooks();
   }
 
 

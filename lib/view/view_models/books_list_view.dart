@@ -68,14 +68,14 @@ class BooksListView extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(5.0),
         ),
-        // image: DecorationImage(
-        //   /*image: NetworkImage(
-        //       books[index].bookCoverPath, headers: const {'Access-Control-Allow-Origin' : '*'},
-        //   ),*/
-        //   image: CachedNetworkImageProvider(books[index].bookCoverPath),
-        //   fit: BoxFit.cover,
-        // ),
-      ),
+        image: DecorationImage(
+          image: NetworkImage(
+            books[index].bookCoverPath,
+          ),
+          fit: BoxFit.cover,
+        ),
+    ),
+
       width: 35.0.w,
       height: 18.0.h,
 

@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/main.dart';
+import 'package:takfood_seller/view/pages/4_profile_page/0_profile_page.dart';
 import 'package:takfood_seller/view/view_models/custom_text_field.dart';
 import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
@@ -23,10 +25,14 @@ class _SearchPageState extends State<SearchPage> {
   late SearchTopic _searchTopic;
   late List<Book> _books;
 
+  late String _search = '';
+
   @override
   void initState() {
     _searchTopic = SearchTopic.name;
-    _books = database.books;
+
+    _books = [];
+    _books.addAll(database.books);
 
     super.initState();
   }
@@ -128,6 +134,7 @@ class _SearchPageState extends State<SearchPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
+        autofocus: true,
         readOnly: false,
         controller: _textEditingController,
         keyboardType: TextInputType.text,
@@ -140,42 +147,55 @@ class _SearchPageState extends State<SearchPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            if(_textEditingController.text == '') {
+            _search = _textEditingController.text;
+
+            print(_search);
+
+            if(_search == '/') {
               _books.clear();
 
-              _books = database.books;
+              _books.addAll(database.books);
             } else {
               switch (_searchTopic) {
                 case SearchTopic.name: {
+                  print(database.books.length);
                   _books.clear();
 
-                  _books.addAll(database.books.where((element) => element.name.contains(_textEditingController.text)));
+                  //print(database.books.first.name.contains(_search));
+                  _books.addAll(database.books.where((element)
+                  {
+
+                    return element.name.contains(_search);
+                  }));
 
                   break;
                 }
                 case SearchTopic.author: {
                   _books.clear();
 
-                  _books.addAll(database.books.where((element) => element.author.contains(_textEditingController.text)));
+                  _books.addAll(database.books.where((element) => element.author.contains(_search)));
 
                   break;
                 }
                 case SearchTopic.publisherOfPrintedVersion: {
                   _books.clear();
 
-                  _books.addAll(database.books.where((element) => element.publisherOfPrintedVersion.contains(_textEditingController.text)));
+                  _books.addAll(database.books.where((element) => element.publisherOfPrintedVersion.contains(_search)));
 
                   break;
                 }
                 case SearchTopic.category: {
                   _books.clear();
 
-                  _books.addAll(database.books.where((element) => element.category.contains(_textEditingController.text)));
+                  _books.addAll(database.books.where((element) => element.category.contains(_search)));
 
                   break;
                 }
               }
             }
+
+            print(_books.length);
+            print(_searchTopic.title);
 
           });
         },
