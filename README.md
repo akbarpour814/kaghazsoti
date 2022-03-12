@@ -1,4 +1,4 @@
-# kaghazsoti
+# takfood_seller
 
 A new Flutter project.
 
