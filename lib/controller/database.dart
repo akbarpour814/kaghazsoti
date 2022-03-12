@@ -11,6 +11,7 @@ import '../model/comment.dart';
 import '../model/user.dart';
 
 late Database database;
+Map<String, String> headers = {'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA', 'Accept': 'application/json', 'client': 'api'};
 
 class Database {
   late Response<dynamic> httpsResponse;
@@ -21,14 +22,12 @@ class Database {
   List<HomePageCategoryData> homePageCategories = [];
   List<Book> books = [];
 
-
   Database() {
-     _initUser();
-     _initCategories();
-     _initHomePageCategories();
-     _initBooks();
+     //_initUser();
+    // _initCategories();
+     //_initHomePageCategories();
+     //_initBooks();
   }
-
 
   void _initUser() async {
     user = User(
@@ -47,7 +46,6 @@ class Database {
       library: [],
     );
 
-    Map<String, String> headers = {'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA', 'Accept': 'application/json', 'client': 'api'};
 
     //initialize cart
 
@@ -140,4 +138,6 @@ class Database {
       books.add(Book.fromJson(customResponse.data));
     }
   }
+
+
 }

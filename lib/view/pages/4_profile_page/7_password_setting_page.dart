@@ -1,9 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:takfood_seller/controller/database.dart';
 import 'package:takfood_seller/main.dart';
 import 'package:takfood_seller/view/view_models/custom_text_field.dart';
 import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../../controller/custom_response.dart';
+import '../../../controller/https.dart';
 
 class PasswordSettingPage extends StatefulWidget {
   const PasswordSettingPage({Key? key}) : super(key: key);
@@ -90,9 +95,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         decoration: const InputDecoration(
           helperText: 'رمز عبور قبلی',
           errorText: false ? '' : null,
-          suffixIcon: Icon(
-              Ionicons.key_outline
-          ),
+          suffixIcon: Icon(Ionicons.key_outline),
         ),
         onChanged: (String text) {},
       ),
@@ -109,9 +112,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         decoration: const InputDecoration(
           helperText: 'رمز عبور جدید',
           errorText: false ? '' : null,
-          suffixIcon: Icon(
-              Ionicons.key
-          ),
+          suffixIcon: Icon(Ionicons.key),
         ),
         onChanged: (String text) {},
       ),
@@ -128,9 +129,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         decoration: const InputDecoration(
           helperText: 'تکرار رمز عبور جدید',
           errorText: false ? '' : null,
-          suffixIcon: Icon(
-              Ionicons.refresh_outline
-          ),
+          suffixIcon: Icon(Ionicons.refresh_outline),
         ),
         onChanged: (String text) {},
       ),
@@ -146,7 +145,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
           child: ElevatedButton.icon(
             onPressed: () {
               setState(() {
-                _newPasswordRegistered = _newPasswordRegistered ? false : true;
+                _newPasswordRegistration();
               });
             },
             label: Text(_newPasswordRegistered
@@ -159,5 +158,23 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         ),
       ),
     );
+  }
+
+  void _newPasswordRegistration() async {
+    Response<dynamic> httpsResponse = await Https.dio.post(
+      'dashboard/user/password',
+      queryParameters: {
+        'old_password': _previousPasswordController.text,
+        'password': _newPasswordController.text,
+        'password_confirmation': _repeatNewPasswordController.text
+      },
+      options: Options(headers: headers),
+    );
+    print(httpsResponse.data);
+    CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+    setState(() {
+      _newPasswordRegistered = customResponse.success;
+    });
   }
 }
