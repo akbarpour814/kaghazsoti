@@ -25,7 +25,7 @@ class _SearchPageState extends State<SearchPage> {
   late SearchTopic _searchTopic;
   late List<Book> _books;
 
-  late String _search = '';
+  late String _searchKey = '';
 
   @override
   void initState() {
@@ -106,9 +106,11 @@ class _SearchPageState extends State<SearchPage> {
                         onTap: () {
                           setState(() {
                             _searchTopic = SearchTopic.values[index];
-                          });
 
-                          Navigator.of(context).pop();
+                            _booksUpdate();
+
+                            Navigator.of(context).pop();
+                          });
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -146,58 +148,7 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
         onChanged: (String text) {
-          setState(() {
-            _search = _textEditingController.text;
-
-            print(_search);
-
-            if(_search == '/') {
-              _books.clear();
-
-              _books.addAll(database.books);
-            } else {
-              switch (_searchTopic) {
-                case SearchTopic.name: {
-                  print(database.books.length);
-                  _books.clear();
-
-                  //print(database.books.first.name.contains(_search));
-                  _books.addAll(database.books.where((element)
-                  {
-
-                    return element.name.contains(_search);
-                  }));
-
-                  break;
-                }
-                case SearchTopic.author: {
-                  _books.clear();
-
-                  _books.addAll(database.books.where((element) => element.author.contains(_search)));
-
-                  break;
-                }
-                case SearchTopic.publisherOfPrintedVersion: {
-                  _books.clear();
-
-                  _books.addAll(database.books.where((element) => element.publisherOfPrintedVersion.contains(_search)));
-
-                  break;
-                }
-                case SearchTopic.category: {
-                  _books.clear();
-
-                  _books.addAll(database.books.where((element) => element.category.contains(_search)));
-
-                  break;
-                }
-              }
-            }
-
-            print(_books.length);
-            print(_searchTopic.title);
-
-          });
+         _booksUpdate();
         },
       ),
     );
@@ -209,11 +160,54 @@ class _SearchPageState extends State<SearchPage> {
         child: Column(
           children: List.generate(
             _books.length,
-            (index) => BookShortIntroduction(book: _books[index]),
+            (index) => BookShortIntroduction(book: _books[index], searchTopic: _searchTopic, searchKey: _searchKey,),
           ),
         ),
       ),
     );
+  }
+
+  void _booksUpdate() {
+    setState(() {
+      _searchKey = _textEditingController.text;
+
+      if(_searchKey == '') {
+        _books.clear();
+
+        _books.addAll(database.books);
+      } else {
+        switch (_searchTopic) {
+          case SearchTopic.name: {
+            _books.clear();
+
+            _books.addAll(database.books.where((element) => element.name.contains(_searchKey)));
+
+            break;
+          }
+          case SearchTopic.author: {
+            _books.clear();
+
+            _books.addAll(database.books.where((element) => element.author.contains(_searchKey)));
+
+            break;
+          }
+          case SearchTopic.publisherOfPrintedVersion: {
+            _books.clear();
+
+            _books.addAll(database.books.where((element) => element.publisherOfPrintedVersion.contains(_searchKey)));
+
+            break;
+          }
+          case SearchTopic.category: {
+            _books.clear();
+
+            _books.addAll(database.books.where((element) => element.category.contains(_searchKey)));
+
+            break;
+          }
+        }
+      }
+    });
   }
 }
 

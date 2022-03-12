@@ -23,10 +23,10 @@ class Database {
   List<Book> books = [];
 
   Database() {
-     //_initUser();
-    // _initCategories();
-     //_initHomePageCategories();
-     //_initBooks();
+    _initUser();
+    _initCategories();
+    _initHomePageCategories();
+    _initBooks();
   }
 
   void _initUser() async {

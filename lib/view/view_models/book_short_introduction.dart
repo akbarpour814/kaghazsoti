@@ -1,16 +1,21 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:takfood_seller/model/book.dart';
 import 'package:takfood_seller/view/view_models/book_introduction_page.dart';
 import 'package:sizer/sizer.dart';
 
+import '../pages/3_search_page/0_search_page.dart';
+
 class BookShortIntroduction extends StatefulWidget {
   late Book book;
+  late SearchTopic? searchTopic;
+  late String? searchKey;
 
   BookShortIntroduction({
     Key? key,
     required this.book,
+    this.searchTopic,
+    this.searchKey,
   }) : super(key: key);
 
   @override
@@ -100,7 +105,30 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
   }
 
   Flexible _bookName() {
+    String _name = widget.book.name;
+    String _searchKey = widget.searchKey ?? '';
+    int start = _name.indexOf(_searchKey);
+    int end = _name.indexOf(_searchKey) + _searchKey.length;
+
     return Flexible(
+      // child: Text.rich(
+      //     TextSpan(
+      //         text: '',
+      //         style: const TextStyle(overflow: TextOverflow.ellipsis),
+      //         children: <InlineSpan>[
+      //           TextSpan(
+      //             text: _name.substring(0, start),
+      //           ),
+      //           TextSpan(
+      //             text: _name.substring(start, end),
+      //             style: const TextStyle(color: Colors.pinkAccent)
+      //           ),
+      //           TextSpan(
+      //             text: _name.substring(end, _name.length - 1),
+      //           ),
+      //         ]
+      //     )
+      // ),
       child: Text(
         widget.book.name,
         style: const TextStyle(overflow: TextOverflow.ellipsis),
@@ -140,7 +168,7 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
     return Flexible(
       child: Text(
         widget.book.publisherOfPrintedVersion,
-        style: Theme.of(context).textTheme.caption?.copyWith(color: Colors.amber),
+        style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
       ),
     );
   }
