@@ -7,6 +7,7 @@ import 'package:takfood_seller/model/HomePageCategoryData.dart';
 
 import '../model/book.dart';
 import '../model/category.dart';
+import '../model/comment.dart';
 import '../model/user.dart';
 
 Database database = Database();
@@ -47,25 +48,36 @@ class Database {
     );
 
     Map<String, String> headers = {'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA', 'Accept': 'application/json', 'client': 'api'};
-    //C = httpsResponse.data;
+
+    //initialize cart
+
+    //initialize purchaseHistory
 
     //initialize markedBooks
-    httpsResponse = await Https.dio.get('dashboard/my_books', options: Options(headers: headers));
+    httpsResponse = await Https.dio.get('dashboard/users/wish', options: Options(headers: headers));
+    customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-
-
-    for(Map<String, dynamic> book in data['data']) {
+    for(Map<String, dynamic> book in customResponse.data['data']) {
       Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      user.library.add(Book.fromJson(customResponse.data));
+      user.markedBooks.add(Book.fromJson(customResponse.data));
     }
+
+    //initialize comments
+    httpsResponse = await Https.dio.get('dashboard/tickets', options: Options(headers: headers));
+    customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+    for(Map<String, dynamic> comment in customResponse.data['data']) {
+      user.comments.add(Comment.fromJson(comment));
+    }
+
 
     //initialize library
     httpsResponse = await Https.dio.get('dashboard/my_books', options: Options(headers: headers));
 
-    data = httpsResponse.data;
+    Map<String, dynamic> data = httpsResponse.data;
 
     for(Map<String, dynamic> book in data['data']) {
       Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');

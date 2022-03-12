@@ -1,19 +1,24 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class Comment {
   late Topic topic;
   late String text;
   late CommentStatus status;
-  late DateTime data;
+  late DateTime date;
   late String response;
 
-  Comment({
-    required this.topic,
-    required this.text,
-    required this.status,
-    required this.data,
-    required this.response,
-  });
+
+  Comment.fromJson(Map<String, dynamic> json) {
+    int findTopic = TopicExtension.topics.values.toList().indexWhere((element) => element == json['title']);
+
+    topic = TopicExtension.topics.keys.elementAt(findTopic > -1 ? findTopic : TopicExtension.topics.length - 1);
+    text = json['body'];
+    status = CommentStatus.answered;
+    date = DateTime.now();
+    response = '';
+  }
 }
 
 

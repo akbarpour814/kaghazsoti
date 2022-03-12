@@ -184,7 +184,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                         child: Column(
                           children: [
                             Property(property: 'موضوع', value: database.user.comments[index].topic.title!, valueInTheEnd: false, lastProperty: false),
-                            Property(property: 'تاریخ ارسال', value: database.user.comments[index].data.format(), valueInTheEnd: false, lastProperty: false),
+                            Property(property: 'تاریخ ارسال', value: database.user.comments[index].date.format(), valueInTheEnd: false, lastProperty: false),
                             Padding(
                               padding: const EdgeInsets.only(
                                 left: 0.0,
