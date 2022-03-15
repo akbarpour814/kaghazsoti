@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:takfood_seller/main.dart';
 import 'package:takfood_seller/view/pages/login_pages/splash_page.dart';
 import 'package:takfood_seller/view/pages/4_profile_page/10_about_us_page.dart';
@@ -15,6 +16,7 @@ import 'package:takfood_seller/view/pages/4_profile_page/8_frequently_asked_ques
 import 'package:takfood_seller/view/view_models/category_name.dart';
 import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
 
+import '../login_pages/login_page.dart';
 import '9_contact_us_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -191,13 +193,7 @@ class _ProfilePageState extends State<ProfilePage> {
       onTap: () async {
         await sharedPreferences.setBool('logOut', true);
 
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              return const SplashPage();
-            },
-          ),
-        );
+        Restart.restartApp();
       },
       child: const Card(
         color: Colors.transparent,

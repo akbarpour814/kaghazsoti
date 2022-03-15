@@ -1,27 +1,14 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:takfood_seller/controller/database.dart';
-import 'package:takfood_seller/model/comment.dart';
-import 'package:takfood_seller/model/purchase.dart';
-import 'package:takfood_seller/test.dart';
-import 'package:takfood_seller/view/pages/login_pages/splash_page.dart';
-import 'package:takfood_seller/view/pages/login_pages/login_page.dart';
-import 'package:takfood_seller/view/view_models/audiobook_player_page.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:shared_value/shared_value.dart';
+import '../1_category_page/2_books_page.dart';
+import '/controller/database.dart';
 
 import 'package:sizer/sizer.dart';
 
-
-import '../../../model/HomePageCategoryData.dart';
-import '../../../model/book.dart';
-import '../../view_models/books_list_view.dart';
-import '../../view_models/player_bottom_navigation_bar.dart';
-import '../1_category_page/2_books_page.dart';
+import '/model/HomePageCategoryData.dart';
+import '/model/book.dart';
+import '/view/view_models/books_list_view.dart';
+import '/view/view_models/player_bottom_navigation_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

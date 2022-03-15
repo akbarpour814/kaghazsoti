@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:takfood_seller/controller/database.dart';
-import 'package:takfood_seller/view/pages/1_category_page/1_subcategories_page.dart';
-import 'package:takfood_seller/view/view_models/category_name.dart';
-import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
+import '/controller/database.dart';
+import '/view/pages/1_category_page/1_subcategories_page.dart';
+import '/view/view_models/category_name.dart';
+import '/view/view_models/player_bottom_navigation_bar.dart';
 
 class CategoryPage extends StatefulWidget {
   const CategoryPage({Key? key}) : super(key: key);

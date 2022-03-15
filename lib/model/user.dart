@@ -1,7 +1,5 @@
-import 'package:flutter/cupertino.dart';
-import 'package:takfood_seller/main.dart';
-import 'package:takfood_seller/model/comment.dart';
-import 'package:takfood_seller/model/purchase.dart';
+import '/model/comment.dart';
+import '/model/purchase.dart';
 
 import 'book.dart';
 

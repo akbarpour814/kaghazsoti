@@ -1,4 +1,4 @@
-import 'dart:math';
+import '/controller/database.dart';
 
 class Book {
   late int id;
@@ -28,7 +28,7 @@ class Book {
   late List<Book> otherBooksByThePublisher;
   late List<Book> relatedBooks;
 
-  Book.fromJson({required Map<String, dynamic> book, required bool existingInUserMarkedBooks, required List<Book> userMarkedBooks}) {
+  Book.fromJson({required Map<String, dynamic> book, required bool existingInUserMarkedBooks}) {
     Map<String, dynamic> product = book['product'];
 
     id = product['id'] ?? -1;
@@ -53,7 +53,7 @@ class Book {
 
     price = product['price'] ?? 'price';
 
-    marked = existingInUserMarkedBooks ? true : mark(id, userMarkedBooks);
+    marked = existingInUserMarkedBooks ? true : mark(id, database.user.markedBooks);
     numberOfVotes = 0;
     numberOfStars = 0;
 
@@ -61,14 +61,14 @@ class Book {
 
     partOfTheBook = 'partOfTheBook';
     comments = [];
-    audioPaths = List<String>.generate(Random().nextInt(20), (index) => 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}');
+    audioPaths = List<String>.generate(2, (index) => 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}');
     demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}';
     bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
     otherBooksByThePublisher = [];
 
-    //test shavad
-    //List similar = customResponse.data['similar'];
-    relatedBooks = []/*List<Book>.generate(similar.length, (index) => Book(slug: similar[index]['slug']))*/;
+    //List similar = book['similar'];
+    //print(similar.length);
+    relatedBooks = []/*List<Book>.generate(similar.length, (index) => Book.fromJson(book: similar[index], existingInUserMarkedBooks: false))*/;
   }
 
   bool mark(int id, List<Book> userMarkedBooks) {

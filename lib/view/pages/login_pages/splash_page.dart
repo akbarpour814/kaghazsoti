@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../controller/database.dart';
 import 'login_page.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +20,8 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   void initState() {
+    database = Database();
+
     _loginStep();
 
     super.initState();
@@ -27,7 +30,7 @@ class _SplashPageState extends State<SplashPage> {
   void _loginStep() async {
     sharedPreferences = await SharedPreferences.getInstance();
 
-    _firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
+    _firstLogin = sharedPreferences.getBool('firstLogin') ?? false;
 
     if (_firstLogin) {
       _firstPage = const SafeArea(child: LoginPage());
@@ -39,21 +42,24 @@ class _SplashPageState extends State<SplashPage> {
           screens: pages,
           items: items,
           navBarStyle: NavBarStyle.style18,
+          backgroundColor: Theme.of(context).backgroundColor,
         ),
       );
     }
 
-    Future.delayed(
-      const Duration(seconds: 6),
-      () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => (_firstPage),
-          ),
-        );
-      },
-    );
+    if(database.downloadDone) {
+      Future.delayed(
+        const Duration(seconds: 6),
+            () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => (_firstPage),
+            ),
+          );
+        },
+      );
+    }
   }
 
   @override
@@ -63,7 +69,7 @@ class _SplashPageState extends State<SplashPage> {
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 20.0.h),
+            padding: EdgeInsets.symmetric(vertical: 5.0.h),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -76,10 +82,13 @@ class _SplashPageState extends State<SplashPage> {
                     _appSlogan(),
                   ],
                 ),
-                SizedBox(
-                  height: 20.0.h,
-                ),
                 _websiteAddress(),
+                Row(
+                  children: [
+                    CircularProgressIndicator(color: Theme.of(context).primaryColor,),
+                    Text('لطفاً شکیبا باشید.'),
+                  ],
+                ),
               ],
             ),
           ),

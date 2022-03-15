@@ -1,15 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:takfood_seller/main.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/0_profile_page.dart';
-import 'package:takfood_seller/view/view_models/custom_text_field.dart';
-import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
+import '/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../controller/database.dart';
-import '../../../model/book.dart';
-import '../../view_models/book_short_introduction.dart';
+import '/controller/database.dart';
+import '/model/book.dart';
+import '/view/view_models/book_short_introduction.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({
@@ -154,16 +150,25 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Expanded _searchResults() {
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: List.generate(
-            _books.length,
-            (index) => BookShortIntroduction(book: _books[index], searchTopic: _searchTopic, searchKey: _searchKey,),
+    if(_books.isEmpty) {
+      return Expanded(
+        child: Center(
+          child: Text('کتابی با ${_searchTopic.title} «${_searchKey}» یافت نشد.'),
+
+        ),
+      );
+    } else {
+      return Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            children: List.generate(
+              _books.length,
+                  (index) => BookShortIntroduction(book: _books[index], searchTopic: _searchTopic, searchKey: _searchKey,),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   void _booksUpdate() {

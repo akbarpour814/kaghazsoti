@@ -18,17 +18,21 @@ class PasswordSettingPage extends StatefulWidget {
 }
 
 class _PasswordSettingPageState extends State<PasswordSettingPage> {
-  final TextEditingController _previousPasswordController =
-      TextEditingController();
-  final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _repeatNewPasswordController =
-      TextEditingController();
+  TextEditingController _previousPasswordController = TextEditingController();
+  TextEditingController _newPasswordController = TextEditingController();
+  TextEditingController _repeatNewPasswordController = TextEditingController();
 
   late bool _newPasswordRegistered;
+  late bool _obscureText;
+
+  String? _previousPasswordError;
+  String? _newPasswordError;
+  String? _repeatNewPasswordError;
 
   @override
   void initState() {
     _newPasswordRegistered = false;
+    _obscureText = true;
 
     super.initState();
   }
@@ -74,6 +78,10 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Padding(
+                padding: EdgeInsets.only(bottom: 5.0.h),
+                child: _permissionToObscureText(),
+              ),
               _previousPassword(),
               _newPassword(),
               _repeatNewPassword(),
@@ -85,19 +93,57 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
     );
   }
 
+  Row _permissionToObscureText() {
+    return Row(
+      children: [
+        Flexible(
+          child: Checkbox(
+            onChanged: (bool? value) {
+              setState(() {
+                _obscureText = _obscureText ? false : true;
+              });
+            },
+            value: _obscureText,
+            activeColor: _obscureText
+                ? Theme.of(context).primaryColor
+                : Colors.grey,
+          ),
+        ),
+        Flexible(
+          child: RichText(
+            text: TextSpan(
+              text: _obscureText ? 'عدم نمایش رمز' : 'نمایش رمز',
+              style: TextStyle(
+                color: _obscureText
+                    ? Theme.of(context).primaryColor
+                    : Colors.grey,
+                fontFamily: 'Vazir',
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Padding _previousPassword() {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
         readOnly: false,
+        obscureText: _obscureText,
         controller: _previousPasswordController,
         keyboardType: TextInputType.visiblePassword,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           helperText: 'رمز عبور قبلی',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(Ionicons.key_outline),
+          errorText: _previousPasswordError,
+          suffixIcon: const Icon(Ionicons.key_outline),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _previousPasswordError = _checkPasswordFormat(_previousPasswordController);
+          });
+        },
       ),
     );
   }
@@ -107,14 +153,19 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
         readOnly: false,
+        obscureText: _obscureText,
         controller: _newPasswordController,
         keyboardType: TextInputType.visiblePassword,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           helperText: 'رمز عبور جدید',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(Ionicons.key),
+          errorText: _newPasswordError,
+          suffixIcon: const Icon(Ionicons.key),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _newPasswordError = _checkPasswordFormat(_newPasswordController);
+          });
+        },
       ),
     );
   }
@@ -124,14 +175,19 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
         readOnly: false,
+        obscureText: _obscureText,
         controller: _repeatNewPasswordController,
         keyboardType: TextInputType.visiblePassword,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           helperText: 'تکرار رمز عبور جدید',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(Ionicons.refresh_outline),
+          errorText: _repeatNewPasswordError,
+          suffixIcon: const Icon(Ionicons.refresh_outline),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _repeatNewPasswordError = _checkPasswordFormat(_repeatNewPasswordController);
+          });
+        },
       ),
     );
   }
@@ -145,7 +201,11 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
           child: ElevatedButton.icon(
             onPressed: () {
               setState(() {
-                _newPasswordRegistration();
+                if(_newPasswordController.text != _repeatNewPasswordController.text) {
+                  _repeatNewPasswordError = 'لطفاً رمز عبور جدید را تکرار کنید.';
+                } else {
+                  _newPasswordRegistration();
+                }
               });
             },
             label: Text(_newPasswordRegistered
@@ -170,11 +230,35 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
       },
       options: Options(headers: headers),
     );
-    print(httpsResponse.data);
+
+    print(1);
     CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+    print(customResponse.message);
+
 
     setState(() {
-      _newPasswordRegistered = customResponse.success;
+      // if() {
+      //
+      // } else {
+      //   _newPasswordRegistered = customResponse.success;
+      //
+      //   _previousPasswordController = TextEditingController();
+      //   _newPasswordController = TextEditingController();
+      //   _repeatNewPasswordController = TextEditingController();
+      // }
     });
+  }
+
+  String? _checkPasswordFormat(TextEditingController textEditingController) {
+    String? _errorText;
+    if((textEditingController.text.isEmpty) || (textEditingController.text.length == 9)) {
+      _errorText = null;
+    } else if(textEditingController.text.length < 10) {
+      _errorText = 'رمز عبور نباید کمتر از 9 کاراکتر باشد.';
+    } else if(textEditingController.text.contains(' ')) {
+      _errorText = 'رمز عبور نباید شامل جای خالی باشد.';
+    }
+
+    return _errorText;
   }
 }

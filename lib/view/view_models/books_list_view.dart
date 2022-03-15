@@ -85,10 +85,14 @@ class BooksListView extends StatelessWidget {
   Expanded _bookName(int index) {
     return Expanded(
       child: Center(
-        child: Text(
-          books[index].name,
-          maxLines: 1,
-          textAlign: TextAlign.center,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            books[index].name,
+            maxLines: 1,
+            textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+          ),
         ),
       ),
     );

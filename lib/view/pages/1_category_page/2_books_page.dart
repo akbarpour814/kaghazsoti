@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:takfood_seller/main.dart';
-import 'package:takfood_seller/model/book.dart';
-import 'package:takfood_seller/model/category.dart';
-import 'package:takfood_seller/view/view_models/book_short_introduction.dart';
-import 'package:takfood_seller/view/view_models/category_name.dart';
-import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
+import '/model/book.dart';
+import '/view/view_models/book_short_introduction.dart';
+import '/view/view_models/player_bottom_navigation_bar.dart';
 
 class BooksPage extends StatefulWidget {
   late String title;

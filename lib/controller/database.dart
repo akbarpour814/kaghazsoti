@@ -1,14 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:takfood_seller/controller/custom_response.dart';
-import 'package:takfood_seller/controller/https.dart';
-import 'package:takfood_seller/model/HomePageCategoryData.dart';
+import '/controller/custom_response.dart';
+import '/controller/https.dart';
+import '/model/HomePageCategoryData.dart';
 
-import '../model/book.dart';
-import '../model/category.dart';
-import '../model/comment.dart';
-import '../model/user.dart';
+import '/model/book.dart';
+import '/model/category.dart';
+import '/model/comment.dart';
+import '/model/user.dart';
 
 late Database database;
 Map<String, String> headers = {'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA', 'Accept': 'application/json', 'client': 'api'};
@@ -22,11 +22,15 @@ class Database {
   List<HomePageCategoryData> homePageCategories = [];
   List<Book> books = [];
 
+  bool downloadDone = false;
+
   Database() {
     _initUser();
-    //_initCategories();
-    //_initHomePageCategories();
+    _initCategories();
+    _initHomePageCategories();
     _initBooks();
+
+    downloadDone = true;
   }
 
   void _initUser() async {
@@ -60,7 +64,7 @@ class Database {
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      user.markedBooks.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: true, userMarkedBooks: user.markedBooks));
+      user.markedBooks.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: true,));
     }
 
     //initialize comments
@@ -82,7 +86,7 @@ class Database {
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      user.library.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false, userMarkedBooks: user.markedBooks));
+      user.library.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false,));
     }
   }
 
@@ -135,7 +139,7 @@ class Database {
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false, userMarkedBooks: user.markedBooks));
+      books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false,));
     }
   }
 
