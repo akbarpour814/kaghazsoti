@@ -134,6 +134,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
     return Flexible(
       child: Container(
         decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).primaryColor),
           image: DecorationImage(
             image: NetworkImage(
               audiobookInPlay.bookCoverPath,
