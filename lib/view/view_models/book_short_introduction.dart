@@ -88,6 +88,7 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
   Container _bookCover() {
     return Container(
       decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).primaryColor),
         image: DecorationImage(
           image: CachedNetworkImageProvider(
             widget.book.bookCoverPath,

@@ -133,6 +133,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       children: [
         Container(
           decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).primaryColor),
             image: DecorationImage(
               image: NetworkImage(
                 widget.book.bookCoverPath,
