@@ -110,30 +110,35 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
     int start = _name.indexOf(_searchKey);
     int end = _name.indexOf(_searchKey) + _searchKey.length;
 
-    return Flexible(
-      // child: Text.rich(
-      //     TextSpan(
-      //         text: '',
-      //         style: const TextStyle(overflow: TextOverflow.ellipsis),
-      //         children: <InlineSpan>[
-      //           TextSpan(
-      //             text: _name.substring(0, start),
-      //           ),
-      //           TextSpan(
-      //             text: _name.substring(start, end),
-      //             style: const TextStyle(color: Colors.pinkAccent)
-      //           ),
-      //           TextSpan(
-      //             text: _name.substring(end, _name.length - 1),
-      //           ),
-      //         ]
-      //     )
-      // ),
-      child: Text(
-        widget.book.name,
-        style: const TextStyle(overflow: TextOverflow.ellipsis),
-      ),
-    );
+    if(widget.searchTopic == SearchTopic.name) {
+      return Flexible(
+        child: Text.rich(
+          TextSpan(
+              text: '',
+              children: <InlineSpan>[
+                TextSpan(
+                  text: _name.substring(0, start),
+                ),
+                TextSpan(
+                    text: _name.substring(start, end),
+                    style: const TextStyle(color: Colors.pinkAccent)
+                ),
+                TextSpan(
+                  text: _name.substring(end, _name.length),
+                ),
+              ]
+          ),
+          overflow: _searchKey.isEmpty ? TextOverflow.ellipsis : TextOverflow.visible,
+        ),
+      );
+    } else {
+      return Flexible(
+        child: Text(
+            widget.book.name,
+            style: const TextStyle(overflow: TextOverflow.ellipsis),
+        ),
+      );
+    }
   }
 
   Flexible _numberOfVotes(BuildContext context) {
@@ -146,12 +151,41 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
   }
 
   Flexible _author(BuildContext context) {
-    return Flexible(
-      child: Text(
-        widget.book.author,
-        style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
-      ),
-    );
+    String _author = widget.book.author;
+    String _searchKey = widget.searchKey ?? '';
+    int start = _author.indexOf(_searchKey);
+    int end = _author.indexOf(_searchKey) + _searchKey.length;
+
+    if(widget.searchTopic == SearchTopic.author) {
+      return Flexible(
+        child: Text.rich(
+          TextSpan(
+              text: '',
+              children: <InlineSpan>[
+                TextSpan(
+                  text: _author.substring(0, start),
+                ),
+                TextSpan(
+                    text: _author.substring(start, end),
+                    style: const TextStyle(color: Colors.pinkAccent)
+                ),
+                TextSpan(
+                  text: _author.substring(end, _author.length),
+                ),
+              ]
+          ),
+          style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
+          overflow: _searchKey.isEmpty ? TextOverflow.ellipsis : TextOverflow.visible,
+        ),
+      );
+    } else {
+      return Flexible(
+        child: Text(
+          widget.book.author,
+          style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
+        ),
+      );
+    }
   }
 
   Flexible _numberOfStars(BuildContext context) {
@@ -165,12 +199,41 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
   }
 
   Flexible _publisherOfPrintedVersion(BuildContext context) {
-    return Flexible(
-      child: Text(
-        widget.book.publisherOfPrintedVersion,
-        style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
-      ),
-    );
+    String _publisherOfPrintedVersion = widget.book.publisherOfPrintedVersion;
+    String _searchKey = widget.searchKey ?? '';
+    int start = _publisherOfPrintedVersion.indexOf(_searchKey);
+    int end = _publisherOfPrintedVersion.indexOf(_searchKey) + _searchKey.length;
+
+    if(widget.searchTopic == SearchTopic.publisherOfPrintedVersion) {
+      return Flexible(
+        child: Text.rich(
+          TextSpan(
+              text: '',
+              children: <InlineSpan>[
+                TextSpan(
+                  text: _publisherOfPrintedVersion.substring(0, start),
+                ),
+                TextSpan(
+                    text: _publisherOfPrintedVersion.substring(start, end),
+                    style: const TextStyle(color: Colors.pinkAccent)
+                ),
+                TextSpan(
+                  text: _publisherOfPrintedVersion.substring(end, _publisherOfPrintedVersion.length),
+                ),
+              ]
+          ),
+          style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
+          overflow: _searchKey.isEmpty ? TextOverflow.ellipsis : TextOverflow.visible,
+        ),
+      );
+    } else {
+      return Flexible(
+        child: Text(
+          widget.book.publisherOfPrintedVersion,
+          style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
+        ),
+      );
+    }
   }
 
   Flexible _price(BuildContext context) {

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Book {
   late int id;
   late String name;
@@ -59,7 +61,7 @@ class Book {
 
     partOfTheBook = 'partOfTheBook';
     comments = [];
-    audioPaths = [];
+    audioPaths = List<String>.generate(Random().nextInt(20), (index) => 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}');
     demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}';
     bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
     otherBooksByThePublisher = [];

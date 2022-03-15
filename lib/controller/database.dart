@@ -24,8 +24,8 @@ class Database {
 
   Database() {
     _initUser();
-    _initCategories();
-    _initHomePageCategories();
+    //_initCategories();
+    //_initHomePageCategories();
     _initBooks();
   }
 

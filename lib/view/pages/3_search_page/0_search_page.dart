@@ -197,13 +197,6 @@ class _SearchPageState extends State<SearchPage> {
 
             break;
           }
-          case SearchTopic.category: {
-            _books.clear();
-
-            _books.addAll(database.books.where((element) => element.category.contains(_searchKey)));
-
-            break;
-          }
         }
       }
     });
@@ -214,7 +207,6 @@ enum SearchTopic {
   name,
   author,
   publisherOfPrintedVersion,
-  category,
 }
 
 extension SearchTopicExtension on SearchTopic {
@@ -222,7 +214,6 @@ extension SearchTopicExtension on SearchTopic {
     SearchTopic.name: 'نام کتاب',
     SearchTopic.author: 'نام نویسنده',
     SearchTopic.publisherOfPrintedVersion: 'نام ناشر',
-    SearchTopic.category: 'نام دسته بندی',
   };
 
   String? get title => searchTopics[this];
