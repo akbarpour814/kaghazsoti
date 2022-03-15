@@ -71,16 +71,28 @@ class MyBook extends StatefulWidget {
 class _MyBookState extends State<MyBook> {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.transparent,
-      elevation: 0.0,
-      shape: Theme.of(context).cardTheme.shape,
-      child: Row(
-        children: [
-          _bookCover(),
-          _bookShortInformation(),
-          _navigatorButtons(context),
-        ],
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) {
+              return BookIntroductionPage(
+                book: widget.book,
+              );
+            },
+          ),
+        );
+      },
+      child: Card(
+        color: Colors.transparent,
+        elevation: 0.0,
+        shape: Theme.of(context).cardTheme.shape,
+        child: Row(
+          children: [
+            _bookCover(),
+            _bookShortInformation(),
+          ],
+        ),
       ),
     );
   }
@@ -90,6 +102,7 @@ class _MyBookState extends State<MyBook> {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).primaryColor),
           image: DecorationImage(
             image: NetworkImage(
               widget.book.bookCoverPath,
@@ -120,7 +133,7 @@ class _MyBookState extends State<MyBook> {
     );
   }
 
-  SizedBox _navigatorButtons(BuildContext context) {
+  /*SizedBox _navigatorButtons(BuildContext context) {
     return SizedBox(
       height: 13.0.h,
       width: 15.0.w,
@@ -177,5 +190,5 @@ class _MyBookState extends State<MyBook> {
         },
       ),
     );
-  }
+  }*/
 }
