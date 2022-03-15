@@ -26,7 +26,7 @@ class Book {
   late List<Book> otherBooksByThePublisher;
   late List<Book> relatedBooks;
 
-  Book.fromJson(Map<String, dynamic> book) {
+  Book.fromJson({required Map<String, dynamic> book, required bool existingInUserMarkedBooks, required List<Book> userMarkedBooks}) {
     Map<String, dynamic> product = book['product'];
 
     id = product['id'] ?? -1;
@@ -51,7 +51,7 @@ class Book {
 
     price = product['price'] ?? 'price';
 
-    marked = true;
+    marked = existingInUserMarkedBooks ? true : mark(id, userMarkedBooks);
     numberOfVotes = 0;
     numberOfStars = 0;
 
@@ -67,5 +67,11 @@ class Book {
     //test shavad
     //List similar = customResponse.data['similar'];
     relatedBooks = []/*List<Book>.generate(similar.length, (index) => Book(slug: similar[index]['slug']))*/;
+  }
+
+  bool mark(int id, List<Book> userMarkedBooks) {
+    int index = userMarkedBooks.indexWhere((element) => element.id == id);
+
+    return index >= 0 ? true : false;
   }
 }

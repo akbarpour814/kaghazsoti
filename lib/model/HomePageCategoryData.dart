@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../controller/custom_response.dart';
+import '../controller/database.dart';
 import '../controller/https.dart';
 import 'book.dart';
 
@@ -24,7 +25,7 @@ class HomePageCategoryData {
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      latestBooks.add(Book.fromJson(customResponse.data));
+      latestBooks.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false, userMarkedBooks: database.user.markedBooks));
     }
   }
 
@@ -34,7 +35,7 @@ class HomePageCategoryData {
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      bestSellingBooks.add(Book.fromJson(customResponse.data));
+      bestSellingBooks.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false, userMarkedBooks: database.user.markedBooks));
     }
   }
 }

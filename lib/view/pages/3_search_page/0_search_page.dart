@@ -136,7 +136,6 @@ class _SearchPageState extends State<SearchPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        autofocus: true,
         readOnly: false,
         controller: _textEditingController,
         keyboardType: TextInputType.text,

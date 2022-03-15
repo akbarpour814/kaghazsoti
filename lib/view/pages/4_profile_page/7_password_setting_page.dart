@@ -163,7 +163,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
   void _newPasswordRegistration() async {
     Response<dynamic> httpsResponse = await Https.dio.post(
       'dashboard/user/password',
-      queryParameters: {
+      data: {
         'old_password': _previousPasswordController.text,
         'password': _newPasswordController.text,
         'password_confirmation': _repeatNewPasswordController.text

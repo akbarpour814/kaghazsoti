@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/main.dart';
@@ -9,7 +10,9 @@ import 'package:takfood_seller/view/view_models/books_list_view.dart';
 import 'package:takfood_seller/view/view_models/property.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../controller/custom_response.dart';
 import '../../controller/database.dart';
+import '../../controller/https.dart';
 import 'player_bottom_navigation_bar.dart';
 
 class BookIntroductionPage extends StatefulWidget {
@@ -67,12 +70,16 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         ),
         onTap: () {
           setState(() {
-            widget.book.marked = widget.book.marked ? false : true;
+            int index = database.user.markedBooks.indexWhere((element) => element.id == widget.book.id);
 
-            if (widget.book.marked) {
-              database.user.markedBooks.add(widget.book);
+            if(index >= 0) {
+              widget.book.marked = false;
+
+              database.user.markedBooks.removeAt(index);
             } else {
-              database.user.markedBooks.remove(widget.book);
+              widget.book.marked = true;
+
+              database.user.markedBooks.add(widget.book);
             }
           });
         },
@@ -91,6 +98,10 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         ),
       ],
     );
+  }
+
+  void mark(int id) async {
+    await Https.dio.post('dashboard/users/wish', data: {'book_id': id}, options: Options(headers: headers));
   }
 
   SingleChildScrollView _body() {

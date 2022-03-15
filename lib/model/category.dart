@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:takfood_seller/controller/database.dart';
 
 import '../controller/custom_response.dart';
 import '../controller/https.dart';
@@ -45,7 +46,7 @@ class Subcategory {
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      books.add(Book.fromJson(customResponse.data));
+      books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false, userMarkedBooks: database.user.markedBooks));
     }
   }
 }

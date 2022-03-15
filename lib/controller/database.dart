@@ -60,7 +60,7 @@ class Database {
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      user.markedBooks.add(Book.fromJson(customResponse.data));
+      user.markedBooks.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: true, userMarkedBooks: user.markedBooks));
     }
 
     //initialize comments
@@ -82,7 +82,7 @@ class Database {
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      user.library.add(Book.fromJson(customResponse.data));
+      user.library.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false, userMarkedBooks: user.markedBooks));
     }
   }
 
@@ -135,8 +135,14 @@ class Database {
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      books.add(Book.fromJson(customResponse.data));
+      books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false, userMarkedBooks: user.markedBooks));
     }
+  }
+
+  bool mark(int id) {
+    int index = user.markedBooks.indexWhere((element) => element.id == id);
+
+    return index >= 0 ? true : false;
   }
 
 
