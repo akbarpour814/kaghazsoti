@@ -26,9 +26,9 @@ class Database {
 
   Database() {
     _initUser();
-    _initCategories();
+    //_initCategories();
     _initHomePageCategories();
-    _initBooks();
+    //_initBooks();
 
     downloadDone = true;
   }
@@ -100,7 +100,7 @@ class Database {
       'نامه صوتی': Ionicons.mail_open_outline,
       'کتاب الکترونیکی': Ionicons.laptop_outline,
       'پادکست': Ionicons.volume_medium_outline,
-      'کودک و نوجوان': Ionicons.happy_outline,
+      'کتاب کودک و نوجوان': Ionicons.happy_outline,
     };
 
     for(Map<String, dynamic> category in customResponse.data) {

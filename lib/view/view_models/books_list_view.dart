@@ -36,28 +36,24 @@ class BooksListView extends StatelessWidget {
                   ),
                 );
               },
-              child: Shimmer.fromColors(
-                baseColor: Colors.grey.shade300,
-                highlightColor: Colors.grey.shade100,
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).primaryColor),
-                    borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                  ),
-                  width: 35.0.w,
-                  height: 22.0.h,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      _bookCover(index),
-                      Divider(
-                        height: 0.0,
-                        thickness: 1.0,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      _bookName(index),
-                    ],
-                  ),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).primaryColor),
+                  borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                ),
+                width: 35.0.w,
+                height: 22.0.h,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _bookCover(index),
+                    Divider(
+                      height: 0.0,
+                      thickness: 1.0,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    _bookName(index),
+                  ],
                 ),
               ),
             ),

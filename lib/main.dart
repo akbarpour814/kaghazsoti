@@ -234,6 +234,7 @@ class _LoginPagesState extends State<LoginPages> {
         items: items,
         navBarStyle: NavBarStyle.style18,
         backgroundColor: Theme.of(context).backgroundColor,
+        resizeToAvoidBottomInset: true,
       ),
     );
 

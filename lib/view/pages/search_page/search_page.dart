@@ -146,7 +146,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Expanded _searchResults() {
-    if (_books.isEmpty) {
+    if ((_books.isEmpty) && (_searchKey != '')) {
       return Expanded(
         child: Center(
           child:

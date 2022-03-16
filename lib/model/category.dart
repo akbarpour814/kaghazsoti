@@ -40,7 +40,7 @@ class Subcategory {
   }
 
   void _initBooks(Map<String, dynamic> json) async {
-    for(Map<String, dynamic> book in json['new']) {
+    for(Map<String, dynamic> book in json['children']) {
       Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
