@@ -1,10 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:takfood_seller/model/book.dart';
-import 'package:takfood_seller/view/view_models/book_introduction_page.dart';
+import '../pages/search_page/search_page.dart';
+import '/model/book.dart';
+import '/view/view_models/book_introduction_page.dart';
 import 'package:sizer/sizer.dart';
 
-import '../pages/3_search_page/0_search_page.dart';
 
 class BookShortIntroduction extends StatefulWidget {
   late Book book;

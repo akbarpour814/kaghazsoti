@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
 
 import '/controller/database.dart';
 import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
+import '/view/view_models/player_bottom_navigation_bar.dart';
 
 class SearchPage extends StatefulWidget {
-  const SearchPage({
-    Key? key
-  }) : super(key: key);
+  const SearchPage({Key? key}) : super(key: key);
 
   @override
   _SearchPageState createState() => _SearchPageState();
@@ -138,23 +136,21 @@ class _SearchPageState extends State<SearchPage> {
         decoration: InputDecoration(
           helperText: '${_searchTopic.title} مورد نظر',
           errorText: false ? '' : null,
-          suffixIcon: const Icon(
-              Ionicons.search_outline
-          ),
+          suffixIcon: const Icon(Ionicons.search_outline),
         ),
         onChanged: (String text) {
-         _booksUpdate();
+          _booksUpdate();
         },
       ),
     );
   }
 
   Expanded _searchResults() {
-    if(_books.isEmpty) {
+    if (_books.isEmpty) {
       return Expanded(
         child: Center(
-          child: Text('کتابی با ${_searchTopic.title} «${_searchKey}» یافت نشد.'),
-
+          child:
+              Text('کتابی با ${_searchTopic.title} «${_searchKey}» یافت نشد.'),
         ),
       );
     } else {
@@ -163,7 +159,11 @@ class _SearchPageState extends State<SearchPage> {
           child: Column(
             children: List.generate(
               _books.length,
-                  (index) => BookShortIntroduction(book: _books[index], searchTopic: _searchTopic, searchKey: _searchKey,),
+              (index) => BookShortIntroduction(
+                book: _books[index],
+                searchTopic: _searchTopic,
+                searchKey: _searchKey,
+              ),
             ),
           ),
         ),
@@ -175,33 +175,39 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {
       _searchKey = _textEditingController.text;
 
-      if(_searchKey == '') {
+      if (_searchKey == '') {
         _books.clear();
 
         _books.addAll(database.books);
       } else {
         switch (_searchTopic) {
-          case SearchTopic.name: {
-            _books.clear();
+          case SearchTopic.name:
+            {
+              _books.clear();
 
-            _books.addAll(database.books.where((element) => element.name.contains(_searchKey)));
+              _books.addAll(database.books
+                  .where((element) => element.name.contains(_searchKey)));
 
-            break;
-          }
-          case SearchTopic.author: {
-            _books.clear();
+              break;
+            }
+          case SearchTopic.author:
+            {
+              _books.clear();
 
-            _books.addAll(database.books.where((element) => element.author.contains(_searchKey)));
+              _books.addAll(database.books
+                  .where((element) => element.author.contains(_searchKey)));
 
-            break;
-          }
-          case SearchTopic.publisherOfPrintedVersion: {
-            _books.clear();
+              break;
+            }
+          case SearchTopic.publisherOfPrintedVersion:
+            {
+              _books.clear();
 
-            _books.addAll(database.books.where((element) => element.publisherOfPrintedVersion.contains(_searchKey)));
+              _books.addAll(database.books.where((element) =>
+                  element.publisherOfPrintedVersion.contains(_searchKey)));
 
-            break;
-          }
+              break;
+            }
         }
       }
     });

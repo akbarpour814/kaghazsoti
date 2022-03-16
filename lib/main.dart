@@ -10,11 +10,11 @@ import 'package:shared_value/shared_value.dart';
 import 'package:sizer/sizer.dart';
 
 import 'model/book.dart';
-import 'view/pages/library_page/0_library_page.dart';
-import 'view/pages/1_category_page/0_category_page.dart';
-import 'view/pages/2_home_page/0_home_page.dart';
-import 'view/pages/3_search_page/0_search_page.dart';
-import 'view/pages/4_profile_page/0_profile_page.dart';
+import 'view/pages/library_page/library_page.dart';
+import 'view/pages/category_page/category_page.dart';
+import 'view/pages/home_page/home_page.dart';
+import 'view/pages/search_page/search_page.dart';
+import 'view/pages/profile_page/profile_page.dart';
 
 
 final SharedValue<bool> audioIsPlaying = SharedValue(value: false);

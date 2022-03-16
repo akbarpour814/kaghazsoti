@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../1_category_page/2_books_page.dart';
+import '../category_page/books_page.dart';
 import '/controller/database.dart';
 
 import 'package:sizer/sizer.dart';

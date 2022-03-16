@@ -1,23 +1,20 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:restart_app/restart_app.dart';
-import 'package:takfood_seller/main.dart';
-import 'package:takfood_seller/view/pages/login_pages/splash_page.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/10_about_us_page.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/1_account_page.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/2_wallet_page.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/3_cart_page.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/4_purchase_history_page.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/5_marked_page.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/6_gift_page.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/7_password_setting_page.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/8_frequently_asked_questions_page.dart';
-import 'package:takfood_seller/view/view_models/category_name.dart';
-import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
+import '/main.dart';
+import '/view/pages/profile_page/about_us_page.dart';
+import '/view/pages/profile_page/account_page.dart';
+import '/view/pages/profile_page/wallet_page.dart';
+import '/view/pages/profile_page/cart_page.dart';
+import '/view/pages/profile_page/purchase_history_page.dart';
+import '/view/pages/profile_page/marked_page.dart';
+import '/view/pages/profile_page/gift_page.dart';
+import '/view/pages/profile_page/password_setting_page.dart';
+import '/view/pages/profile_page/frequently_asked_questions_page.dart';
+import '/view/view_models/category_name.dart';
+import '/view/view_models/player_bottom_navigation_bar.dart';
 
-import '../login_pages/login_page.dart';
-import '9_contact_us_page.dart';
+import 'contact_us_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);

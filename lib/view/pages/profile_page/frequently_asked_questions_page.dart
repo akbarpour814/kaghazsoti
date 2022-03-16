@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:takfood_seller/main.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/9_contact_us_page.dart';
-import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
+import '/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
 
 class FrequentlyAskedQuestionsPage extends StatefulWidget {

@@ -1,18 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:takfood_seller/main.dart';
-import 'package:takfood_seller/model/book.dart';
-import 'package:takfood_seller/model/user.dart';
-import 'package:takfood_seller/view/pages/4_profile_page/3_cart_page.dart';
-import 'package:takfood_seller/view/view_models/audiobook_player_page.dart';
-import 'package:takfood_seller/view/view_models/books_list_view.dart';
-import 'package:takfood_seller/view/view_models/property.dart';
+import '/main.dart';
+import '/model/book.dart';
+import '/view/pages/profile_page/cart_page.dart';
+import '/view/view_models/audiobook_player_page.dart';
+import '/view/view_models/books_list_view.dart';
+import '/view/view_models/property.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../controller/custom_response.dart';
-import '../../controller/database.dart';
-import '../../controller/https.dart';
+import '/controller/database.dart';
+import '/controller/https.dart';
 import 'player_bottom_navigation_bar.dart';
 
 class BookIntroductionPage extends StatefulWidget {

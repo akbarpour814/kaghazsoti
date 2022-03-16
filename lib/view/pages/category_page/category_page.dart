@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import '/controller/database.dart';
-import '/view/pages/1_category_page/1_subcategories_page.dart';
+import '/view/pages/category_page/subcategories_page.dart';
 import '/view/view_models/category_name.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 
