@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:takfood_seller/main.dart';
-import 'package:takfood_seller/view/view_models/custom_text_field.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:sizer/sizer.dart';
+import '/view/view_models/persistent_bottom_navigation_bar.dart';
+
+import '../../../main.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({Key? key}) : super(key: key);
@@ -165,15 +165,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) {
-                            return SafeArea(
-                              child: PersistentTabView(
-                                context,
-                                controller: persistentTabController,
-                                screens: pages,
-                                items: items,
-                                navBarStyle: NavBarStyle.style18,
-                              ),
-                            );
+                            return const PersistentBottomNavigationBar();
                           },
                         ),
                       );

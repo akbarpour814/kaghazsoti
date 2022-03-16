@@ -16,67 +16,15 @@ import 'view/pages/home_page/home_page.dart';
 import 'view/pages/search_page/search_page.dart';
 import 'view/pages/profile_page/profile_page.dart';
 
-
 final SharedValue<bool> audioIsPlaying = SharedValue(value: false);
 
 AudioPlayer audioPlayer = AudioPlayer();
 
 late Book audiobookInPlay;
 
-
-final PersistentTabController persistentTabController =
-    PersistentTabController(initialIndex: 2);
-List<Widget> pages = const [
-  LibraryPage(),
-  CategoryPage(),
-  HomePage(),
-  SearchPage(),
-  ProfilePage(),
-];
-
-Color select = const Color(0xFF005C6B);
-Color unselect = Colors.grey;
-
 late SharedPreferences sharedPreferences;
 
-late List<PersistentBottomNavBarItem> items = [
-  PersistentBottomNavBarItem(
-    icon: const Icon(Ionicons.library_outline),
-    title: 'کتابخانه من',
-    activeColorSecondary: select,
-    inactiveColorPrimary: unselect,
-  ),
-  PersistentBottomNavBarItem(
-    icon: const Icon(Ionicons.albums_outline),
-    title: 'دسته بندی',
-    activeColorSecondary: select,
-    inactiveColorPrimary: unselect,
-  ),
-  PersistentBottomNavBarItem(
-    icon: const Icon(Ionicons.home_outline),
-    title: 'خانه',
-    activeColorSecondary: Colors.white,
-    inactiveColorPrimary: unselect,
-    activeColorPrimary: const Color(0xFF005C6B),
-  ),
-  PersistentBottomNavBarItem(
-    icon: const Icon(Ionicons.search_outline),
-    title: 'جست و جو',
-    activeColorSecondary: select,
-    inactiveColorPrimary: unselect,
-  ),
-  PersistentBottomNavBarItem(
-    icon: const Icon(Ionicons.person_outline),
-    title: 'نمایه من',
-    activeColorSecondary: select,
-    inactiveColorPrimary: unselect,
-  ),
-];
-
-
 void main() async {
-  database = Database();
-
   runApp(
     SharedValue.wrapApp(
       const MyApp(),
@@ -86,18 +34,21 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
-  final MaterialColor _primarySwatch = const MaterialColor(0xFF005C6B, {
-    50: Color(0xFFD9E2E4),
-    100: Color(0xFFC2D4D7),
-    200: Color(0xFFA9C5C9),
-    300: Color(0xFF91B6BC),
-    400: Color(0xFF79A7AF),
-    500: Color(0xFF6198A1),
-    600: Color(0xFF488993),
-    700: Color(0xFF307A86),
-    800: Color(0xFF186B79),
-    900: Color(0xFF005C6B),
-  },);
+  final MaterialColor _primarySwatch = const MaterialColor(
+    0xFF005C6B,
+    {
+      50: Color(0xFFD9E2E4),
+      100: Color(0xFFC2D4D7),
+      200: Color(0xFFA9C5C9),
+      300: Color(0xFF91B6BC),
+      400: Color(0xFF79A7AF),
+      500: Color(0xFF6198A1),
+      600: Color(0xFF488993),
+      700: Color(0xFF307A86),
+      800: Color(0xFF186B79),
+      900: Color(0xFF005C6B),
+    },
+  );
   final Color _primaryColor = const Color(0xFF005C6B);
 
   const MyApp({Key? key}) : super(key: key);
@@ -209,37 +160,11 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  TextSelectionThemeData _textSelectionTheme() => TextSelectionThemeData(
-    cursorColor: _primaryColor,
-    selectionColor: _primaryColor.withOpacity(0.6),
-    selectionHandleColor: _primaryColor,
-  );
-}
-
-class LoginPages extends StatefulWidget {
-  const LoginPages({Key? key}) : super(key: key);
-
-  @override
-  _LoginPagesState createState() => _LoginPagesState();
-}
-
-class _LoginPagesState extends State<LoginPages> {
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: PersistentTabView(
-        context,
-        controller: persistentTabController,
-        screens: pages,
-        items: items,
-        navBarStyle: NavBarStyle.style18,
-        backgroundColor: Theme.of(context).backgroundColor,
-        resizeToAvoidBottomInset: true,
-      ),
-    );
-
-    return const SafeArea(
-      child: LoginPages(),
+  TextSelectionThemeData _textSelectionTheme() {
+    return TextSelectionThemeData(
+      cursorColor: _primaryColor,
+      selectionColor: _primaryColor.withOpacity(0.6),
+      selectionHandleColor: _primaryColor,
     );
   }
 }

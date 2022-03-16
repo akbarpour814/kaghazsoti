@@ -26,9 +26,9 @@ class Database {
 
   Database() {
     _initUser();
-    //_initCategories();
+    _initCategories();
     _initHomePageCategories();
-    //_initBooks();
+    _initBooks();
 
     downloadDone = true;
   }

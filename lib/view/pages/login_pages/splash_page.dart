@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../controller/database.dart';
+import 'package:takfood_seller/view/view_models/persistent_bottom_navigation_bar.dart';
+import '/controller/database.dart';
 import 'login_page.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../main.dart';
+import '/main.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -16,7 +17,6 @@ class SplashPage extends StatefulWidget {
 
 class _SplashPageState extends State<SplashPage> {
   late bool _firstLogin;
-  late Widget _firstPage;
 
   @override
   void initState() {
@@ -32,21 +32,6 @@ class _SplashPageState extends State<SplashPage> {
 
     _firstLogin = sharedPreferences.getBool('firstLogin') ?? false;
 
-    if (_firstLogin) {
-      _firstPage = const SafeArea(child: LoginPage());
-    } else {
-      _firstPage = SafeArea(
-        child: PersistentTabView(
-          context,
-          controller: persistentTabController,
-          screens: pages,
-          items: items,
-          navBarStyle: NavBarStyle.style18,
-          backgroundColor: Theme.of(context).backgroundColor,
-        ),
-      );
-    }
-
     if(database.downloadDone) {
       Future.delayed(
         const Duration(seconds: 6),
@@ -54,7 +39,7 @@ class _SplashPageState extends State<SplashPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => (_firstPage),
+              builder: (context) => (_firstLogin ? const LoginPage() : const PersistentBottomNavigationBar()),
             ),
           );
         },
