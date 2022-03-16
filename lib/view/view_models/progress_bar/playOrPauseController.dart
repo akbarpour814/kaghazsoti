@@ -24,6 +24,7 @@ class _PlayOrPauseControllerState extends State<PlayOrPauseController> {
         final playerState = snapshot.data;
         final processingState = playerState?.processingState;
         final playing = playerState?.playing;
+
         if (processingState == ProcessingState.loading || processingState == ProcessingState.buffering) {
           playOrPauseIcon = widget.playerBottomNavigationBar ? const Icon(Ionicons.reload_outline, color: Colors.white,) : const CircularProgressIndicator(color: Colors.white,);
           playOrPauseFunction = null;
@@ -31,6 +32,8 @@ class _PlayOrPauseControllerState extends State<PlayOrPauseController> {
           playOrPauseIcon = const Icon(Ionicons.play_outline, color: Colors.white,);
           playOrPauseFunction = audioPlayer.play;
         } else if (processingState != ProcessingState.completed) {
+          audioIsPlaying.$ = true;
+          
           playOrPauseIcon = const Icon(Ionicons.pause_outline, color: Colors.white,);
           playOrPauseFunction = audioPlayer.pause;
         } else {
