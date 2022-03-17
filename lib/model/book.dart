@@ -66,8 +66,7 @@ class Book {
     bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
     otherBooksByThePublisher = [];
 
-    //List similar = book['similar'];
-    //print(similar.length);
+    List similar = book['similar'];
     relatedBooks = []/*List<Book>.generate(similar.length, (index) => Book.fromJson(book: similar[index], existingInUserMarkedBooks: false))*/;
   }
 

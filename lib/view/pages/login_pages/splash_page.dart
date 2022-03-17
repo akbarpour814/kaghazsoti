@@ -29,20 +29,19 @@ class _SplashPageState extends State<SplashPage> {
   void _loginStep() async {
     sharedPreferences = await SharedPreferences.getInstance();
 
-    _firstLogin = sharedPreferences.getBool('firstLogin') ?? false;
+    _firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
 
-    if(database.downloadDone) {
-      Future.delayed(
-        const Duration(seconds: 6),
-            () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => (_firstLogin ? const LoginPage() : const PersistentBottomNavigationBar()),
-            ),
-          );
-        },
-      );
+    if (database.downloadDone) {
+      Future.delayed(const Duration(seconds: 6), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => (_firstLogin
+                ? const LoginPage()
+                : const PersistentBottomNavigationBar()),
+          ),
+        );
+      });
     }
   }
 
@@ -104,7 +103,9 @@ class _SplashPageState extends State<SplashPage> {
   Text _appSlogan() {
     return Text(
       'بهترین و جدید ترین\nکتاب های صوتی را با ما بشنوید.',
-      style: Theme.of(context).textTheme.headline6!.copyWith(color: Theme.of(context).primaryColor,),
+      style: Theme.of(context).textTheme.headline6!.copyWith(
+            color: Theme.of(context).primaryColor,
+          ),
       textAlign: TextAlign.center,
     );
   }

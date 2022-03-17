@@ -221,19 +221,11 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
 
   void _newPasswordRegistration() async {
     try {
-      if(_previousPasswordController.text.isEmpty || _newPasswordController.text.isEmpty || _repeatNewPasswordController.text.isEmpty) {
-        if(_previousPasswordController.text.isEmpty) {
-          _previousPasswordError = 'لطفاً رمز عبور قبلی را وارد کنید.';
-        }
+      _previousPasswordError = _checkPasswordFormat(_previousPasswordController, true, 'لطفاً رمز عبور قبلی را وارد کنید.',);
+      _newPasswordError = _checkPasswordFormat(_newPasswordController, true, 'لطفاً رمز عبور جدید را وارد کنید.',);
+      _repeatNewPasswordError = _checkPasswordFormat(_repeatNewPasswordController, true, 'لطفاً رمز عبور جدید را تکرار کنید.',);
 
-        if(_newPasswordController.text.isEmpty) {
-          _newPasswordError = 'لطفاً رمز عبور جدید را وارد کنید.';
-        }
-
-        if(_repeatNewPasswordController.text.isEmpty) {
-          _repeatNewPasswordError = 'لطفاً رمز عبور جدید را تکرار کنید.';
-        }
-      } else {
+      if(_previousPasswordError == null && _newPasswordError == null && _repeatNewPasswordError == null) {
         Response<dynamic> httpsResponse = await Https.dio.post(
           'dashboard/user/password',
           data: {
