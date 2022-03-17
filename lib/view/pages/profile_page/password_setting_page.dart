@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/controller/database.dart';
 import 'package:takfood_seller/main.dart';
+import 'package:takfood_seller/view/view_models/custom_snack_bar.dart';
 import 'package:takfood_seller/view/view_models/custom_text_field.dart';
 import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
@@ -104,9 +105,8 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
               });
             },
             value: _obscureText,
-            activeColor: _obscureText
-                ? Theme.of(context).primaryColor
-                : Colors.grey,
+            activeColor:
+                _obscureText ? Theme.of(context).primaryColor : Colors.grey,
           ),
         ),
         Flexible(
@@ -114,9 +114,8 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
             text: TextSpan(
               text: _obscureText ? 'عدم نمایش رمز' : 'نمایش رمز',
               style: TextStyle(
-                color: _obscureText
-                    ? Theme.of(context).primaryColor
-                    : Colors.grey,
+                color:
+                    _obscureText ? Theme.of(context).primaryColor : Colors.grey,
                 fontFamily: 'Vazir',
               ),
             ),
@@ -141,7 +140,8 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _previousPasswordError = _checkPasswordFormat(_previousPasswordController);
+            _previousPasswordError =
+                _checkPasswordFormat(_previousPasswordController);
           });
         },
       ),
@@ -185,7 +185,8 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _repeatNewPasswordError = _checkPasswordFormat(_repeatNewPasswordController);
+            _repeatNewPasswordError =
+                _checkPasswordFormat(_repeatNewPasswordController);
           });
         },
       ),
@@ -208,12 +209,10 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
                 }
               });
             },
-            label: Text(_newPasswordRegistered
-                ? 'رمز عبور جدید ثبت شد'
-                : 'ثبت رمز عبور جدید'),
-            icon: Icon(_newPasswordRegistered
-                ? Ionicons.checkmark_done_outline
-                : Ionicons.checkmark_outline),
+            label: const Text('ثبت رمز عبور جدید'),
+            icon: const Icon(
+              Ionicons.checkmark_outline
+            ),
           ),
         ),
       ),
@@ -221,41 +220,63 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
   }
 
   void _newPasswordRegistration() async {
-    Response<dynamic> httpsResponse = await Https.dio.post(
-      'dashboard/user/password',
-      data: {
-        'old_password': _previousPasswordController.text,
-        'password': _newPasswordController.text,
-        'password_confirmation': _repeatNewPasswordController.text
-      },
-      options: Options(headers: headers),
-    );
+    try {
+      if(_previousPasswordController.text.isEmpty || _newPasswordController.text.isEmpty || _repeatNewPasswordController.text.isEmpty) {
+        if(_previousPasswordController.text.isEmpty) {
+          _previousPasswordError = 'لطفاً رمز عبور قبلی را وارد کنید.';
+        }
 
-    print(1);
-    CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
-    print(customResponse.message);
+        if(_newPasswordController.text.isEmpty) {
+          _newPasswordError = 'لطفاً رمز عبور جدید را وارد کنید.';
+        }
 
+        if(_repeatNewPasswordController.text.isEmpty) {
+          _repeatNewPasswordError = 'لطفاً رمز عبور جدید را تکرار کنید.';
+        }
+      } else {
+        Response<dynamic> httpsResponse = await Https.dio.post(
+          'dashboard/user/password',
+          data: {
+            'old_password': _previousPasswordController.text,
+            'password': _newPasswordController.text,
+            'password_confirmation': _repeatNewPasswordController.text
+          },
+          options: Options(headers: headers),
+        );
 
-    setState(() {
-      // if() {
-      //
-      // } else {
-      //   _newPasswordRegistered = customResponse.success;
-      //
-      //   _previousPasswordController = TextEditingController();
-      //   _newPasswordController = TextEditingController();
-      //   _repeatNewPasswordController = TextEditingController();
-      // }
-    });
+        CustomResponse customResponse =
+        CustomResponse.fromJson(httpsResponse.data);
+
+        setState(() {
+          _newPasswordRegistered = customResponse.success;
+
+          if (_newPasswordRegistered) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              customSnackBar(context, Ionicons.checkmark_done_outline, 'رمز عبور جدید ثبت شد.',),
+            );
+          }
+
+          _previousPasswordController = TextEditingController();
+          _newPasswordController = TextEditingController();
+          _repeatNewPasswordController = TextEditingController();
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _previousPasswordError = 'رمز عبور قبلی صحیح نمی باشد.';
+      });
+    }
   }
 
   String? _checkPasswordFormat(TextEditingController textEditingController) {
     String? _errorText;
-    if((textEditingController.text.isEmpty) || (textEditingController.text.length == 9)) {
+
+    if ((textEditingController.text.isEmpty) ||
+        (textEditingController.text.length == 9)) {
       _errorText = null;
-    } else if(textEditingController.text.length < 10) {
+    } else if (textEditingController.text.length < 10) {
       _errorText = 'رمز عبور نباید کمتر از 9 کاراکتر باشد.';
-    } else if(textEditingController.text.contains(' ')) {
+    } else if (textEditingController.text.contains(' ')) {
       _errorText = 'رمز عبور نباید شامل جای خالی باشد.';
     }
 

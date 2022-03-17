@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:takfood_seller/view/view_models/persistent_bottom_navigation_bar.dart';
+import '/view/view_models/persistent_bottom_navigation_bar.dart';
 import '/controller/database.dart';
 import 'login_page.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 

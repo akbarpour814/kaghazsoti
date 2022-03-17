@@ -70,7 +70,7 @@ class MyApp extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 child: child!,
               ),
-              home: const SafeArea(child: SplashPage()),
+              home: const SplashPage(),
             );
           },
         );
@@ -118,6 +118,7 @@ class MyApp extends StatelessWidget {
       floatingActionButtonTheme: _floatingActionButtonTheme(),
       inputDecorationTheme: _inputDecorationTheme(),
       textSelectionTheme: _textSelectionTheme(),
+      snackBarTheme: SnackBarThemeData()
     );
   }
 
