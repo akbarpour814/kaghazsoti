@@ -141,7 +141,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         onChanged: (String text) {
           setState(() {
             _previousPasswordError =
-                _checkPasswordFormat(_previousPasswordController);
+                _checkPasswordFormat(_previousPasswordController, false, null);
           });
         },
       ),
@@ -163,7 +163,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _newPasswordError = _checkPasswordFormat(_newPasswordController);
+            _newPasswordError = _checkPasswordFormat(_newPasswordController, false, null);
           });
         },
       ),
@@ -186,7 +186,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         onChanged: (String text) {
           setState(() {
             _repeatNewPasswordError =
-                _checkPasswordFormat(_repeatNewPasswordController);
+                _checkPasswordFormat(_repeatNewPasswordController, false, null);
           });
         },
       ),
@@ -268,10 +268,12 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
     }
   }
 
-  String? _checkPasswordFormat(TextEditingController textEditingController) {
+  String? _checkPasswordFormat(TextEditingController textEditingController, bool newPasswordRegistration, String? errorText) {
     String? _errorText;
 
-    if ((textEditingController.text.isEmpty) ||
+    if(textEditingController.text.isEmpty && newPasswordRegistration) {
+      _errorText  = errorText;
+    } else if ((textEditingController.text.isEmpty) ||
         (textEditingController.text.length == 9)) {
       _errorText = null;
     } else if (textEditingController.text.length < 10) {

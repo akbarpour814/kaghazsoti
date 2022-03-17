@@ -51,66 +51,61 @@ class _SplashPageState extends State<SplashPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.0.h),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 80.0.w,
+              height: 80.0.h,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _appLogo(),
+                  _appSlogan(),
+                ],
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _appLogo(),
-                    _appSlogan(),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.only(left: 18.0),
+                  child: SizedBox(
+                    width: 5.0.w,
+                    height: 5.0.w,
+                    child: CircularProgressIndicator(
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
                 ),
-                _websiteAddress(),
-                Row(
-                  children: [
-                    CircularProgressIndicator(color: Theme.of(context).primaryColor,),
-                    Text('لطفاً شکیبا باشید.'),
-                  ],
+                Text(
+                  'لطفاً شکیبا باشید.',
+                  style: TextStyle(
+                    color: Theme.of(context).primaryColor,
+                  ),
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 
-  Flexible _appLogo() {
-    return Flexible(
-      child: Image.asset(
-        'assets/images/logo.1e799436.jpg',
-        // width: 70.0.w,
-      ),
+  Image _appLogo() {
+    return Image.asset(
+      'assets/images/logo.1e799436.jpg',
+      height: 45.0.h,
     );
   }
 
-  Flexible _appSlogan() {
-    return Flexible(
-      child: Text(
-        'بهترین\nو\nجدید ترین\nکتاب های صوتی را\nبا ما بشنوید.',
-        style: TextStyle(
-          color: const Color(0xFF005C6B),
-          fontSize: 15.0.sp,
-        ),
-        textAlign: TextAlign.justify,
-      ),
-    );
-  }
-
-  Text _websiteAddress() {
+  Text _appSlogan() {
     return Text(
-      'www.kaghazsoti.com',
-      style: TextStyle(
-        color: const Color(0xFF005C6B),
-        fontSize: 15.0.sp,
-      ),
-      textAlign: TextAlign.justify,
+      'بهترین و جدید ترین\nکتاب های صوتی را با ما بشنوید.',
+      style: Theme.of(context).textTheme.headline6!.copyWith(color: Theme.of(context).primaryColor,),
+      textAlign: TextAlign.center,
     );
   }
 }

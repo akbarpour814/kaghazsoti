@@ -78,6 +78,26 @@ class MyApp extends StatelessWidget {
     );
   }
 
+  ThemeData _theme() {
+    return ThemeData(
+        fontFamily: 'Vazir',
+        primarySwatch: _primarySwatch,
+        primaryColor: _primaryColor,
+        backgroundColor: Colors.white,
+        dividerColor: _primaryColor,
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          titleTextStyle: TextStyle(
+            fontFamily: 'Vazir',
+          ),
+        ),
+        cardTheme: _cardTheme(),
+        floatingActionButtonTheme: _floatingActionButtonTheme(),
+        inputDecorationTheme: _inputDecorationTheme(),
+        textSelectionTheme: _textSelectionTheme(),
+    );
+  }
+
   ThemeData _darkTheme() {
     return ThemeData(
       brightness: Brightness.dark,
@@ -98,27 +118,6 @@ class MyApp extends StatelessWidget {
       floatingActionButtonTheme: _floatingActionButtonTheme(),
       inputDecorationTheme: _inputDecorationTheme(),
       textSelectionTheme: _textSelectionTheme(),
-    );
-  }
-
-  ThemeData _theme() {
-    return ThemeData(
-      fontFamily: 'Vazir',
-      primarySwatch: _primarySwatch,
-      primaryColor: _primaryColor,
-      backgroundColor: Colors.white,
-      dividerColor: _primaryColor,
-      appBarTheme: const AppBarTheme(
-        centerTitle: true,
-        titleTextStyle: TextStyle(
-          fontFamily: 'Vazir',
-        ),
-      ),
-      cardTheme: _cardTheme(),
-      floatingActionButtonTheme: _floatingActionButtonTheme(),
-      inputDecorationTheme: _inputDecorationTheme(),
-      textSelectionTheme: _textSelectionTheme(),
-      snackBarTheme: SnackBarThemeData()
     );
   }
 
