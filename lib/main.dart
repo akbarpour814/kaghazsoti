@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:takfood_seller/view/pages/login_pages/login_page.dart';
 import 'controller/database.dart';
 import 'view/pages/login_pages/splash_page.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';

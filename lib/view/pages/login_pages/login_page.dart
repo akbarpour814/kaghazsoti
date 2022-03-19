@@ -8,6 +8,8 @@ import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
 import 'package:takfood_seller/view/view_models/custom_text_field.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../view_models/custom_snack_bar.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -29,7 +31,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   void initState() {
     _loginPermission = false;
-    _emailOrPhoneNumber = true;
+    _emailOrPhoneNumber = false;
 
     super.initState();
   }
@@ -49,10 +51,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _appTitle(),
-              _emailOrPhoneNumberSelect(),
+              //_emailOrPhoneNumberSelect(),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: 5.0.h),
                 child: Column(
@@ -63,11 +65,11 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 ),
               ),
               _informationConfirmButton(),
-              Padding(
-                padding: EdgeInsets.only(top: 5.0.h),
-                child: Row(
+              Container(
+                margin: EdgeInsets.only(top: 15.0.h),
+                height: 8.0.h,
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _forgotPasswordButton(),
                     _registrationButton(),
@@ -188,7 +190,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       child: ElevatedButton.icon(
         onPressed: () {
           setState(() {
-           _informationConfirm(email: _emailOrPhoneNumberController.text, password: _passwordController.text);
+            _informationConfirm(email: _emailOrPhoneNumberController.text, password: _passwordController.text);
 
             _loginPermission = _loginPermission ? false : true;
           });
@@ -202,59 +204,55 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   void _informationConfirm({required String email, required String password}) async {
-    Response<dynamic> response = await Https.dio.post('login', queryParameters: {'email' : email, 'password' : password},);
+    Response<dynamic> response = await Https.dio.post('login', data: {'email' : email, 'password' : password},);
     
     _informationConfirmResponse = CustomResponse.fromJson(response.data);
   }
 
-  Flexible _forgotPasswordButton() {
-    return Flexible(
-      child: InkWell(
-        onTap: () {
-          if (!_loginPermission) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) {
-                  return const PasswordRecoveryPage();
-                },
-              ),
-            );
-          }
-        },
-        child: Text(
-          'رمز عبورم را فراموش کرده ام.',
-          style: Theme.of(context)
-              .textTheme
-              .caption!
-              .copyWith(color: Theme.of(context).primaryColor),
-          overflow: TextOverflow.ellipsis,
-        ),
+  InkWell _forgotPasswordButton() {
+    return InkWell(
+      onTap: () {
+        if (!_loginPermission) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return const PasswordRecoveryPage();
+              },
+            ),
+          );
+        }
+      },
+      child: Text(
+        'رمز عبورم را فراموش کرده ام.',
+        style: Theme.of(context)
+            .textTheme
+            .caption!
+            .copyWith(color: Theme.of(context).primaryColor),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
 
-  Flexible _registrationButton() {
-    return Flexible(
-      child: InkWell(
-        onTap: () {
-          if (!_loginPermission) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) {
-                  return const RegistrationPage();
-                },
-              ),
-            );
-          }
-        },
-        child: Text(
-          'ثبت نام نکرده ام.',
-          style: Theme.of(context)
-              .textTheme
-              .caption!
-              .copyWith(color: Theme.of(context).primaryColor),
-          overflow: TextOverflow.ellipsis,
-        ),
+  InkWell _registrationButton() {
+    return InkWell(
+      onTap: () {
+        if (!_loginPermission) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return const RegistrationPage();
+              },
+            ),
+          );
+        }
+      },
+      child: Text(
+        'ثبت نام نکرده ام.',
+        style: Theme.of(context)
+            .textTheme
+            .caption!
+            .copyWith(color: Theme.of(context).primaryColor),
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
