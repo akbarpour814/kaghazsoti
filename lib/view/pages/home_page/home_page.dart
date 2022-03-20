@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../../../main.dart';
 import '../category_page/books_page.dart';
 import '/controller/database.dart';
 
@@ -73,24 +74,25 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
           height: 18.0.h,
           child: PageView.builder(
             controller: _smoothPageController,
-            itemCount: widget.homePageCategoryData.pathOfSmoothPages.length,
+            itemCount: widget.homePageCategoryData.banners.length,
             itemBuilder: (context, index) => Container(
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage(
-                    widget.homePageCategoryData.pathOfSmoothPages[index],
-                  ),
-                  fit: BoxFit.cover,
-                ),
+                color: Colors.white,
+                border: Border.symmetric(horizontal: BorderSide(color: Theme.of(context).primaryColor),),
               ),
               width: 100.0.w,
               height: 18.0.h,
+              child: FadeInImage.assetNetwork(
+                placeholder: defaultBanner,
+                image: widget.homePageCategoryData.banners[index],
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
         Center(
           child: Visibility(
-            visible: widget.homePageCategoryData.pathOfSmoothPages.length > 1,
+            visible: widget.homePageCategoryData.banners.length > 1,
             child: SizedBox(
               width: 100.0.w,
               height: 18.0.h,
@@ -100,7 +102,7 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
                 children: [
                   SmoothPageIndicator(
                     controller: _smoothPageController,
-                    count: widget.homePageCategoryData.pathOfSmoothPages.length,
+                    count: widget.homePageCategoryData.banners.length,
                     effect: JumpingDotEffect(
                       activeDotColor: Theme.of(context).primaryColor,
                       dotColor: Colors.white54,

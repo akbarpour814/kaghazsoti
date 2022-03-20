@@ -25,6 +25,9 @@ late Book audiobookInPlay;
 
 late SharedPreferences sharedPreferences;
 
+String defaultBanner = 'assets/images/defaultBanner.jpg';
+String defaultBookCover = 'assets/images/defaultBookCover.jpg';
+
 void main() async {
   runApp(
     SharedValue.wrapApp(

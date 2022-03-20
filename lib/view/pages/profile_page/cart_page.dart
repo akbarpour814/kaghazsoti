@@ -107,20 +107,25 @@ class _CartPageState extends State<CartPage> {
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Container(
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: NetworkImage(
-                                            database.user.cart[index].bookCoverPath,
-                                          ),
-                                          fit: BoxFit.cover,
-                                        ),
-                                        borderRadius: const BorderRadius.all(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.all(
                                           Radius.circular(5.0),
                                         ),
                                         shape: BoxShape.rectangle,
                                       ),
                                       width: 20.0.w,
                                       height: 10.5.h,
+                                      child: ClipRRect(
+                                        borderRadius: const BorderRadius.all(
+                                          Radius.circular(5.0),
+                                        ),
+                                        child: FadeInImage.assetNetwork(
+                                          placeholder: defaultBookCover,
+                                          image:  database.user.cart[index].bookCoverPath,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   Expanded(

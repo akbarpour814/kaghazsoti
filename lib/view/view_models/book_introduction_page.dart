@@ -128,13 +128,8 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       children: [
         Container(
           decoration: BoxDecoration(
+            color: Colors.white,
             border: Border.all(color: Theme.of(context).primaryColor),
-            image: DecorationImage(
-              image: NetworkImage(
-                widget.book.bookCoverPath,
-              ),
-              fit: BoxFit.cover,
-            ),
             borderRadius: const BorderRadius.all(
               Radius.circular(5.0),
             ),
@@ -142,6 +137,16 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           ),
           width: 70.0.w,
           height: 70.0.w,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(
+              Radius.circular(5.0),
+            ),
+            child: FadeInImage.assetNetwork(
+              placeholder: defaultBookCover,
+              image: widget.book.bookCoverPath,
+              fit: BoxFit.cover,
+            ),
+          ),
         ),
         Positioned(
           left: 2.5.w,

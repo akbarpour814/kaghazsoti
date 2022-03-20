@@ -6,12 +6,12 @@ import 'book.dart';
 
 class HomePageCategoryData {
   late String bookCategoryName;
-  late List<String> pathOfSmoothPages = [];
+  late List<String> banners = [];
   late List<Book> latestBooks = [];
   late List<Book> bestSellingBooks = [];
 
   HomePageCategoryData.fromJson(this.bookCategoryName, Map<String, dynamic> json) {
-    pathOfSmoothPages.add(json['banner']);
+    banners.add(json['banner']);
 
     _initLatestBooks(json);
 

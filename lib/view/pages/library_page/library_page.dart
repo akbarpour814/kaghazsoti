@@ -101,13 +101,8 @@ class _MyBookState extends State<MyBook> {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
+          color: Colors.white,
           border: Border.all(color: Theme.of(context).primaryColor),
-          image: DecorationImage(
-            image: NetworkImage(
-              widget.book.bookCoverPath,
-            ),
-            fit: BoxFit.cover,
-          ),
           borderRadius: const BorderRadius.all(
             Radius.circular(5.0),
           ),
@@ -115,6 +110,16 @@ class _MyBookState extends State<MyBook> {
         ),
         width: 25.0.w,
         height: 13.0.h,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(5.0),
+          ),
+          child: FadeInImage.assetNetwork(
+            placeholder: defaultBookCover,
+            image: widget.book.bookCoverPath,
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
     );
   }

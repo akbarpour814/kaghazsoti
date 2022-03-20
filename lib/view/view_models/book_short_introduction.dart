@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../main.dart';
 import '../pages/search_page/search_page.dart';
 import '/model/book.dart';
 import '/view/view_models/book_introduction_page.dart';
@@ -88,13 +89,8 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
   Container _bookCover() {
     return Container(
       decoration: BoxDecoration(
+        color: Colors.white,
         border: Border.all(color: Theme.of(context).primaryColor),
-        image: DecorationImage(
-          image: CachedNetworkImageProvider(
-            widget.book.bookCoverPath,
-          ),
-          fit: BoxFit.cover,
-        ),
         borderRadius: const BorderRadius.all(
           Radius.circular(5.0),
         ),
@@ -102,6 +98,16 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
       ),
       width: 25.0.w,
       height: 13.0.h,
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(
+          Radius.circular(5.0),
+        ),
+        child: FadeInImage.assetNetwork(
+          placeholder: defaultBookCover,
+          image: widget.book.bookCoverPath,
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 

@@ -133,13 +133,8 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
     return Flexible(
       child: Container(
         decoration: BoxDecoration(
+          color: Colors.white,
           border: Border.all(color: Theme.of(context).primaryColor),
-          image: DecorationImage(
-            image: NetworkImage(
-              audiobookInPlay.bookCoverPath,
-            ),
-            fit: BoxFit.cover,
-          ),
           borderRadius: const BorderRadius.all(
             Radius.circular(5.0),
           ),
@@ -147,6 +142,16 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
         ),
         width: 40.0.w,
         height: 20.0.h,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(
+            Radius.circular(5.0),
+          ),
+          child: FadeInImage.assetNetwork(
+            placeholder: defaultBookCover,
+            image:  audiobookInPlay.bookCoverPath,
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
     );
   }

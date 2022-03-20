@@ -5,6 +5,8 @@ import 'package:takfood_seller/model/book.dart';
 import 'package:takfood_seller/view/view_models/book_introduction_page.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../main.dart';
+
 class BooksListView extends StatelessWidget {
   late List<Book> books;
 
@@ -65,21 +67,19 @@ class BooksListView extends StatelessWidget {
 
   Container _bookCover(int index) {
     return Container(
-      decoration: BoxDecoration(
+      //color: Colors.white,
+      width: 35.0.w,
+      height: 18.0.h,
+      child: ClipRRect(
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(5.0),
         ),
-        image: DecorationImage(
-          image: NetworkImage(
-            books[index].bookCoverPath,
-          ),
+        child: FadeInImage.assetNetwork(
+          placeholder: defaultBookCover,
+          image: books[index].bookCoverPath,
           fit: BoxFit.cover,
         ),
-    ),
-
-      width: 35.0.w,
-      height: 18.0.h,
-
+      ),
     );
   }
 
@@ -92,7 +92,7 @@ class BooksListView extends StatelessWidget {
             books[index].name,
             maxLines: 1,
             textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ),

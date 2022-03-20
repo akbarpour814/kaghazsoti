@@ -51,7 +51,7 @@ class _ProfilePageState extends State<ProfilePage> {
           _navigatorToCartPage(),
           _navigatorToPurchaseHistoryPage(),
           _navigatorToMarkedPage(),
-          _navigatorToGiftPage(),
+          //_navigatorToGiftPage(),
           _navigatorToPasswordSettingPage(),
           _navigatorToFrequentlyAskedQuestionsPage(),
           _navigatorToContactUsPage(),
