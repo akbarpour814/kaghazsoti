@@ -30,7 +30,6 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
       appBar: _appBar(),
       body: _body(),
     );

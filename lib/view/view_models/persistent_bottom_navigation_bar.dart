@@ -41,7 +41,7 @@ class _PersistentBottomNavigationBarState extends State<PersistentBottomNavigati
       screens: _pages,
       items: _items(),
       navBarStyle: NavBarStyle.style18,
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
     );
   }

@@ -17,7 +17,6 @@ class _BooksPageState extends State<BooksPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: const PlayerBottomNavigationBar(),

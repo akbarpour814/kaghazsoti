@@ -38,7 +38,6 @@ class _AboutUsPageState extends State<AboutUsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: const PlayerBottomNavigationBar(),

@@ -1,7 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../controller/custom_response.dart';
+import '../../../controller/https.dart';
 import '/controller/database.dart';
 import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
@@ -31,10 +34,31 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
   }
 
+  Future<void> _initBooks() async {
+    Response<dynamic> httpsResponse = await Https.dio.post('books');
+
+    CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+    int lastPage = customResponse.data['last_page'];
+
+    for(int i = 1; i <= lastPage; ++i) {
+      // httpsResponse = await Https.dio.post('books', data: {'page' : i},);
+      //
+      // customResponse = CustomResponse.fromJson(httpsResponse.data);
+      //
+      // Response<dynamic> httpsResponse1 = await Https.dio.post('books/${book['slug']}');
+      //
+      // CustomResponse customResponse1 = CustomResponse.fromJson(httpsResponse.data);
+      //
+      //
+      // _books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false,));
+    }
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: const PlayerBottomNavigationBar(),

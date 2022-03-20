@@ -26,14 +26,14 @@ class Database {
 
   Database() {
     _initUser();
-    //_initCategories();
-    //_initHomePageCategories();
-    //_initBooks();
+    _initCategories();
+    _initHomePageCategories();
+    _initBooks();
 
     downloadDone = true;
   }
 
-  void _initUser() async {
+  Future<void> _initUser() async {
     user = User(
       token: '50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA',
       firstAndLastName: 'firstAndLastName',
@@ -90,7 +90,7 @@ class Database {
     }
   }
 
-  void _initCategories() async {
+  Future<void> _initCategories() async {
     httpsResponse = await Https.dio.post('categories');
 
     customResponse = CustomResponse.fromJson(httpsResponse.data);
@@ -108,7 +108,7 @@ class Database {
     }
   }
 
-  void _initHomePageCategories() async {
+  Future<void> _initHomePageCategories() async {
     httpsResponse = await Https.dio.post('home');
 
     customResponse = CustomResponse.fromJson(httpsResponse.data);
@@ -129,7 +129,7 @@ class Database {
     homePageCategories.add(childrenAndAdolescentBooks);
   }
 
-  void _initBooks() async {
+  Future<void> _initBooks() async {
     httpsResponse = await Https.dio.post('books');
 
     customResponse = CustomResponse.fromJson(httpsResponse.data);

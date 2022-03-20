@@ -84,7 +84,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Vazir',
         primarySwatch: _primarySwatch,
         primaryColor: _primaryColor,
-        backgroundColor: Colors.white,
+        scaffoldBackgroundColor: Colors.white,
         dividerColor: _primaryColor,
         appBarTheme: const AppBarTheme(
           centerTitle: true,
@@ -105,7 +105,7 @@ class MyApp extends StatelessWidget {
       fontFamily: 'Vazir',
       primarySwatch: _primarySwatch,
       primaryColor: _primaryColor,
-      backgroundColor: Colors.black,
+      scaffoldBackgroundColor: Colors.black,
       dividerColor: _primaryColor,
       accentColor: _primaryColor,
       appBarTheme: AppBarTheme(
