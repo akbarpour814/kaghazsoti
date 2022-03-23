@@ -25,9 +25,9 @@ class Database {
   bool downloadDone = false;
 
   Database() {
-    //_initUser();
-    //_initCategories();
-    //_initHomePageCategories();
+    _initUser();
+    _initCategories();
+    _initHomePageCategories();
     _initBooks();
 
     downloadDone = true;
@@ -134,14 +134,24 @@ class Database {
 
     customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-    for(Map<String, dynamic> book in customResponse.data['data']) {
-      Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+    int lastPage = customResponse.data['last_page'] ?? 0;
 
-      CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+    for(int i = 1; i <= lastPage; ++i) {
+      httpsResponse = await Https.dio.post('books', queryParameters: {'page': i},);
 
-      books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false,));
+      customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+      for(Map<String, dynamic> book in customResponse.data['data']) {
+        // print(book['slug']);
+        Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+
+        CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+        books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: true));
+      }
     }
   }
+
 
   bool mark(int id) {
     int index = user.markedBooks.indexWhere((element) => element.id == id);

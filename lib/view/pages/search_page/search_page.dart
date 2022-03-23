@@ -39,19 +39,22 @@ class _SearchPageState extends State<SearchPage> {
 
     CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-    int lastPage = customResponse.data['last_page'];
+    int lastPage = customResponse.data['last_page'] ?? 0;
 
     for(int i = 1; i <= lastPage; ++i) {
-      // httpsResponse = await Https.dio.post('books', data: {'page' : i},);
-      //
-      // customResponse = CustomResponse.fromJson(httpsResponse.data);
-      //
-      // Response<dynamic> httpsResponse1 = await Https.dio.post('books/${book['slug']}');
-      //
-      // CustomResponse customResponse1 = CustomResponse.fromJson(httpsResponse.data);
-      //
-      //
-      // _books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false,));
+      httpsResponse = await Https.dio.post('books', queryParameters: {'page': i},);
+
+      customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+      for(Map<String, dynamic> book in customResponse.data['data']) {
+
+        Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+
+        CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+
+        _books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: true));
+      }
     }
 
   }
