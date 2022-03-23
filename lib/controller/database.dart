@@ -25,9 +25,9 @@ class Database {
   bool downloadDone = false;
 
   Database() {
-    _initUser();
-    _initCategories();
-    _initHomePageCategories();
+    //_initUser();
+    //_initCategories();
+    //_initHomePageCategories();
     _initBooks();
 
     downloadDone = true;

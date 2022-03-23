@@ -76,10 +76,7 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
             controller: _smoothPageController,
             itemCount: widget.homePageCategoryData.banners.length,
             itemBuilder: (context, index) => Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.symmetric(horizontal: BorderSide(color: Theme.of(context).primaryColor),),
-              ),
+              color: Theme.of(context).primaryColor,
               width: 100.0.w,
               height: 18.0.h,
               child: FadeInImage.assetNetwork(
