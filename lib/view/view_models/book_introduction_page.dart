@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:zarinpal/zarinpal.dart';
 import '/main.dart';
 import '/model/book.dart';
 import '/view/pages/profile_page/cart_page.dart';
@@ -229,16 +230,11 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           width: 42.5.w,
           child: ElevatedButton.icon(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return const CartPage();
-                  },
-                ),
-              );
+
+
             },
             label: const Text('خرید'),
-            icon: const Icon(Ionicons.cart_outline),
+            icon: const Icon(Ionicons.card_outline),
           ),
         ),
         SizedBox(
@@ -253,9 +249,9 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                 ),
               );
             },
-            label: const Text('خرید هدیه'),
+            label: const Text('سبد خرید'),
             icon: const Icon(
-                Ionicons.gift_outline
+                Ionicons.cart_outline
             ),
           ),
         ),
@@ -454,7 +450,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('دیدگاه خود را بنویسید.'),
+          const Text('نظر خود را بنویسید.'),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 18.0),
             child: Row(

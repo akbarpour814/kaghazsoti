@@ -33,9 +33,9 @@ class Book {
 
     id = product['id'] ?? -1;
     name = product['title'] ?? 'name';
-    category = (product['category'])['name'] ?? 'category';
+    category = (product['parent_category'])['name'] ?? 'category';
 
-    subcategory = 'subcategory';
+    subcategory = (product['category'])['name'] ?? 'category';;
 
     author = (product['author'])['name'] ?? 'author';
     announcer = (product['narrator'])['name'] ?? 'announcer';

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:material_color_generator/material_color_generator.dart';
 import 'package:takfood_seller/view/pages/login_pages/login_page.dart';
 import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
 import 'controller/database.dart';
@@ -86,7 +87,7 @@ class MyApp extends StatelessWidget {
   ThemeData _theme() {
     return ThemeData(
         fontFamily: 'Vazir',
-        primarySwatch: _primarySwatch,
+        primarySwatch: generateMaterialColor(color: _primaryColor),
         primaryColor: _primaryColor,
         scaffoldBackgroundColor: Colors.white,
         dividerColor: _primaryColor,
@@ -107,7 +108,7 @@ class MyApp extends StatelessWidget {
     return ThemeData(
       brightness: Brightness.dark,
       fontFamily: 'Vazir',
-      primarySwatch: _primarySwatch,
+      primarySwatch: generateMaterialColor(color: _primaryColor),
       primaryColor: _primaryColor,
       scaffoldBackgroundColor: Colors.black,
       dividerColor: _primaryColor,

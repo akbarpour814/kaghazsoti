@@ -45,8 +45,13 @@ dependencies:
   share: ^2.0.4
   dio: ^4.0.4
   persian_number_utility: ^1.1.1
-  cached_network_image: ^3.2.0
+  zarinpal: ^1.0.4+1
+
+  material_color_generator: ^1.1.0
+
+
   restart_app: ^1.1.0
+
   shimmer: ^2.0.0
 
 
