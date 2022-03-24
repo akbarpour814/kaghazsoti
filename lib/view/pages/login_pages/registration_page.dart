@@ -1,6 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:sizer/sizer.dart';
+import '../../../controller/custom_response.dart';
+import '../../../controller/database.dart';
+import '../../../controller/https.dart';
+import '../../view_models/custom_snack_bar.dart';
 import '/view/view_models/persistent_bottom_navigation_bar.dart';
 
 import '../../../main.dart';
@@ -13,19 +19,25 @@ class RegistrationPage extends StatefulWidget {
 }
 
 class _RegistrationPageState extends State<RegistrationPage> {
-  final TextEditingController _firstAndLastNameController =
-      TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _repeatNewPasswordController =
-      TextEditingController();
+  TextEditingController _firstAndLastNameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _phoneNumberController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _repeatPasswordController = TextEditingController();
 
-  late bool _login;
+  String? _firstAndLastNameError;
+  String? _emailError;
+  String? _phoneNumberError;
+  String? _passwordError;
+  String? _repeatPasswordError;
+
+  late bool _registered;
+  late bool _obscureText;
 
   @override
   void initState() {
-    _login = false;
+    _registered = false;
+    _obscureText = true;
 
     super.initState();
   }
@@ -54,7 +66,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
           ),
           onTap: () {
-            if (!_login) {
+            if (!_registered) {
               Navigator.of(context).pop();
             }
           },
@@ -71,6 +83,10 @@ class _RegistrationPageState extends State<RegistrationPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Padding(
+                padding: EdgeInsets.only(bottom: 5.0.h),
+                child: _permissionToObscureText(),
+              ),
               _firstAndLastName(),
               _email(),
               _phoneNumber(),
@@ -84,19 +100,54 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 
+  Row _permissionToObscureText() {
+    return Row(
+      children: [
+        Flexible(
+          child: Checkbox(
+            onChanged: (bool? value) {
+              setState(() {
+                _obscureText = _obscureText ? false : true;
+              });
+            },
+            value: _obscureText,
+            activeColor:
+            _obscureText ? Theme.of(context).primaryColor : Colors.grey,
+          ),
+        ),
+        Flexible(
+          child: RichText(
+            text: TextSpan(
+              text: _obscureText ? 'عدم نمایش رمز' : 'نمایش رمز',
+              style: TextStyle(
+                color:
+                _obscureText ? Theme.of(context).primaryColor : Colors.grey,
+                fontFamily: 'Vazir',
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Padding _firstAndLastName() {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        readOnly: _login,
+        readOnly: _registered,
         controller: _firstAndLastNameController,
         keyboardType: TextInputType.name,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           helperText: 'نام و نام خانوادگی',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(Ionicons.person_outline),
+          errorText: _firstAndLastNameError,
+          suffixIcon: const Icon(Ionicons.person_outline),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _firstAndLastNameError = _checkFirstAndLastNameFormat(_firstAndLastNameController, null);
+          });
+        },
       ),
     );
   }
@@ -105,15 +156,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        readOnly: _login,
+        readOnly: _registered,
         controller: _emailController,
         keyboardType: TextInputType.emailAddress,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           helperText: 'ایمیل',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(Ionicons.mail_outline),
+          errorText: _emailError,
+          suffixIcon: const Icon(Ionicons.mail_outline),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _emailError = _checkEmailFormat(_emailController, null);
+          });
+        },
       ),
     );
   }
@@ -122,15 +177,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        readOnly: _login,
+        readOnly: _registered,
         controller: _phoneNumberController,
         keyboardType: TextInputType.phone,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           helperText: 'تلفن همراه',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(Ionicons.phone_portrait_outline),
+          errorText: _phoneNumberError,
+          suffixIcon: const Icon(Ionicons.phone_portrait_outline),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _phoneNumberError = _checkPhoneNumberFormat(_phoneNumberController, null);
+          });
+        },
       ),
     );
   }
@@ -140,17 +199,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
         readOnly: false,
-        //obscureText: _obscureText,
-        controller: _newPasswordController,
+        obscureText: _obscureText,
+        controller: _passwordController,
         keyboardType: TextInputType.visiblePassword,
         decoration: InputDecoration(
           helperText: 'رمز عبور جدید',
-          //errorText: _newPasswordError,
+          errorText: _passwordError,
           suffixIcon: const Icon(Ionicons.key),
         ),
         onChanged: (String text) {
           setState(() {
-            // _newPasswordError = _checkPasswordFormat(_newPasswordController, false, null);
+             _passwordError = _checkPasswordFormat(_passwordController, null);
           });
         },
       ),
@@ -162,17 +221,17 @@ class _RegistrationPageState extends State<RegistrationPage> {
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
         readOnly: false,
-        //obscureText: _obscureText,
-        controller: _repeatNewPasswordController,
+        obscureText: _obscureText,
+        controller: _repeatPasswordController,
         keyboardType: TextInputType.visiblePassword,
         decoration: InputDecoration(
           helperText: 'تکرار رمز عبور جدید',
-          //errorText: _repeatNewPasswordError,
+          errorText: _repeatPasswordError,
           suffixIcon: const Icon(Ionicons.refresh_outline),
         ),
         onChanged: (String text) {
           setState(() {
-            // _repeatNewPasswordError = _checkPasswordFormat(_repeatNewPasswordController, false, null);
+             _repeatPasswordError = _checkPasswordFormat(_repeatPasswordController, null);
           });
         },
       ),
@@ -185,31 +244,118 @@ class _RegistrationPageState extends State<RegistrationPage> {
       child: SizedBox(
         width: 100.0.w - (2 * 5.0.w),
         child: ElevatedButton.icon(
-          onPressed: () async {
+          onPressed: () {
             setState(() {
-              _login = _login ? false : true;
+              if(_passwordController.text != _repeatPasswordController.text) {
+                _repeatPasswordError = 'لطفاً رمز عبور جدید را تکرار کنید.';
+              } else {
+                _informationRegistration();
+              }
             });
-
-            // await sharedPreferences.setBool('firstLogin', false);
-
-            // Navigator.of(context).push(
-            //   MaterialPageRoute(
-            //     builder: (context) {
-            //       return const PersistentBottomNavigationBar();
-            //     },
-            //   ),
-            // );
           },
-          label: Text(_login ? 'خوش آمدید' : 'ثبت اطلاعات'),
-          icon: Icon(_login
-              ? Ionicons.checkmark_done_outline
-              : Ionicons.checkmark_outline),
+          label: const Text('ثبت اطلاعات'),
+          icon: const Icon(Ionicons.checkmark_outline),
         ),
       ),
     );
   }
 
-  void _informationConfirm() {
+  void _informationRegistration() async {
+    _firstAndLastNameError = _checkPasswordFormat(_firstAndLastNameController, 'لطفاً نام و نام خوانوادگی خود را وارد کنید.',);
+    _emailError = _checkPasswordFormat(_emailController, 'لطفاً ایمیل خود را وارد کنید.',);
+    _phoneNumberError= _checkPasswordFormat(_phoneNumberController, 'لطفاً تلفن همراه خود را تکرار کنید.',);
+    _passwordError = _checkPasswordFormat(_passwordController, 'لطفاً رمز عبور را وارد کنید.',);
+    _repeatPasswordError = _checkPasswordFormat(_repeatPasswordController, 'لطفاً رمز عبور را تکرار کنید.',);
 
+    if(_firstAndLastNameError == null && _emailError == null && _phoneNumberError == null && _passwordError == null && _repeatPasswordError == null) {
+      Response<dynamic> httpsResponse = await Https.dio.post(
+        'register',
+        data: {
+          'name': _firstAndLastNameController.text,
+          'email': _emailController.text,
+          'password': _passwordController.text,
+          'confirm_password': _repeatPasswordController.text
+        },
+        options: Options(headers: headers),
+      );
+
+      CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+      setState(() {
+        _registered = customResponse.success;
+
+        if (_registered) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar(context, Ionicons.checkmark_done_outline, 'خوش آمدید.',),
+          );
+        }
+
+        _firstAndLastNameController = TextEditingController();
+        _emailController = TextEditingController();
+        _phoneNumberController = TextEditingController();
+        _passwordController = TextEditingController();
+        _repeatPasswordController = TextEditingController();
+      });
+    }
+  }
+
+  String? _checkFirstAndLastNameFormat(TextEditingController textEditingController, String? errorText) {
+    String? _errorText;
+
+    if(textEditingController.text.isEmpty && errorText != null) {
+      _errorText  = errorText;
+    } else if ((textEditingController.text.isEmpty) || ((textEditingController.text.length >= 3) && (!textEditingController.text.contains('  ')))) {
+      _errorText = null;
+    } else if ((textEditingController.text.length < 3) || (textEditingController.text.contains('  '))) {
+      _errorText = 'لطفاً نام و نام خانوادگی معتبر وارد کنید.';
+    }
+
+    return _errorText;
+  }
+
+  String? _checkEmailFormat(TextEditingController textEditingController, String? errorText) {
+    String? _errorText;
+    bool _checkEmailFormat = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(textEditingController.text);
+
+    if(textEditingController.text.isEmpty && errorText != null) {
+      _errorText  = errorText;
+    } else if ((textEditingController.text.isEmpty) || (_checkEmailFormat)) {
+      _errorText = null;
+    } else if (!_checkEmailFormat) {
+      _errorText = 'لطفاً ایمیل معتبر وارد کنید.';
+    }
+
+    return _errorText;
+  }
+
+  String? _checkPhoneNumberFormat(TextEditingController textEditingController, String? errorText) {
+    String? _errorText;
+
+    if(textEditingController.text.isEmpty && errorText != null) {
+      _errorText  = errorText;
+    } else if((textEditingController.text.isEmpty) || (textEditingController.text.isValidIranianMobileNumber())) {
+      _errorText  = null;
+    } else if (!textEditingController.text.isValidIranianMobileNumber()) {
+      _errorText = 'لطفاً تلفن همراه معتبر وارد کنید.';
+    }
+
+    return _errorText;
+  }
+
+  String? _checkPasswordFormat(TextEditingController textEditingController, String? errorText) {
+    String? _errorText;
+
+    if(textEditingController.text.isEmpty && errorText != null) {
+      _errorText  = errorText;
+    } else if ((textEditingController.text.isEmpty) ||
+        (textEditingController.text.length == 9)) {
+      _errorText = null;
+    } else if (textEditingController.text.length < 10) {
+      _errorText = 'رمز عبور نباید کمتر از 9 کاراکتر باشد.';
+    } else if (textEditingController.text.contains(' ')) {
+      _errorText = 'رمز عبور نباید شامل جای خالی باشد.';
+    }
+
+    return _errorText;
   }
 }

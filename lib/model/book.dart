@@ -55,7 +55,7 @@ class Book {
 
     marked = existingInUserMarkedBooks ? true : mark(id, database.user.markedBooks);
     numberOfVotes = 0;
-    numberOfStars = 0;
+    numberOfStars = double.parse(product['rating']).toInt();
 
     aboutBook = product['clear_description'] ?? 'aboutBook';
 

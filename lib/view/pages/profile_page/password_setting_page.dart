@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -140,7 +142,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         onChanged: (String text) {
           setState(() {
             _previousPasswordError =
-                _checkPasswordFormat(_previousPasswordController, false, null);
+                _checkPasswordFormat(_previousPasswordController, null);
           });
         },
       ),
@@ -162,7 +164,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _newPasswordError = _checkPasswordFormat(_newPasswordController, false, null);
+            _newPasswordError = _checkPasswordFormat(_newPasswordController, null);
           });
         },
       ),
@@ -185,7 +187,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         onChanged: (String text) {
           setState(() {
             _repeatNewPasswordError =
-                _checkPasswordFormat(_repeatNewPasswordController, false, null);
+                _checkPasswordFormat(_repeatNewPasswordController, null);
           });
         },
       ),
@@ -220,9 +222,9 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
 
   void _newPasswordRegistration() async {
     try {
-      _previousPasswordError = _checkPasswordFormat(_previousPasswordController, true, 'لطفاً رمز عبور قبلی را وارد کنید.',);
-      _newPasswordError = _checkPasswordFormat(_newPasswordController, true, 'لطفاً رمز عبور جدید را وارد کنید.',);
-      _repeatNewPasswordError = _checkPasswordFormat(_repeatNewPasswordController, true, 'لطفاً رمز عبور جدید را تکرار کنید.',);
+      _previousPasswordError = _checkPasswordFormat(_previousPasswordController, 'لطفاً رمز عبور قبلی را وارد کنید.',);
+      _newPasswordError = _checkPasswordFormat(_newPasswordController, 'لطفاً رمز عبور جدید را وارد کنید.',);
+      _repeatNewPasswordError = _checkPasswordFormat(_repeatNewPasswordController, 'لطفاً رمز عبور جدید را تکرار کنید.',);
 
       if(_previousPasswordError == null && _newPasswordError == null && _repeatNewPasswordError == null) {
         Response<dynamic> httpsResponse = await Https.dio.post(
@@ -259,10 +261,10 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
     }
   }
 
-  String? _checkPasswordFormat(TextEditingController textEditingController, bool newPasswordRegistration, String? errorText) {
+  String? _checkPasswordFormat(TextEditingController textEditingController, String? errorText) {
     String? _errorText;
 
-    if(textEditingController.text.isEmpty && newPasswordRegistration) {
+    if(textEditingController.text.isEmpty && errorText != null) {
       _errorText  = errorText;
     } else if ((textEditingController.text.isEmpty) ||
         (textEditingController.text.length == 9)) {

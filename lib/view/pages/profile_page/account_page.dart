@@ -17,15 +17,10 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final TextEditingController _firstAndLastNameController =
       TextEditingController(text: database.user.firstAndLastName);
-  final TextEditingController _nationalCodeController =
-      TextEditingController(text: database.user.nationalCode.toString());
   final TextEditingController _emailController =
       TextEditingController(text: database.user.email);
   final TextEditingController _phoneNumberController =
       TextEditingController(text: database.user.phoneNumber.toString());
-  final TextEditingController _addressController =
-      TextEditingController(text: database.user.address);
-
   late bool _permissionToEdit;
   late bool _recordNewInformation;
 
@@ -83,10 +78,8 @@ class _AccountPageState extends State<AccountPage> {
                 child: Column(
                   children: [
                     _firstAndLastName(),
-                    _nationalCode(),
                     _email(),
                     _phoneNumber(),
-                    _address(),
                   ],
                 ),
               ),
@@ -152,25 +145,6 @@ class _AccountPageState extends State<AccountPage> {
     );
   }
 
-  Padding _nationalCode() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 0.5.h),
-      child: TextField(
-        readOnly: !(_permissionToEdit ^ _recordNewInformation),
-        controller: _nationalCodeController,
-        keyboardType: TextInputType.number,
-        decoration: const InputDecoration(
-          helperText: 'کد ملی',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(
-              Ionicons.person
-          ),
-        ),
-        onChanged: (String text) {},
-      ),
-    );
-  }
-
   Padding _email() {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
@@ -202,25 +176,6 @@ class _AccountPageState extends State<AccountPage> {
           errorText: false ? '' : null,
           suffixIcon: Icon(
               Ionicons.phone_portrait_outline
-          ),
-        ),
-        onChanged: (String text) {},
-      ),
-    );
-  }
-
-  Padding _address() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 0.5.h),
-      child: TextField(
-        readOnly: !(_permissionToEdit ^ _recordNewInformation),
-        controller: _addressController,
-        keyboardType: TextInputType.streetAddress,
-        decoration: const InputDecoration(
-          helperText: 'آدرس',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(
-              Ionicons.location_outline
           ),
         ),
         onChanged: (String text) {},

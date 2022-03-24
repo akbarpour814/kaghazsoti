@@ -34,14 +34,15 @@ class Database {
   }
 
   Future<void> _initUser() async {
+    httpsResponse = await Https.dio.get('user', options: Options(headers: headers));
+
+    customResponse = CustomResponse.fromJson(httpsResponse.data);
+
     user = User(
       token: '50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA',
-      firstAndLastName: 'firstAndLastName',
-      nationalCode: 0,
-      email: 'email',
-      phoneNumber: 0,
-      address: 'address',
-      password: 'password',
+      firstAndLastName: "customResponse.data['name']",
+      email: "customResponse.data['email']",
+      phoneNumber: 0/*""customResponse.data['mobile']""*/,
       walletBalance: 0,
       cart: [],
       purchaseHistory: [],

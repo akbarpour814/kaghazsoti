@@ -29,7 +29,7 @@ class _SplashPageState extends State<SplashPage> {
   void _loginStep() async {
     sharedPreferences = await SharedPreferences.getInstance();
 
-    _firstLogin = sharedPreferences.getBool('firstLogin') ?? false;
+    _firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
 
     if (database.downloadDone) {
       Future.delayed(const Duration(seconds: 6), () {

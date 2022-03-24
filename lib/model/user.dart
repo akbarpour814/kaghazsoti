@@ -6,11 +6,8 @@ import 'book.dart';
 class User {
   late String token;
   late String firstAndLastName;
-  late int nationalCode;
   late String email;
   late int phoneNumber;
-  late String address;
-  late String password;
   late int walletBalance;
   late List cart;
   late List<Purchase> purchaseHistory;
@@ -21,11 +18,8 @@ class User {
   User({
     required this.token,
     required this.firstAndLastName,
-    required this.nationalCode,
     required this.email,
     required this.phoneNumber,
-    required this.address,
-    required this.password,
     required this.walletBalance,
     required this.cart,
     required this.purchaseHistory,

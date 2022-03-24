@@ -4,8 +4,8 @@ class CustomResponse {
   late String message;
 
   CustomResponse.fromJson(Map<String, dynamic> json) {
-    success = json['success'];
+    success = json['success'] ?? false;
     data = json['data'];
-    message = json['message'];
+    message = json['message'] ?? '';
   }
 }
