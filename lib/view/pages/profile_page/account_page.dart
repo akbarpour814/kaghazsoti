@@ -1,10 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/model/user.dart';
+import 'package:takfood_seller/view/view_models/custom_circular_progress_indicator.dart';
 import 'package:takfood_seller/view/view_models/custom_text_field.dart';
 import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../controller/custom_dio.dart';
+import '../../../controller/custom_response.dart';
 import '../../../controller/database.dart';
 
 class AccountPage extends StatefulWidget {
@@ -15,12 +19,10 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  final TextEditingController _firstAndLastNameController =
-      TextEditingController(text: database.user.firstAndLastName);
-  final TextEditingController _emailController =
-      TextEditingController(text: database.user.email);
-  final TextEditingController _phoneNumberController =
-      TextEditingController(text: database.user.phoneNumber.toString());
+  late TextEditingController _firstAndLastNameController;
+  late TextEditingController _emailController;
+  late TextEditingController _phoneNumberController;
+
   late bool _permissionToEdit;
   late bool _recordNewInformation;
 
@@ -30,6 +32,18 @@ class _AccountPageState extends State<AccountPage> {
     _recordNewInformation = false;
 
     super.initState();
+  }
+
+  Future _initUserInformation() async {
+    Response<dynamic> _customDio = await CustomDio.dio.get('user', options: Options(headers: headers));
+
+    if(_customDio.statusCode == 200) {
+      _firstAndLastNameController = TextEditingController(text: _customDio.data['name']);
+      _emailController = TextEditingController(text: _customDio.data['email']);
+      _phoneNumberController = TextEditingController(text: _customDio.data['mobile']);
+    }
+
+    return _customDio;
   }
 
   @override
@@ -67,25 +81,33 @@ class _AccountPageState extends State<AccountPage> {
   Widget _body() {
     return Center(
       child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _permissionToEditCheckbox(),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 5.0.h),
-                child: Column(
-                  children: [
-                    _firstAndLastName(),
-                    _email(),
-                    _phoneNumber(),
-                  ],
-                ),
-              ),
-              _informationRegistrationButton(),
-            ],
-          ),
+        child: FutureBuilder(
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            return snapshot.hasData
+                ? Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _permissionToEditCheckbox(),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 5.0.h),
+                          child: Column(
+                            children: [
+                              _firstAndLastName(),
+                              _email(),
+                              _phoneNumber(),
+                            ],
+                          ),
+                        ),
+                        _informationRegistrationButton(),
+                      ],
+                    ),
+                  )
+                : const CustomCircularProgressIndicator();
+          },
+          future: _initUserInformation(),
         ),
       ),
     );
@@ -136,9 +158,7 @@ class _AccountPageState extends State<AccountPage> {
         decoration: const InputDecoration(
           helperText: 'نام و نام خانوادگی',
           errorText: false ? '' : null,
-          suffixIcon: Icon(
-              Ionicons.person_outline
-          ),
+          suffixIcon: Icon(Ionicons.person_outline),
         ),
         onChanged: (String text) {},
       ),
@@ -155,9 +175,7 @@ class _AccountPageState extends State<AccountPage> {
         decoration: const InputDecoration(
           helperText: 'ایمیل',
           errorText: false ? '' : null,
-          suffixIcon: Icon(
-              Ionicons.mail_outline
-          ),
+          suffixIcon: Icon(Ionicons.mail_outline),
         ),
         onChanged: (String text) {},
       ),
@@ -174,9 +192,7 @@ class _AccountPageState extends State<AccountPage> {
         decoration: const InputDecoration(
           helperText: 'تلفن همراه',
           errorText: false ? '' : null,
-          suffixIcon: Icon(
-              Ionicons.phone_portrait_outline
-          ),
+          suffixIcon: Icon(Ionicons.phone_portrait_outline),
         ),
         onChanged: (String text) {},
       ),
@@ -203,6 +219,4 @@ class _AccountPageState extends State<AccountPage> {
       ),
     );
   }
-
-
 }

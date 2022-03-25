@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:takfood_seller/view/view_models/custom_circular_progress_indicator.dart';
 import '/view/view_models/persistent_bottom_navigation_bar.dart';
 import '/controller/database.dart';
 import 'login_page.dart';
@@ -65,27 +66,7 @@ class _SplashPageState extends State<SplashPage> {
                 ],
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 18.0),
-                  child: SizedBox(
-                    width: 5.0.w,
-                    height: 5.0.w,
-                    child: CircularProgressIndicator(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-                Text(
-                  'لطفاً شکیبا باشید.',
-                  style: TextStyle(
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-              ],
-            ),
+            const CustomCircularProgressIndicator(),
           ],
         ),
       ),
