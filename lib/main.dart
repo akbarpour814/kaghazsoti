@@ -1,10 +1,14 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:material_color_generator/material_color_generator.dart';
+import 'package:takfood_seller/test.dart';
 import 'package:takfood_seller/view/pages/login_pages/login_page.dart';
 import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
+import 'controller/custom_response.dart';
 import 'controller/database.dart';
+import 'controller/custom_dio.dart';
 import 'view/pages/login_pages/splash_page.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,7 +34,16 @@ late SharedPreferences sharedPreferences;
 String defaultBanner = 'assets/images/InShot_۲۰۲۲۰۳۲۳_۱۴۳۱۱۲۶۲۴.jpg';
 String defaultBookCover = 'assets/images/defaultBookCover.jpg';
 
+late List<int> markedUser = [];
+
 void main() async {
+  Response<dynamic> httpsResponse = await CustomDio.dio.get('dashboard/users/wish');
+  CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+
+  for(Map<String, dynamic> book in customResponse.data['data']) {
+    markedUser.add(book['id']);
+  }
+
   runApp(
     SharedValue.wrapApp(
       const MyApp(),
@@ -76,7 +89,7 @@ class MyApp extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 child: child!,
               ),
-              home: const SplashPage(),
+              home:  SplashPage(),
             );
           },
         );

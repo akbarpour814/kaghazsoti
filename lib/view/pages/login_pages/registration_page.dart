@@ -5,7 +5,7 @@ import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:sizer/sizer.dart';
 import '../../../controller/custom_response.dart';
 import '../../../controller/database.dart';
-import '../../../controller/https.dart';
+import '../../../controller/custom_dio.dart';
 import '../../view_models/custom_snack_bar.dart';
 import '/view/view_models/persistent_bottom_navigation_bar.dart';
 
@@ -268,7 +268,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _repeatPasswordError = _checkPasswordFormat(_repeatPasswordController, 'لطفاً رمز عبور را تکرار کنید.',);
 
     if(_firstAndLastNameError == null && _emailError == null && _phoneNumberError == null && _passwordError == null && _repeatPasswordError == null) {
-      Response<dynamic> httpsResponse = await Https.dio.post(
+      Response<dynamic> httpsResponse = await CustomDio.dio.post(
         'register',
         data: {
           'name': _firstAndLastNameController.text,

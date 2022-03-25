@@ -23,7 +23,7 @@ class _PersistentBottomNavigationBarState extends State<PersistentBottomNavigati
   void initState() {
     _persistentTabController = PersistentTabController(initialIndex: 2);
     _pages = const [
-      LibraryPage(),
+      MyLibraryPage(),
       CategoryPage(),
       HomePage(),
       SearchPage(),

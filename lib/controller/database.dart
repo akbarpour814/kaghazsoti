@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import '/controller/custom_response.dart';
-import '/controller/https.dart';
+import '/controller/custom_dio.dart';
 import '/model/HomePageCategoryData.dart';
 
 import '/model/book.dart';
@@ -11,7 +11,11 @@ import '/model/comment.dart';
 import '/model/user.dart';
 
 late Database database;
-Map<String, String> headers = {'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA', 'Accept': 'application/json', 'client': 'api'};
+Map<String, String> headers =
+{
+  'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA',
+  'Accept': 'application/json',
+  'client': 'api'};
 
 class Database {
   late Response<dynamic> httpsResponse;
@@ -34,7 +38,7 @@ class Database {
   }
 
   Future<void> _initUser() async {
-    httpsResponse = await Https.dio.get('user', options: Options(headers: headers));
+    httpsResponse = await CustomDio.dio.get('user', options: Options(headers: headers));
 
     customResponse = CustomResponse.fromJson(httpsResponse.data);
 
@@ -57,19 +61,19 @@ class Database {
     //initialize purchaseHistory
 
     //initialize markedBooks
-    httpsResponse = await Https.dio.get('dashboard/users/wish', options: Options(headers: headers));
+    httpsResponse = await CustomDio.dio.get('dashboard/users/wish', options: Options(headers: headers));
     customResponse = CustomResponse.fromJson(httpsResponse.data);
 
     for(Map<String, dynamic> book in customResponse.data['data']) {
-      Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+      Response<dynamic> httpsResponse = await CustomDio.dio.post('books/${book['slug']}');
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      user.markedBooks.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: true,));
+      user.markedBooks.add(Book.fromJson(customResponse.data));
     }
 
     //initialize comments
-    httpsResponse = await Https.dio.get('dashboard/tickets', options: Options(headers: headers));
+    httpsResponse = await CustomDio.dio.get('dashboard/tickets', options: Options(headers: headers));
     customResponse = CustomResponse.fromJson(httpsResponse.data);
 
     for(Map<String, dynamic> comment in customResponse.data['data']) {
@@ -78,21 +82,21 @@ class Database {
 
 
     //initialize library
-    httpsResponse = await Https.dio.get('dashboard/my_books', options: Options(headers: headers));
+    httpsResponse = await CustomDio.dio.get('dashboard/my_books', options: Options(headers: headers));
 
     Map<String, dynamic> data = httpsResponse.data;
 
     for(Map<String, dynamic> book in data['data']) {
-      Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+      Response<dynamic> httpsResponse = await CustomDio.dio.post('books/${book['slug']}');
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      user.library.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false,));
+      user.library.add(Book.fromJson(customResponse.data));
     }
   }
 
   Future<void> _initCategories() async {
-    httpsResponse = await Https.dio.post('categories');
+    httpsResponse = await CustomDio.dio.post('categories');
 
     customResponse = CustomResponse.fromJson(httpsResponse.data);
 
@@ -110,7 +114,7 @@ class Database {
   }
 
   Future<void> _initHomePageCategories() async {
-    httpsResponse = await Https.dio.post('home');
+    httpsResponse = await CustomDio.dio.post('home');
 
     customResponse = CustomResponse.fromJson(httpsResponse.data);
 
@@ -131,34 +135,25 @@ class Database {
   }
 
   Future<void> _initBooks() async {
-    httpsResponse = await Https.dio.post('books');
+    httpsResponse = await CustomDio.dio.post('books');
 
     customResponse = CustomResponse.fromJson(httpsResponse.data);
 
     int lastPage = customResponse.data['last_page'] ?? 0;
 
     for(int i = 1; i <= lastPage; ++i) {
-      httpsResponse = await Https.dio.post('books', queryParameters: {'page': i},);
+      httpsResponse = await CustomDio.dio.post('books', queryParameters: {'page': i},);
 
       customResponse = CustomResponse.fromJson(httpsResponse.data);
 
       for(Map<String, dynamic> book in customResponse.data['data']) {
         // print(book['slug']);
-        Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+        Response<dynamic> httpsResponse = await CustomDio.dio.post('books/${book['slug']}');
 
         CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-        books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: true));
+        books.add(Book.fromJson(customResponse.data));
       }
     }
   }
-
-
-  bool mark(int id) {
-    int index = user.markedBooks.indexWhere((element) => element.id == id);
-
-    return index >= 0 ? true : false;
-  }
-
-
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
@@ -11,7 +13,7 @@ import '/view/view_models/property.dart';
 import 'package:sizer/sizer.dart';
 
 import '/controller/database.dart';
-import '/controller/https.dart';
+import '/controller/custom_dio.dart';
 import 'player_bottom_navigation_bar.dart';
 
 class BookIntroductionPage extends StatefulWidget {
@@ -62,20 +64,20 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       leading: InkWell(
         child: Icon(
           Ionicons.bookmark_outline,
-          color: widget.book.marked ? Colors.pinkAccent : Colors.white,
+          color: markedUser.contains(widget.book.id) ? Colors.pinkAccent : Colors.white,
         ),
         onTap: () {
           setState(() {
-            int index = database.user.markedBooks.indexWhere((element) => element.id == widget.book.id);
+            int index = markedUser.indexWhere((element) => element == widget.book.id);
 
             if(index >= 0) {
               widget.book.marked = false;
 
-              database.user.markedBooks.removeAt(index);
+              markedUser.removeAt(index);
             } else {
               widget.book.marked = true;
 
-              database.user.markedBooks.add(widget.book);
+              //markedUser.add(widget.book);
             }
           });
         },
@@ -97,7 +99,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
   }
 
   void mark(int id) async {
-    await Https.dio.post('dashboard/users/wish', data: {'book_id': id}, options: Options(headers: headers));
+    await CustomDio.dio.post('dashboard/users/wish', data: {'book_id': id}, options: Options(headers: headers));
   }
 
   SingleChildScrollView _body() {
@@ -157,16 +159,21 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
               setState(() {
                 audiobookInPlay = widget.book;
 
+                //audioPlayer.setUrl(widget.book.demo);
                 audioPlayer.setUrl(widget.book.demo);
-              });
 
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return AudiobookPlayerPage();
-                  },
-                ),
-              );
+                // audioIsPlaying.$ = true;
+                //
+                // audioPlayer.play();
+
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return AudiobookPlayerPage();
+                    },
+                  ),
+                );
+              });
             },
             child: const Icon(
               Ionicons.play_outline,

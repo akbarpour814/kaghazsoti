@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '/controller/custom_response.dart';
-import '/controller/https.dart';
+import '/controller/custom_dio.dart';
 import 'book.dart';
 
 class HomePageCategoryData {
@@ -20,21 +20,21 @@ class HomePageCategoryData {
 
   void _initLatestBooks(Map<String, dynamic> json) async {
     for(Map<String, dynamic> book in json['new']) {
-      Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+      Response<dynamic> httpsResponse = await CustomDio.dio.post('books/${book['slug']}');
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      latestBooks.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false,));
+      latestBooks.add(Book.fromJson(customResponse.data));
     }
   }
 
   void _initBestSellingBooks(Map<String, dynamic> json) async {
     for(Map<String, dynamic> book in json['new']) {
-      Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+      Response<dynamic> httpsResponse = await CustomDio.dio.post('books/${book['slug']}');
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      bestSellingBooks.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false,));
+      bestSellingBooks.add(Book.fromJson(customResponse.data));
     }
   }
 }

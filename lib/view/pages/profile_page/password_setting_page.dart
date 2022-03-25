@@ -11,7 +11,7 @@ import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dar
 import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_response.dart';
-import '../../../controller/https.dart';
+import '../../../controller/custom_dio.dart';
 
 class PasswordSettingPage extends StatefulWidget {
   const PasswordSettingPage({Key? key}) : super(key: key);
@@ -227,7 +227,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
       _repeatNewPasswordError = _checkPasswordFormat(_repeatNewPasswordController, 'لطفاً رمز عبور جدید را تکرار کنید.',);
 
       if(_previousPasswordError == null && _newPasswordError == null && _repeatNewPasswordError == null) {
-        Response<dynamic> httpsResponse = await Https.dio.post(
+        Response<dynamic> httpsResponse = await CustomDio.dio.post(
           'dashboard/user/password',
           data: {
             'old_password': _previousPasswordController.text,

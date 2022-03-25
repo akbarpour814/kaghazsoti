@@ -4,7 +4,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_response.dart';
-import '../../../controller/https.dart';
+import '../../../controller/custom_dio.dart';
 import '/controller/database.dart';
 import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
@@ -34,7 +34,7 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
   }
 
-  Future<void> _initBooks() async {
+/*  Future<void> _initBooks() async {
     Response<dynamic> httpsResponse = await Https.dio.post('books');
 
     CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
@@ -52,12 +52,11 @@ class _SearchPageState extends State<SearchPage> {
 
         CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-
         _books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: true));
       }
     }
 
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

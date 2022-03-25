@@ -49,6 +49,8 @@ dependencies:
 
   material_color_generator: ^1.1.0
 
+  pull_to_refresh: ^2.0.0
+
 
   restart_app: ^1.1.0
 

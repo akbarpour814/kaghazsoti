@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '/controller/custom_response.dart';
-import '/controller/https.dart';
+import '/controller/custom_dio.dart';
 import 'book.dart';
 
 class Category {
@@ -41,11 +41,11 @@ class Subcategory {
 
   void _initBooks(Map<String, dynamic> json) async {
     for(Map<String, dynamic> book in json['children']) {
-      Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+      Response<dynamic> httpsResponse = await CustomDio.dio.post('books/${book['slug']}');
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-      books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: false,));
+      books.add(Book.fromJson(customResponse.data));
     }
   }
 }

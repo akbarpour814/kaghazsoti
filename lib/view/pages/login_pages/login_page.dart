@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:takfood_seller/controller/https.dart';
+import 'package:takfood_seller/controller/custom_dio.dart';
 import 'package:takfood_seller/controller/custom_response.dart';
 import 'package:takfood_seller/view/pages/login_pages/password_recovery_page.dart';
 import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
@@ -203,7 +203,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   void _informationConfirm({required String email, required String password}) async {
-    Response<dynamic> response = await Https.dio.post('login', data: {'email' : email, 'password' : password},);
+    Response<dynamic> response = await CustomDio.dio.post('login', data: {'email' : email, 'password' : password},);
     
     _informationConfirmResponse = CustomResponse.fromJson(response.data);
   }

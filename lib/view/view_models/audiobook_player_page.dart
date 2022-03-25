@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:takfood_seller/main.dart';
+import 'package:takfood_seller/model/book.dart';
+import 'package:takfood_seller/view/view_models/book_introduction_page.dart';
 import 'package:takfood_seller/view/view_models/progress_bar/custom_progress_bar.dart';
 import 'package:takfood_seller/view/view_models/progress_bar/playOrPauseController.dart';
 import 'package:sizer/sizer.dart';
@@ -17,7 +19,6 @@ class AudiobookPlayerPage extends StatefulWidget {
 }
 
 class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +92,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(audiobookInPlay.author),
+                        Text(audiobookInPlay.parts[audioPlayer.currentIndex!].name),
                         SizedBox(
                           height: 4.0.h,
                         ),
@@ -131,25 +132,34 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
 
   Flexible _bookCover() {
     return Flexible(
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Theme.of(context).primaryColor),
-          borderRadius: const BorderRadius.all(
-            Radius.circular(5.0),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) {
+              return BookIntroductionPage(book: audiobookInPlay);
+            },
+          ));
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Theme.of(context).primaryColor),
+            borderRadius: const BorderRadius.all(
+              Radius.circular(5.0),
+            ),
+            shape: BoxShape.rectangle,
           ),
-          shape: BoxShape.rectangle,
-        ),
-        width: 40.0.w,
-        height: 20.0.h,
-        child: ClipRRect(
-          borderRadius: const BorderRadius.all(
-            Radius.circular(5.0),
-          ),
-          child: FadeInImage.assetNetwork(
-            placeholder: defaultBookCover,
-            image:  audiobookInPlay.bookCoverPath,
-            fit: BoxFit.cover,
+          width: 40.0.w,
+          height: 20.0.h,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.all(
+              Radius.circular(5.0),
+            ),
+            child: FadeInImage.assetNetwork(
+              placeholder: defaultBookCover,
+              image: audiobookInPlay.bookCoverPath,
+              fit: BoxFit.cover,
+            ),
           ),
         ),
       ),
@@ -175,7 +185,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
           onTap: audioPlayer.hasNext ? audioPlayer.seekToNext : null,
           child: Icon(
             Ionicons.play_forward_outline,
-            color: Theme.of(context).primaryColor,
+            color: audioPlayer.hasNext ? Theme.of(context).primaryColor : Colors.grey,
           ),
         ),
       ),
@@ -184,7 +194,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
 
   Flexible _playOrPauseButton() {
     return Flexible(
-      child: PlayOrPauseController(playerBottomNavigationBar: false,),
+      child: PlayOrPauseController(
+        playerBottomNavigationBar: false,
+      ),
     );
   }
 
@@ -196,7 +208,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
           onTap: audioPlayer.hasPrevious ? audioPlayer.seekToPrevious : null,
           child: Icon(
             Ionicons.play_back_outline,
-            color: Theme.of(context).primaryColor,
+            color: audioPlayer.hasPrevious ? Theme.of(context).primaryColor : Colors.grey,
           ),
         ),
       ),
@@ -220,17 +232,21 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
   Widget _bookIndex() {
     Column _bookIndex = Column(
       children: List<Card>.generate(
-        40,
-        (index) => Card(
-          color: Colors.transparent,
-          elevation: 0.0,
-          shape: Theme.of(context).cardTheme.shape,
-          child: ListTile(
-            title: const Text('فصل 1 - غوغای ستارگان'),
-            subtitle: Text(audioPlayer.duration.toString()),
-            trailing: const Icon(Ionicons.download_outline),
-          ),
-        ),
+        audiobookInPlay.parts.length,
+        (index) {
+          Part _part = audiobookInPlay.parts[index];
+
+          return Card(
+            color: Colors.transparent,
+            elevation: 0.0,
+            shape: Theme.of(context).cardTheme.shape,
+            child: ListTile(
+              title: Text(_part.name),
+              subtitle: Text(_part.time),
+              trailing: index == audioPlayer.currentIndex! ? const Icon(Ionicons.download_outline) : null,
+            ),
+          );
+        },
       ),
     );
 

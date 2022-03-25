@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:takfood_seller/controller/database.dart';
 import 'package:takfood_seller/main.dart';
 import 'package:takfood_seller/model/book.dart';
@@ -9,19 +12,39 @@ import 'package:takfood_seller/view/view_models/book_introduction_page.dart';
 import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
 
-class LibraryPage extends StatefulWidget {
-  const LibraryPage({Key? key}) : super(key: key);
+import '../../../controller/custom_dio.dart';
+import '../../../controller/custom_response.dart';
+
+class MyLibraryPage extends StatefulWidget {
+  const MyLibraryPage({Key? key}) : super(key: key);
 
   @override
-  _LibraryPageState createState() => _LibraryPageState();
+  _MyLibraryPageState createState() => _MyLibraryPageState();
 }
 
-class _LibraryPageState extends State<LibraryPage> {
+class _MyLibraryPageState extends State<MyLibraryPage> {
+  late List<MyBook> _myBooks;
+
+  @override
+  void initState() {
+    _myBooks = [];
+
+    super.initState();
+  }
+
+  Future _initMyBooks() async {
+    Response<dynamic> httpsResponse = await CustomDio.dio.get('dashboard/my_books');
+    Map<String, dynamic> data = httpsResponse.data;
+
+    return httpsResponse;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
+      //body: FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ?  : const CircularProgressIndicator();}, future: _initMyBooks(),),
       bottomNavigationBar: const PlayerBottomNavigationBar(),
     );
   }
@@ -72,15 +95,25 @@ class _MyBookState extends State<MyBook> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              return BookIntroductionPage(
-                book: widget.book,
-              );
-            },
-          ),
-        );
+        setState(() {
+          _initParts();
+
+          audiobookInPlay = widget.book;
+
+          audioPlayer.setAudioSource(
+            ConcatenatingAudioSource(
+              children: List<AudioSource>.generate(audiobookInPlay.parts.length, (index) => AudioSource.uri(Uri.parse(audiobookInPlay.parts[index].path),),),
+            ),
+          );
+
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return const AudiobookPlayerPage();
+              },
+            ),
+          );
+        });
       },
       child: Card(
         color: Colors.transparent,
@@ -94,6 +127,12 @@ class _MyBookState extends State<MyBook> {
         ),
       ),
     );
+  }
+
+  void _initParts() async {
+    Response<dynamic> httpsResponse = await CustomDio.dio.post('dashboard/books/${widget.book.slug}/audio');
+
+    widget.book.setParts(httpsResponse.data['data']);
   }
 
   Padding _bookCover() {

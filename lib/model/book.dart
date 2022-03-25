@@ -1,7 +1,8 @@
-import '/controller/database.dart';
+import 'package:takfood_seller/main.dart';
 
 class Book {
   late int id;
+  late String slug;
   late String name;
   late String category;
   late String subcategory;
@@ -21,58 +22,114 @@ class Book {
   late int numberOfStars;
   late String aboutBook;
   late String partOfTheBook;
-  late List<String> comments;
-  late List<String> audioPaths;
+  late List<Review> reviews;
+  late List<Part> parts;
   late String demo;
   late String bookCoverPath;
   late List<Book> otherBooksByThePublisher;
   late List<Book> relatedBooks;
 
-  Book.fromJson({required Map<String, dynamic> book, required bool existingInUserMarkedBooks}) {
-    Map<String, dynamic> product = book['product'];
+  Book.fromJson(Map<String, dynamic> json) {
+    Map<String, dynamic> product = json['product'];
 
-    id = product['id'] ?? -1;
-    name = product['title'] ?? 'name';
-    category = (product['parent_category'])['name'] ?? 'category';
+    id = product['id'];
+    slug = product['slug'];
+    name = product['title'];
+    category = (product['category'])['name'];
+    subcategory = (product['parent_category'])['name'];
+    author = (product['author'])['name'];
+    announcer = (product['narrator'])['name'];
 
-    subcategory = (product['category'])['name'] ?? 'category';;
-
-    author = (product['author'])['name'] ?? 'author';
-    announcer = (product['narrator'])['name'] ?? 'announcer';
-
+    /////////////////////
     fileSize = 0;
+    ////////////////////////
 
-    publisherOfPrintedVersion = (product['publisher'])['name'] ?? 'publisherOfPrintedVersion';
-    printedVersionYear = product['publish_year'] ?? -1;
-    publisherOfAudioVersion = (product['audio_publisher'])['name'] ?? 'publisherOfAudioVersion';
-    audioVersionYear = product['audio_publish_year'] ?? -1;
+    publisherOfPrintedVersion = (product['publisher'])['name'];
+    printedVersionYear = product['publish_year'] ?? 0;
+    publisherOfAudioVersion = (product['audio_publisher'])['name'];
+    audioVersionYear = product['audio_publish_year'] ?? 0;
 
+    ///////////////////
     numberOfChapters = 0;
     numberOfPages = 0;
     duration = 'duration';
+    //////////////////////
 
-    price = product['price'] ?? 'price';
 
-    marked = existingInUserMarkedBooks ? true : mark(id, database.user.markedBooks);
+    price = product['price'];
+
+    //////////////////////////
+    marked = markedUser.contains(product['id']);
     numberOfVotes = 0;
     numberOfStars = double.parse(product['rating']).toInt();
-
-    aboutBook = product['clear_description'] ?? 'aboutBook';
-
+    aboutBook = 'aboutBook';
     partOfTheBook = 'partOfTheBook';
-    comments = [];
-    audioPaths = List<String>.generate(2, (index) => 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}');
+    /////////////////////////
+
+
+    reviews = [];
+    setReviews(json['reviews']);
+
+    parts = [];
     demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}';
     bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
-    otherBooksByThePublisher = [];
 
-    List similar = book['similar'];
-    relatedBooks = []/*List<Book>.generate(similar.length, (index) => Book.fromJson(book: similar[index], existingInUserMarkedBooks: false))*/;
+    /////////////////////////////////////////////////////////
+    otherBooksByThePublisher = [];
+    /////////////////////////////////////////////////////////
+
+    relatedBooks = [];
   }
 
-  bool mark(int id, List<Book> userMarkedBooks) {
-    int index = userMarkedBooks.indexWhere((element) => element.id == id);
 
-    return index >= 0 ? true : false;
+  void setReviews(List<dynamic> reviewsAsMap) {
+    for(Map<String, dynamic> review in reviewsAsMap) {
+      reviews.add(Review.fromJson(review));
+    }
+  }
+
+  void setParts(List<dynamic> partsAsMap) {
+    for(Map<String, dynamic> part in partsAsMap) {
+      parts.add(Part.fromJson(part));
+    }
+  }
+
+}
+
+class Review {
+  late int userName;
+  late String review;
+  late int numberOfStars;
+
+  Review.fromJson(Map<String, dynamic> json) {
+    userName = json['user_id'];
+    review = json['review'];
+    numberOfStars = json['rating'];
   }
 }
+
+class Part {
+  late String name;
+  late String time;
+  late String path;
+
+  Part.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    time = json['timer'];
+    path = 'https://kaghazsoti.uage.ir/storage/book-files/${json['url']}';
+  }
+}
+/*
+class RelatedBook {
+  late int id;
+  late String slug;
+  late String name;
+  late String bookCoverPath;
+
+  RelatedBook.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['title'];
+    slug = json['slug'];
+    bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${json['image']}';
+  }
+}*/
