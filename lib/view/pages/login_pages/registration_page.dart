@@ -7,7 +7,7 @@ import '../../../controller/custom_response.dart';
 import '../../../controller/database.dart';
 import '../../../controller/custom_dio.dart';
 import '../../view_models/custom_snack_bar.dart';
-import '/view/view_models/persistent_bottom_navigation_bar.dart';
+import '/controller/functions_for_checking_user_information_format.dart';
 
 import '../../../main.dart';
 
@@ -31,12 +31,12 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String? _passwordError;
   String? _repeatPasswordError;
 
-  late bool _registered;
+  late bool _registeredInformation;
   late bool _obscureText;
 
   @override
   void initState() {
-    _registered = false;
+    _registeredInformation = false;
     _obscureText = true;
 
     super.initState();
@@ -66,7 +66,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             ),
           ),
           onTap: () {
-            if (!_registered) {
+            if (!_registeredInformation) {
               Navigator.of(context).pop();
             }
           },
@@ -135,7 +135,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        readOnly: _registered,
+        readOnly: _registeredInformation,
         controller: _firstAndLastNameController,
         keyboardType: TextInputType.name,
         decoration: InputDecoration(
@@ -145,7 +145,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _firstAndLastNameError = _checkFirstAndLastNameFormat(_firstAndLastNameController, null);
+            _firstAndLastNameError = UserInformationFormatCheck.checkFirstAndLastNameFormat(_firstAndLastNameController, null);
           });
         },
       ),
@@ -156,7 +156,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        readOnly: _registered,
+        readOnly: _registeredInformation,
         controller: _emailController,
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
@@ -166,7 +166,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _emailError = _checkEmailFormat(_emailController, null);
+            _emailError = UserInformationFormatCheck.checkEmailFormat(_emailController, null);
           });
         },
       ),
@@ -177,7 +177,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        readOnly: _registered,
+        readOnly: _registeredInformation,
         controller: _phoneNumberController,
         keyboardType: TextInputType.phone,
         decoration: InputDecoration(
@@ -187,7 +187,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _phoneNumberError = _checkPhoneNumberFormat(_phoneNumberController, null);
+            _phoneNumberError = UserInformationFormatCheck.checkPhoneNumberFormat(_phoneNumberController, null);
           });
         },
       ),
@@ -209,7 +209,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-             _passwordError = _checkPasswordFormat(_passwordController, null);
+             _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, null);
           });
         },
       ),
@@ -231,7 +231,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-             _repeatPasswordError = _checkPasswordFormat(_repeatPasswordController, null);
+             _repeatPasswordError = UserInformationFormatCheck.checkPasswordFormat(_repeatPasswordController, null);
           });
         },
       ),
@@ -261,11 +261,11 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _informationRegistration() async {
-    _firstAndLastNameError = _checkPasswordFormat(_firstAndLastNameController, 'لطفاً نام و نام خوانوادگی خود را وارد کنید.',);
-    _emailError = _checkPasswordFormat(_emailController, 'لطفاً ایمیل خود را وارد کنید.',);
-    _phoneNumberError= _checkPasswordFormat(_phoneNumberController, 'لطفاً تلفن همراه خود را تکرار کنید.',);
-    _passwordError = _checkPasswordFormat(_passwordController, 'لطفاً رمز عبور را وارد کنید.',);
-    _repeatPasswordError = _checkPasswordFormat(_repeatPasswordController, 'لطفاً رمز عبور را تکرار کنید.',);
+    _firstAndLastNameError = UserInformationFormatCheck.checkFirstAndLastNameFormat(_firstAndLastNameController, 'لطفاً نام و نام خوانوادگی خود را وارد کنید.',);
+    _emailError = UserInformationFormatCheck.checkEmailFormat(_emailController, 'لطفاً ایمیل خود را وارد کنید.',);
+    _phoneNumberError= UserInformationFormatCheck.checkPhoneNumberFormat(_phoneNumberController, 'لطفاً تلفن همراه خود را تکرار کنید.',);
+    _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, 'لطفاً رمز عبور را وارد کنید.',);
+    _repeatPasswordError = UserInformationFormatCheck.checkPasswordFormat(_repeatPasswordController, 'لطفاً رمز عبور را تکرار کنید.',);
 
     if(_firstAndLastNameError == null && _emailError == null && _phoneNumberError == null && _passwordError == null && _repeatPasswordError == null) {
       Response<dynamic> httpsResponse = await CustomDio.dio.post(
@@ -282,9 +282,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
       setState(() {
-        _registered = customResponse.success;
+        _registeredInformation = customResponse.success;
 
-        if (_registered) {
+        if (_registeredInformation) {
           ScaffoldMessenger.of(context).showSnackBar(
             customSnackBar(context, Ionicons.checkmark_done_outline, 'خوش آمدید.',),
           );
@@ -297,65 +297,5 @@ class _RegistrationPageState extends State<RegistrationPage> {
         _repeatPasswordController = TextEditingController();
       });
     }
-  }
-
-  String? _checkFirstAndLastNameFormat(TextEditingController textEditingController, String? errorText) {
-    String? _errorText;
-
-    if(textEditingController.text.isEmpty && errorText != null) {
-      _errorText  = errorText;
-    } else if ((textEditingController.text.isEmpty) || ((textEditingController.text.length >= 3) && (!textEditingController.text.contains('  ')))) {
-      _errorText = null;
-    } else if ((textEditingController.text.length < 3) || (textEditingController.text.contains('  '))) {
-      _errorText = 'لطفاً نام و نام خانوادگی معتبر وارد کنید.';
-    }
-
-    return _errorText;
-  }
-
-  String? _checkEmailFormat(TextEditingController textEditingController, String? errorText) {
-    String? _errorText;
-    bool _checkEmailFormat = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(textEditingController.text);
-
-    if(textEditingController.text.isEmpty && errorText != null) {
-      _errorText  = errorText;
-    } else if ((textEditingController.text.isEmpty) || (_checkEmailFormat)) {
-      _errorText = null;
-    } else if (!_checkEmailFormat) {
-      _errorText = 'لطفاً ایمیل معتبر وارد کنید.';
-    }
-
-    return _errorText;
-  }
-
-  String? _checkPhoneNumberFormat(TextEditingController textEditingController, String? errorText) {
-    String? _errorText;
-
-    if(textEditingController.text.isEmpty && errorText != null) {
-      _errorText  = errorText;
-    } else if((textEditingController.text.isEmpty) || (textEditingController.text.isValidIranianMobileNumber())) {
-      _errorText  = null;
-    } else if (!textEditingController.text.isValidIranianMobileNumber()) {
-      _errorText = 'لطفاً تلفن همراه معتبر وارد کنید.';
-    }
-
-    return _errorText;
-  }
-
-  String? _checkPasswordFormat(TextEditingController textEditingController, String? errorText) {
-    String? _errorText;
-
-    if(textEditingController.text.isEmpty && errorText != null) {
-      _errorText  = errorText;
-    } else if ((textEditingController.text.isEmpty) ||
-        (textEditingController.text.length == 9)) {
-      _errorText = null;
-    } else if (textEditingController.text.length < 10) {
-      _errorText = 'رمز عبور نباید کمتر از 9 کاراکتر باشد.';
-    } else if (textEditingController.text.contains(' ')) {
-      _errorText = 'رمز عبور نباید شامل جای خالی باشد.';
-    }
-
-    return _errorText;
   }
 }

@@ -10,6 +10,8 @@ import 'package:sizer/sizer.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
 import '../../../controller/database.dart';
+import '../../../controller/functions_for_checking_user_information_format.dart';
+import '../../view_models/custom_snack_bar.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({Key? key}) : super(key: key);
@@ -19,28 +21,38 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+  late Response<dynamic> _customDio;
   late TextEditingController _firstAndLastNameController;
   late TextEditingController _emailController;
   late TextEditingController _phoneNumberController;
 
+  String? _firstAndLastNameError;
+  String? _emailError;
+  String? _phoneNumberError;
+
+  late bool _dataIsLoading;
   late bool _permissionToEdit;
-  late bool _recordNewInformation;
+  late bool _registeredInformation;
 
   @override
   void initState() {
+    _dataIsLoading = false;
     _permissionToEdit = false;
-    _recordNewInformation = false;
+    _registeredInformation = false;
 
     super.initState();
   }
 
   Future _initUserInformation() async {
-    Response<dynamic> _customDio = await CustomDio.dio.get('user', options: Options(headers: headers));
+    _customDio =
+        await CustomDio.dio.get('user', options: Options(headers: headers));
 
-    if(_customDio.statusCode == 200) {
-      _firstAndLastNameController = TextEditingController(text: _customDio.data['name']);
+    if (_customDio.statusCode == 200) {
+      _firstAndLastNameController =
+          TextEditingController(text: _customDio.data['name']);
       _emailController = TextEditingController(text: _customDio.data['email']);
-      _phoneNumberController = TextEditingController(text: _customDio.data['mobile']);
+      _phoneNumberController =
+          TextEditingController(text: _customDio.data['mobile']);
     }
 
     return _customDio;
@@ -81,34 +93,40 @@ class _AccountPageState extends State<AccountPage> {
   Widget _body() {
     return Center(
       child: SingleChildScrollView(
-        child: FutureBuilder(
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            return snapshot.hasData
-                ? Padding(
-                    padding:
-                        EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _permissionToEditCheckbox(),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 5.0.h),
-                          child: Column(
-                            children: [
-                              _firstAndLastName(),
-                              _email(),
-                              _phoneNumber(),
-                            ],
-                          ),
-                        ),
-                        _informationRegistrationButton(),
-                      ],
-                    ),
-                  )
-                : const CustomCircularProgressIndicator();
-          },
-          future: _initUserInformation(),
-        ),
+        child: _dataIsLoading
+            ? _innerBody()
+            : FutureBuilder(
+                builder:
+                    (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                  return snapshot.hasData
+                      ? _innerBody()
+                      : const CustomCircularProgressIndicator();
+                },
+                future: _initUserInformation(),
+              ),
+      ),
+    );
+  }
+
+  Padding _innerBody() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _permissionToEditCheckbox(),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 5.0.h),
+            child: Column(
+              children: [
+                _firstAndLastName(),
+                _email(),
+                _phoneNumber(),
+              ],
+            ),
+          ),
+          _informationRegistrationButton(),
+        ],
       ),
     );
   }
@@ -120,8 +138,10 @@ class _AccountPageState extends State<AccountPage> {
           child: Checkbox(
             onChanged: (bool? value) {
               setState(() {
-                if (!_recordNewInformation) {
+                if (!_registeredInformation) {
                   _permissionToEdit = _permissionToEdit ? false : true;
+
+                  _dataIsLoading = true;
                 }
               });
             },
@@ -152,15 +172,21 @@ class _AccountPageState extends State<AccountPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        readOnly: !(_permissionToEdit ^ _recordNewInformation),
+        readOnly: !(_permissionToEdit ^ _registeredInformation),
         controller: _firstAndLastNameController,
         keyboardType: TextInputType.name,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           helperText: 'نام و نام خانوادگی',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(Ionicons.person_outline),
+          errorText: _firstAndLastNameError,
+          suffixIcon: const Icon(Ionicons.person_outline),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _firstAndLastNameError =
+                UserInformationFormatCheck.checkFirstAndLastNameFormat(
+                    _firstAndLastNameController, null,);
+          });
+        },
       ),
     );
   }
@@ -169,15 +195,20 @@ class _AccountPageState extends State<AccountPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        readOnly: !(_permissionToEdit ^ _recordNewInformation),
+        readOnly: !(_permissionToEdit ^ _registeredInformation),
         controller: _emailController,
         keyboardType: TextInputType.emailAddress,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           helperText: 'ایمیل',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(Ionicons.mail_outline),
+          errorText: _emailError,
+          suffixIcon: const Icon(Ionicons.mail_outline),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _emailError = UserInformationFormatCheck.checkEmailFormat(
+                _emailController, null,);
+          });
+        },
       ),
     );
   }
@@ -186,15 +217,23 @@ class _AccountPageState extends State<AccountPage> {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
-        readOnly: !(_permissionToEdit ^ _recordNewInformation),
+        readOnly: !(_permissionToEdit ^ _registeredInformation),
         controller: _phoneNumberController,
         keyboardType: TextInputType.phone,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           helperText: 'تلفن همراه',
-          errorText: false ? '' : null,
-          suffixIcon: Icon(Ionicons.phone_portrait_outline),
+          errorText: _phoneNumberError,
+          suffixIcon: const Icon(Ionicons.phone_portrait_outline),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _phoneNumberError =
+                UserInformationFormatCheck.checkPhoneNumberFormat(
+              _phoneNumberController,
+              null,
+            );
+          });
+        },
       ),
     );
   }
@@ -207,16 +246,60 @@ class _AccountPageState extends State<AccountPage> {
         child: ElevatedButton.icon(
           onPressed: () {
             setState(() {
-              _recordNewInformation = _recordNewInformation ? false : true;
+              _informationRegistration();
             });
           },
           label: Text(
-              _recordNewInformation ? 'اطلاعات ویرایش شد' : 'ویرایش اطلاعات'),
-          icon: Icon(_recordNewInformation
+              _registeredInformation ? 'اطلاعات ویرایش شد' : 'ویرایش اطلاعات'),
+          icon: Icon(_registeredInformation
               ? Ionicons.checkmark_done_outline
               : Ionicons.checkmark_outline),
         ),
       ),
     );
+  }
+
+  void _informationRegistration() async {
+    _firstAndLastNameError =
+        UserInformationFormatCheck.checkFirstAndLastNameFormat(
+      _firstAndLastNameController,
+      'لطفاً نام و نام خوانوادگی خود را وارد کنید.',
+    );
+    _emailError = UserInformationFormatCheck.checkEmailFormat(
+      _emailController,
+      'لطفاً ایمیل خود را وارد کنید.',
+    );
+    _phoneNumberError = UserInformationFormatCheck.checkPhoneNumberFormat(
+      _phoneNumberController,
+      'لطفاً تلفن همراه خود را تکرار کنید.',
+    );
+
+    if (_firstAndLastNameError == null &&
+        _emailError == null &&
+        _phoneNumberError == null) {
+      _permissionToEdit = false;
+      _registeredInformation = false;
+
+      _customDio = await CustomDio.dio.post(
+        'user',
+        data: {
+          'name': _firstAndLastNameController.text,
+          'email': _emailController.text,
+          'mobile': _phoneNumberController.text,
+        },
+      );
+
+      setState(() {
+        if (_customDio.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar(
+              context,
+              Ionicons.checkmark_done_outline,
+              'اطلاعات شما با موفقیت به روز رسانی شد.',
+            ),
+          );
+        }
+      });
+    }
   }
 }

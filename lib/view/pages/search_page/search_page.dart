@@ -5,6 +5,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_response.dart';
 import '../../../controller/custom_dio.dart';
+import '../../view_models/custom_circular_progress_indicator.dart';
 import '/controller/database.dart';
 import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
@@ -18,6 +19,9 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  late Response<dynamic> _customDio;
+  late CustomResponse _customResponse;
+
   final TextEditingController _textEditingController = TextEditingController();
   late SearchTopic _searchTopic;
   late List<Book> _books;
@@ -29,34 +33,39 @@ class _SearchPageState extends State<SearchPage> {
     _searchTopic = SearchTopic.name;
 
     _books = [];
-    _books.addAll(database.books);
+    //_books.addAll(database.books);
 
     super.initState();
   }
 
-/*  Future<void> _initBooks() async {
-    Response<dynamic> httpsResponse = await Https.dio.post('books');
+  Future _initBooks() async {
+    _customDio = await CustomDio.dio.post('books');
 
-    CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+    if(_customDio.statusCode == 200) {
+      _customResponse = CustomResponse.fromJson(_customDio.data);
 
-    int lastPage = customResponse.data['last_page'] ?? 0;
+      int lastPage = 1;
 
-    for(int i = 1; i <= lastPage; ++i) {
-      httpsResponse = await Https.dio.post('books', queryParameters: {'page': i},);
+      for(int i = 1; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.post('books', queryParameters: {'page': i},);
 
-      customResponse = CustomResponse.fromJson(httpsResponse.data);
+        if(_customDio.statusCode == 200) {
+          _customResponse = CustomResponse.fromJson(_customDio.data);
 
-      for(Map<String, dynamic> book in customResponse.data['data']) {
+          for(Map<String, dynamic> book in _customResponse.data['data']) {
 
-        Response<dynamic> httpsResponse = await Https.dio.post('books/${book['slug']}');
+            Response<dynamic> httpsResponse = await CustomDio.dio.post('books/${book['slug']}');
 
-        CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+            CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
-        _books.add(Book.fromJson(book: customResponse.data, existingInUserMarkedBooks: true));
+            _books.add(Book.fromJson(customResponse.data));
+          }
+        }
       }
     }
 
-  }*/
+    return _customDio;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +108,7 @@ class _SearchPageState extends State<SearchPage> {
           height: 0.0,
           thickness: 1.0,
         ),
-        _searchResults(),
+        FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _searchResults() : const CustomCircularProgressIndicator(); }, future: _initBooks(),),
       ],
     );
   }
@@ -161,6 +170,7 @@ class _SearchPageState extends State<SearchPage> {
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
           helperText: '${_searchTopic.title} مورد نظر',
+          hintText: 'لطفاً ${_searchTopic.title} مورد نظر را وارد کنید.',
           errorText: false ? '' : null,
           suffixIcon: const Icon(Ionicons.search_outline),
         ),

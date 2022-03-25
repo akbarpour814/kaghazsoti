@@ -12,6 +12,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_response.dart';
 import '../../../controller/custom_dio.dart';
+import '../../../controller/functions_for_checking_user_information_format.dart';
 
 class PasswordSettingPage extends StatefulWidget {
   const PasswordSettingPage({Key? key}) : super(key: key);
@@ -142,7 +143,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         onChanged: (String text) {
           setState(() {
             _previousPasswordError =
-                _checkPasswordFormat(_previousPasswordController, null);
+                UserInformationFormatCheck.checkPasswordFormat(_previousPasswordController, null);
           });
         },
       ),
@@ -164,7 +165,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _newPasswordError = _checkPasswordFormat(_newPasswordController, null);
+            _newPasswordError = UserInformationFormatCheck.checkPasswordFormat(_newPasswordController, null);
           });
         },
       ),
@@ -187,7 +188,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         onChanged: (String text) {
           setState(() {
             _repeatNewPasswordError =
-                _checkPasswordFormat(_repeatNewPasswordController, null);
+                UserInformationFormatCheck.checkPasswordFormat(_repeatNewPasswordController, null);
           });
         },
       ),
@@ -222,9 +223,9 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
 
   void _newPasswordRegistration() async {
     try {
-      _previousPasswordError = _checkPasswordFormat(_previousPasswordController, 'لطفاً رمز عبور قبلی را وارد کنید.',);
-      _newPasswordError = _checkPasswordFormat(_newPasswordController, 'لطفاً رمز عبور جدید را وارد کنید.',);
-      _repeatNewPasswordError = _checkPasswordFormat(_repeatNewPasswordController, 'لطفاً رمز عبور جدید را تکرار کنید.',);
+      _previousPasswordError = UserInformationFormatCheck.checkPasswordFormat(_previousPasswordController, 'لطفاً رمز عبور قبلی را وارد کنید.',);
+      _newPasswordError = UserInformationFormatCheck.checkPasswordFormat(_newPasswordController, 'لطفاً رمز عبور جدید را وارد کنید.',);
+      _repeatNewPasswordError = UserInformationFormatCheck.checkPasswordFormat(_repeatNewPasswordController, 'لطفاً رمز عبور جدید را تکرار کنید.',);
 
       if(_previousPasswordError == null && _newPasswordError == null && _repeatNewPasswordError == null) {
         Response<dynamic> httpsResponse = await CustomDio.dio.post(
@@ -259,22 +260,5 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         _previousPasswordError = 'رمز عبور قبلی صحیح نمی باشد.';
       });
     }
-  }
-
-  String? _checkPasswordFormat(TextEditingController textEditingController, String? errorText) {
-    String? _errorText;
-
-    if(textEditingController.text.isEmpty && errorText != null) {
-      _errorText  = errorText;
-    } else if ((textEditingController.text.isEmpty) ||
-        (textEditingController.text.length == 9)) {
-      _errorText = null;
-    } else if (textEditingController.text.length < 10) {
-      _errorText = 'رمز عبور نباید کمتر از 9 کاراکتر باشد.';
-    } else if (textEditingController.text.contains(' ')) {
-      _errorText = 'رمز عبور نباید شامل جای خالی باشد.';
-    }
-
-    return _errorText;
   }
 }
