@@ -1,12 +1,15 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:takfood_seller/main.dart';
-import 'package:takfood_seller/model/book.dart';
-import 'package:takfood_seller/model/user.dart';
-import 'package:takfood_seller/view/view_models/book_short_introduction.dart';
-import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
-
+import '../../../controller/custom_dio.dart';
+import '../../../controller/custom_response.dart';
 import '../../../controller/database.dart';
+import '../../../model/book.dart';
+import '../../view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/book_short_introduction.dart';
+import '/view/view_models/player_bottom_navigation_bar.dart';
+
+List<Book> markedBooks = [];
 
 class MarkedPage extends StatefulWidget {
   const MarkedPage({
@@ -18,6 +21,35 @@ class MarkedPage extends StatefulWidget {
 }
 
 class _MarkedPageState extends State<MarkedPage> {
+
+  @override
+  void initState() {
+
+    super.initState();
+  }
+
+  Future _initMarkedBooks() async {
+    Response<dynamic> _customDio = await CustomDio.dio.get('dashboard/users/wish');
+
+    if(_customDio.statusCode == 200) {
+      markedBooks.clear();
+
+      CustomResponse _customResponse = CustomResponse.fromJson(_customDio.data);
+
+      for(Map<String, dynamic> book in _customResponse.data['data']) {
+        _customDio = await CustomDio.dio.post('books/${book['slug']}');
+
+        if(_customDio.statusCode == 200) {
+          _customResponse = CustomResponse.fromJson(_customDio.data);
+
+          markedBooks.add(Book.fromJson(_customResponse.data));
+        }
+      }
+    }
+
+    return _customDio;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,8 +82,20 @@ class _MarkedPageState extends State<MarkedPage> {
     );
   }
 
-  Widget _body() {
-    if (database.user.markedBooks.isEmpty) {
+  FutureBuilder _body() {
+    return FutureBuilder(
+      builder:
+          (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        return snapshot.hasData
+            ? _innerBody()
+            : const Center(child: CustomCircularProgressIndicator());
+      },
+      future: _initMarkedBooks(),
+    );
+  }
+
+  Widget _innerBody() {
+    if (markedBooks.isEmpty) {
       return const Center(
         child: Text('شما تا کنون کتابی را نشان نکرده اید.'),
       );
@@ -59,9 +103,9 @@ class _MarkedPageState extends State<MarkedPage> {
       return SingleChildScrollView(
         child: Column(
           children: List.generate(
-            database.user.markedBooks.length,
+            markedBooks.length,
             (index) => BookShortIntroduction(
-              book: database.user.markedBooks[index],
+              book: markedBooks[index],
             ),
           ),
         ),

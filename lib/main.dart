@@ -34,14 +34,14 @@ late SharedPreferences sharedPreferences;
 String defaultBanner = 'assets/images/InShot_۲۰۲۲۰۳۲۳_۱۴۳۱۱۲۶۲۴.jpg';
 String defaultBookCover = 'assets/images/defaultBookCover.jpg';
 
-late List<int> markedUser = [];
+late List<int> markedBooksId = [];
 
 void main() async {
   Response<dynamic> httpsResponse = await CustomDio.dio.get('dashboard/users/wish');
   CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
   for(Map<String, dynamic> book in customResponse.data['data']) {
-    markedUser.add(book['id']);
+    markedBooksId.add(book['id']);
   }
 
   runApp(

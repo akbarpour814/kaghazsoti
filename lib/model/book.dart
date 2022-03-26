@@ -27,20 +27,9 @@ class Book {
   late String demo;
   late String bookCoverPath;
   late List<Book> otherBooksByThePublisher;
+  late List<String> relatedBooksSlug;
   late List<Book> relatedBooks;
 
-  Book.library(Map<String, dynamic> json) {
-    id = json['id'];
-    slug = json['slug'];
-    name = json['title'];
-    author = (json['author'])['name'];
-
-    ////////////////////////
-    duration = 'duration';
-    ////////////////////////////
-
-    bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${json['image']}';
-  }
   Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> product = json['product'];
 
@@ -71,7 +60,7 @@ class Book {
     price = product['price'];
 
     //////////////////////////
-    marked = markedUser.contains(product['id']);
+    marked = markedBooksId.contains(product['id']);
     numberOfVotes = 0;
     numberOfStars = double.parse(product['rating']).toInt();
     aboutBook = 'aboutBook';
@@ -90,6 +79,8 @@ class Book {
     otherBooksByThePublisher = [];
     /////////////////////////////////////////////////////////
 
+    relatedBooksSlug = [];
+    setRelatedBooksSlug(json['similar']);
     relatedBooks = [];
   }
 
@@ -106,6 +97,11 @@ class Book {
     }
   }
 
+  void setRelatedBooksSlug(List<dynamic> relatedBooksSlugAsMap) {
+    for(Map<String, dynamic> relatedBookSlug in relatedBooksSlugAsMap) {
+      relatedBooksSlug.add(relatedBookSlug['slug']);
+    }
+  }
 }
 
 class Review {

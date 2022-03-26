@@ -138,6 +138,7 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
           child: ListTile(
             title: Text(
               '$title ${widget.homePageCategoryData.bookCategoryName}',
+              style: TextStyle(color: Theme.of(context).primaryColor),
               overflow: TextOverflow.ellipsis,
               maxLines: 1,
             ),

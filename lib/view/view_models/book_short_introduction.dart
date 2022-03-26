@@ -5,7 +5,6 @@ import '/model/book.dart';
 import '/view/view_models/book_introduction_page.dart';
 import 'package:sizer/sizer.dart';
 
-
 class BookShortIntroduction extends StatefulWidget {
   late Book book;
   late SearchTopic? searchTopic;
@@ -116,32 +115,29 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
     int start = _name.indexOf(_searchKey);
     int end = _name.indexOf(_searchKey) + _searchKey.length;
 
-    if(widget.searchTopic == SearchTopic.name) {
+    if (widget.searchTopic == SearchTopic.name) {
       return Flexible(
         child: Text.rich(
-          TextSpan(
-              text: '',
-              children: <InlineSpan>[
-                TextSpan(
-                  text: _name.substring(0, start),
-                ),
-                TextSpan(
-                    text: _name.substring(start, end),
-                    style: const TextStyle(color: Colors.pinkAccent)
-                ),
-                TextSpan(
-                  text: _name.substring(end, _name.length),
-                ),
-              ]
-          ),
-          overflow: _searchKey.isEmpty ? TextOverflow.ellipsis : TextOverflow.visible,
+          TextSpan(text: '', children: <InlineSpan>[
+            TextSpan(
+              text: _name.substring(0, start),
+            ),
+            TextSpan(
+                text: _name.substring(start, end),
+                style: const TextStyle(color: Colors.pinkAccent)),
+            TextSpan(
+              text: _name.substring(end, _name.length),
+            ),
+          ]),
+          overflow:
+              _searchKey.isEmpty ? TextOverflow.ellipsis : TextOverflow.visible,
         ),
       );
     } else {
       return Flexible(
         child: Text(
-            widget.book.name,
-            style: const TextStyle(overflow: TextOverflow.ellipsis),
+          widget.book.name,
+          style: const TextStyle(overflow: TextOverflow.ellipsis),
         ),
       );
     }
@@ -162,44 +158,69 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
     int start = _author.indexOf(_searchKey);
     int end = _author.indexOf(_searchKey) + _searchKey.length;
 
-    if(widget.searchTopic == SearchTopic.author) {
+    if (widget.searchTopic == SearchTopic.author) {
       return Flexible(
         child: Text.rich(
-          TextSpan(
-              text: '',
-              children: <InlineSpan>[
-                TextSpan(
-                  text: _author.substring(0, start),
-                ),
-                TextSpan(
-                    text: _author.substring(start, end),
-                    style: const TextStyle(color: Colors.pinkAccent)
-                ),
-                TextSpan(
-                  text: _author.substring(end, _author.length),
-                ),
-              ]
-          ),
-          style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
-          overflow: _searchKey.isEmpty ? TextOverflow.ellipsis : TextOverflow.visible,
+          TextSpan(text: '', children: <InlineSpan>[
+            TextSpan(
+              text: _author.substring(0, start),
+            ),
+            TextSpan(
+                text: _author.substring(start, end),
+                style: const TextStyle(color: Colors.pinkAccent)),
+            TextSpan(
+              text: _author.substring(end, _author.length),
+            ),
+          ]),
+          style: Theme.of(context)
+              .textTheme
+              .caption!
+              .copyWith(overflow: TextOverflow.ellipsis),
+          overflow:
+              _searchKey.isEmpty ? TextOverflow.ellipsis : TextOverflow.visible,
         ),
       );
     } else {
       return Flexible(
         child: Text(
           widget.book.author,
-          style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
+          style: Theme.of(context)
+              .textTheme
+              .caption!
+              .copyWith(overflow: TextOverflow.ellipsis),
         ),
       );
     }
   }
 
+  // Flexible _numberOfStars(BuildContext context) {
+  //   return Flexible(
+  //     child: Text(
+  //       ''.padLeft(widget.book.numberOfStars, '\u2605'),
+  //       style:
+  //       Theme.of(context).textTheme.caption?.copyWith(color: Colors.amber),
+  //     ),
+  //   );
+  // }
+
   Flexible _numberOfStars(BuildContext context) {
     return Flexible(
-      child: Text(
-        ''.padLeft(widget.book.numberOfStars, '\u2605'),
-        style:
-        Theme.of(context).textTheme.caption?.copyWith(color: Colors.amber),
+      child: Text.rich(
+        TextSpan(
+          text: ''.padLeft(5 - widget.book.numberOfStars, '\u2605'),
+          style: Theme.of(context).textTheme.caption?.copyWith(
+                color: Colors.amber.withOpacity(0.4),
+              ),
+          children: <InlineSpan>[
+            TextSpan(
+              text: ''.padLeft(widget.book.numberOfStars, '\u2605'),
+              style: Theme.of(context)
+                  .textTheme
+                  .caption
+                  ?.copyWith(color: Colors.amber),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -208,35 +229,40 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
     String _publisherOfPrintedVersion = widget.book.publisherOfPrintedVersion;
     String _searchKey = widget.searchKey ?? '';
     int start = _publisherOfPrintedVersion.indexOf(_searchKey);
-    int end = _publisherOfPrintedVersion.indexOf(_searchKey) + _searchKey.length;
+    int end =
+        _publisherOfPrintedVersion.indexOf(_searchKey) + _searchKey.length;
 
-    if(widget.searchTopic == SearchTopic.publisherOfPrintedVersion) {
+    if (widget.searchTopic == SearchTopic.publisherOfPrintedVersion) {
       return Flexible(
         child: Text.rich(
-          TextSpan(
-              text: '',
-              children: <InlineSpan>[
-                TextSpan(
-                  text: _publisherOfPrintedVersion.substring(0, start),
-                ),
-                TextSpan(
-                    text: _publisherOfPrintedVersion.substring(start, end),
-                    style: const TextStyle(color: Colors.pinkAccent)
-                ),
-                TextSpan(
-                  text: _publisherOfPrintedVersion.substring(end, _publisherOfPrintedVersion.length),
-                ),
-              ]
-          ),
-          style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
-          overflow: _searchKey.isEmpty ? TextOverflow.ellipsis : TextOverflow.visible,
+          TextSpan(text: '', children: <InlineSpan>[
+            TextSpan(
+              text: _publisherOfPrintedVersion.substring(0, start),
+            ),
+            TextSpan(
+                text: _publisherOfPrintedVersion.substring(start, end),
+                style: const TextStyle(color: Colors.pinkAccent)),
+            TextSpan(
+              text: _publisherOfPrintedVersion.substring(
+                  end, _publisherOfPrintedVersion.length),
+            ),
+          ]),
+          style: Theme.of(context)
+              .textTheme
+              .caption!
+              .copyWith(overflow: TextOverflow.ellipsis),
+          overflow:
+              _searchKey.isEmpty ? TextOverflow.ellipsis : TextOverflow.visible,
         ),
       );
     } else {
       return Flexible(
         child: Text(
           widget.book.publisherOfPrintedVersion,
-          style: Theme.of(context).textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
+          style: Theme.of(context)
+              .textTheme
+              .caption!
+              .copyWith(overflow: TextOverflow.ellipsis),
         ),
       );
     }

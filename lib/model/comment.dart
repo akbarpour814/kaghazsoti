@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'package:persian_number_utility/persian_number_utility.dart';
 class Comment {
   late Topic topic;
   late String text;
   late CommentStatus status;
-  late DateTime date;
+  late String date;
   late String response;
+  bool displayOfDetails = false;
 
 
   Comment.fromJson(Map<String, dynamic> json) {
@@ -14,7 +16,7 @@ class Comment {
     topic = TopicExtension.topics.keys.elementAt(findTopic > -1 ? findTopic : TopicExtension.topics.length - 1);
     text = json['body'];
     status = CommentStatus.answered;
-    date = DateTime.now();
+    date = json['created_at'].toString().toPersianDate(digitType: NumStrLanguage.English);
     response = '';
   }
 }

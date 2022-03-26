@@ -3,7 +3,10 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:takfood_seller/view/pages/profile_page/marked_page.dart';
 import 'package:zarinpal/zarinpal.dart';
+import '../../controller/custom_response.dart';
+import '../pages/category_page/books_page.dart';
 import '/main.dart';
 import '/model/book.dart';
 import '/view/pages/profile_page/cart_page.dart';
@@ -14,6 +17,7 @@ import 'package:sizer/sizer.dart';
 
 import '/controller/database.dart';
 import '/controller/custom_dio.dart';
+import 'custom_circular_progress_indicator.dart';
 import 'player_bottom_navigation_bar.dart';
 
 class BookIntroductionPage extends StatefulWidget {
@@ -49,6 +53,25 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     super.initState();
   }
 
+  Future _initRelatedBooks() async {
+    widget.book.relatedBooks.clear();
+
+    late Response<dynamic> _customDio;
+    CustomResponse _customResponse;
+
+    for(String slug in widget.book.relatedBooksSlug) {
+      _customDio = await CustomDio.dio.post('books/$slug');
+
+      if(_customDio.statusCode == 200) {
+        _customResponse = CustomResponse.fromJson(_customDio.data);
+
+        widget.book.relatedBooks.add(Book.fromJson(_customResponse.data));
+      }
+    }
+
+    return _customDio;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,18 +87,20 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       leading: InkWell(
         child: Icon(
           Ionicons.bookmark_outline,
-          color: markedUser.contains(widget.book.id) ? Colors.pinkAccent : Colors.white,
+          color: markedBooksId.contains(widget.book.id) ? Colors.pinkAccent : Colors.white,
         ),
         onTap: () {
           setState(() {
-            if(markedUser.contains(widget.book.id)) {
+            _setMarkedBooks();
+
+            if(markedBooksId.contains(widget.book.id)) {
               widget.book.marked = false;
 
-              markedUser.remove(widget.book.id);
+              markedBooksId.remove(widget.book.id);
             } else {
               widget.book.marked = true;
 
-              markedUser.add(widget.book.id);
+              markedBooksId.add(widget.book.id);
             }
           });
         },
@@ -96,11 +121,23 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     );
   }
 
-  void mark(int id) async {
-    await CustomDio.dio.post('dashboard/users/wish', data: {'book_id': id}, options: Options(headers: headers));
+  void _setMarkedBooks() async {
+    await CustomDio.dio.post('dashboard/users/wish', data: {'book_id': widget.book.id});
   }
 
-  SingleChildScrollView _body() {
+  FutureBuilder _body() {
+    return FutureBuilder(
+      builder:
+          (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        return snapshot.hasData
+            ? _innerBody()
+            : const Center(child: CustomCircularProgressIndicator());
+      },
+      future: _initRelatedBooks(),
+    );
+  }
+
+  SingleChildScrollView _innerBody() {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -119,6 +156,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           ),
           _otherPublisherBooks(),
           _relatedBooks(),
+          _userComments(),
         ],
       ),
     );
@@ -181,14 +219,22 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  ''.padLeft(widget.book.numberOfStars, '\u2605'),
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .caption
-                      ?.copyWith(
-                    color: Colors.amber,
+                Text.rich(
+                  TextSpan(
+                    text: ''.padLeft(5 - widget.book.numberOfStars, '\u2605'),
+                    style: Theme.of(context)
+                        .textTheme
+                        .caption
+                        ?.copyWith(color: Colors.amber.withOpacity(0.4),),
+                    children: <InlineSpan>[
+                      TextSpan(
+                        text: ''.padLeft(widget.book.numberOfStars, '\u2605'),
+                        style: Theme.of(context)
+                            .textTheme
+                            .caption
+                            ?.copyWith(color: Colors.amber,),
+                      ),
+                    ],
                   ),
                 ),
                 Text(
@@ -263,7 +309,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           length: 3,
           child: TabBar(
             controller: _tabController,
-            indicatorColor: const Color(0xFFC6DADE),
+            //indicatorColor: const Color(0xFFC6DADE),
             indicatorWeight: 3.0,
             tabs: const <Tab>[
               Tab(
@@ -273,7 +319,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                 text: 'درباره کتاب',
               ),
               Tab(
-                text: 'ثبت نظر',
+                text: 'نظرات',
               ),
             ],
             onTap: (index) {
@@ -418,7 +464,9 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                   .headline5!
                   .copyWith(color: Theme
                   .of(context)
-                  .primaryColor),
+                  .primaryColor,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
           SizedBox(
@@ -517,7 +565,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
   Visibility _otherPublisherBooks() {
     return Visibility(
-      visible: widget.book.otherBooksByThePublisher.isNotEmpty,
+      visible: (widget.book.otherBooksByThePublisher.isNotEmpty) && (_tabIndex != 2),
       child: _otherBooks(
         'کتاب های دیگر ناشر',
         widget.book.otherBooksByThePublisher,
@@ -527,7 +575,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
   Visibility _relatedBooks() {
     return Visibility(
-      visible: widget.book.relatedBooks.isNotEmpty,
+      visible: (widget.book.relatedBooks.isNotEmpty) && (_tabIndex != 2),
       child: _otherBooks(
         'کتاب های مرتبط',
         widget.book.relatedBooks,
@@ -546,13 +594,56 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Theme
-                        .of(context)
-                        .primaryColor,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: Theme
+                            .of(context)
+                            .primaryColor,
+                      ),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        print(widget.book.slug);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return BooksPage(
+                                title:
+                                '$title با کتاب ${widget.book.name}',
+                                books: books,
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'نمایش همه',
+                        style: Theme.of(context)
+                            .textTheme
+                            .caption!
+                            .copyWith(color: Theme.of(context).primaryColor),
+                      ),
+                      style: ButtonStyle(
+                        shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              18.0,
+                            ),
+                            side: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                            ),
+                          ),
+                        ),
+                        side: MaterialStateProperty.all(
+                          BorderSide(color: Theme.of(context).primaryColor),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 Divider(
                   height: 4.0.h,
@@ -563,6 +654,43 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           ),
           BooksListView(books: books)
         ],
+      ),
+    );
+  }
+
+  Visibility _userComments() {
+    return Visibility(
+      visible: (widget.book.reviews.isNotEmpty) && (_tabIndex == 2),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.0.w),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'نظرات کاربران',
+                    style: TextStyle(
+                      color: Theme
+                          .of(context)
+                          .primaryColor,
+                    ),
+                  ),
+                  Divider(
+                    height: 4.0.h,
+                    thickness: 1.0,
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              children: List.generate(widget.book.reviews.length, (index) => Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(widget.book.reviews[index].userName.toString()), Text(widget.book.reviews[index].review),],),),
+            ),
+          ],
+        ),
       ),
     );
   }
