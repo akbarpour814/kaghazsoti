@@ -28,16 +28,18 @@ class _ContactUsPageState extends State<ContactUsPage> {
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   TextEditingController _textEditingController = TextEditingController();
+  late bool _dataIsLoading;
   String? _topic;
   String? _errorText;
   late List<Topic> _topics;
   late bool _commentPosted;
-  //late List<bool> _displayOfDetails;
+  late List<bool> _displayOfDetails;
   late int _previousIndex;
   late List<Comment> _comments;
 
   @override
   void initState() {
+    _dataIsLoading = true;
     _topics = Topic.values;
     _commentPosted = false;
     _previousIndex = -1;
@@ -57,6 +59,10 @@ class _ContactUsPageState extends State<ContactUsPage> {
       for (Map<String, dynamic> comment in _customResponse.data['data']) {
         _comments.add(Comment.fromJson(comment));
       }
+
+      _displayOfDetails = List<bool>.generate(_comments.length, (index) => false);
+
+      _dataIsLoading = false;
     }
 
     return _customDio;
@@ -94,15 +100,15 @@ class _ContactUsPageState extends State<ContactUsPage> {
     );
   }
 
-  FutureBuilder _body() {
-    return FutureBuilder(
+  Widget _body() {
+    return _dataIsLoading ? FutureBuilder(
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         return snapshot.hasData
             ? _innerBody()
             : const Center(child: CustomCircularProgressIndicator());
       },
       future: _initComments(),
-    );
+    ) : _innerBody();
   }
 
   SingleChildScrollView _innerBody() {
@@ -260,6 +266,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
       if (_customDio.statusCode == 200) {
         _topic = null;
         _textEditingController = TextEditingController();
+        _dataIsLoading = true;
 
         ScaffoldMessenger.of(context).showSnackBar(
           customSnackBar(
@@ -359,9 +366,9 @@ class _ContactUsPageState extends State<ContactUsPage> {
                       ),
                     ),
                     Visibility(
-                      visible: _comments[index].displayOfDetails,
+                      visible: _displayOfDetails[index],
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Divider(
                             height: 24.0,
@@ -371,16 +378,16 @@ class _ContactUsPageState extends State<ContactUsPage> {
                               property: 'دیدگاه شما',
                               value: '',
                               valueInTheEnd: false,
-                              lastProperty: false),
+                              lastProperty: false,),
                           Text(
-                            _comments[index].text,
+                            '- ${_comments[index].text}',
                             textAlign: TextAlign.justify,
                           ),
                           Visibility(
                             visible: _comments[index].status ==
                                 CommentStatus.answered,
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Divider(
                                   height: 24.0,
@@ -390,9 +397,9 @@ class _ContactUsPageState extends State<ContactUsPage> {
                                     property: 'پاسخ ما',
                                     value: '',
                                     valueInTheEnd: false,
-                                    lastProperty: false),
+                                    lastProperty: false,),
                                 Text(
-                                  _comments[index].response,
+                                  '- ${_comments[index].response}',
                                   textAlign: TextAlign.justify,
                                 ),
                               ],
@@ -441,23 +448,23 @@ class _ContactUsPageState extends State<ContactUsPage> {
                       onTap: () {
                         setState(() {
                           if (index == _previousIndex &&
-                              _comments[index].displayOfDetails) {
-                            _comments[index].displayOfDetails = false;
+                              _displayOfDetails[index]) {
+                            _displayOfDetails[index] = false;
                           } else if (index == _previousIndex &&
-                              !_comments[index].displayOfDetails) {
-                            _comments[index].displayOfDetails = true;
+                              !_displayOfDetails[index]) {
+                            _displayOfDetails[index] = true;
                           } else if (index != _previousIndex) {
                             if (_previousIndex != -1) {
-                              _comments[index].displayOfDetails = false;
+                              _displayOfDetails[_previousIndex] = false;
                             }
-                            _comments[index].displayOfDetails = true;
+                            _displayOfDetails[index] = true;
                           }
 
                           _previousIndex = index;
                         });
                       },
                       child: Icon(
-                        _comments[index].displayOfDetails
+                        _displayOfDetails[index]
                             ? Icons.expand_less
                             : Icons.expand_more,
                       ),

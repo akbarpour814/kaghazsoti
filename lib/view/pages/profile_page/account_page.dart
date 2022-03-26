@@ -36,7 +36,7 @@ class _AccountPageState extends State<AccountPage> {
 
   @override
   void initState() {
-    _dataIsLoading = false;
+    _dataIsLoading = true;
     _permissionToEdit = false;
     _registeredInformation = false;
 
@@ -94,16 +94,16 @@ class _AccountPageState extends State<AccountPage> {
     return Center(
       child: SingleChildScrollView(
         child: _dataIsLoading
-            ? _innerBody()
-            : FutureBuilder(
-                builder:
-                    (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                  return snapshot.hasData
-                      ? _innerBody()
-                      : const CustomCircularProgressIndicator();
-                },
-                future: _initUserInformation(),
-              ),
+            ? FutureBuilder(
+          builder:
+              (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            return snapshot.hasData
+                ? _innerBody()
+                : const CustomCircularProgressIndicator();
+          },
+          future: _initUserInformation(),
+        )
+            : _innerBody(),
       ),
     );
   }
@@ -141,7 +141,7 @@ class _AccountPageState extends State<AccountPage> {
                 if (!_registeredInformation) {
                   _permissionToEdit = _permissionToEdit ? false : true;
 
-                  _dataIsLoading = true;
+                  _dataIsLoading = false;
                 }
               });
             },

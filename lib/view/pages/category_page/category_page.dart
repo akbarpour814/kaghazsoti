@@ -1,6 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import '/controller/database.dart';
+//import '/controller/database.dart';
+import '../../../controller/custom_dio.dart';
+import '../../../controller/custom_response.dart';
+import '../../../model/category.dart';
+import '../../view_models/custom_circular_progress_indicator.dart';
 import '/view/pages/category_page/subcategories_page.dart';
 import '/view/view_models/category_name.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
@@ -13,6 +18,39 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
+  late List<Category> _categories;
+
+  @override
+  void initState() {
+    _categories = [];
+
+    super.initState();
+  }
+
+  Future _initCategories() async {
+    Response<dynamic> _customDio = await CustomDio.dio.post('categories');
+
+    if(_customDio.statusCode == 200) {
+      _categories.clear();
+
+      CustomResponse _customResponse = CustomResponse.fromJson(_customDio.data);
+
+      Map<String, IconData> categoriesIcon = {
+        'کتاب صوتی': Ionicons.musical_notes_outline,
+        'نامه صوتی': Ionicons.mail_open_outline,
+        'کتاب الکترونیکی': Ionicons.laptop_outline,
+        'پادکست': Ionicons.volume_medium_outline,
+        'کتاب کودک و نوجوان': Ionicons.happy_outline,
+      };
+
+      for(Map<String, dynamic> category in _customResponse.data) {
+        _categories.add(Category.fromJson(categoriesIcon[category['name']] ?? Ionicons.albums_outline, category));
+      }
+    }
+
+    return _customDio;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,19 +69,30 @@ class _CategoryPageState extends State<CategoryPage> {
     );
   }
 
-  SingleChildScrollView _body() {
+  FutureBuilder _body() {
+    return FutureBuilder(
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        return snapshot.hasData
+            ? _innerBody()
+            : const Center(child: CustomCircularProgressIndicator());
+      },
+      future: _initCategories(),
+    );
+  }
+
+  SingleChildScrollView _innerBody() {
     return SingleChildScrollView(
       child: Column(
         children: List<CategoryName>.generate(
-          database.categories.length,
+          _categories.length,
           (index) => CategoryName(
-            iconData: database.categories[index].iconData,
-            title: database.categories[index].title,
+            iconData: _categories[index].iconData,
+            title: _categories[index].title,
             lastCategory: false,
             page: SubcategoriesPage(
-              iconData: database.categories[index].iconData,
-              title: database.categories[index].title,
-              subcategories: database.categories[index].subcategories,
+              iconData: _categories[index].iconData,
+              title: _categories[index].title,
+              subcategories: _categories[index].subcategories,
             ),
           ),
         ),

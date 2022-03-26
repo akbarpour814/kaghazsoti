@@ -7,8 +7,6 @@ class Comment {
   late CommentStatus status;
   late String date;
   late String response;
-  bool displayOfDetails = false;
-
 
   Comment.fromJson(Map<String, dynamic> json) {
     int findTopic = TopicExtension.topics.values.toList().indexWhere((element) => element == json['title']);
@@ -16,7 +14,7 @@ class Comment {
     topic = TopicExtension.topics.keys.elementAt(findTopic > -1 ? findTopic : TopicExtension.topics.length - 1);
     text = json['body'];
     status = CommentStatus.answered;
-    date = json['created_at'].toString().toPersianDate(digitType: NumStrLanguage.English);
+    date = json['created_at'].toString().toPersianDate(digitType: NumStrLanguage.Farsi);
     response = '';
   }
 }
