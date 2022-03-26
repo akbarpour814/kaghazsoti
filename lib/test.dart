@@ -1,100 +1,104 @@
-/// Flutter code sample for FutureBuilder
+import 'dart:async';
 
-// This sample shows a [FutureBuilder] that displays a loading spinner while it
-// loads data. It displays a success icon and text if the [Future] completes
-// with a result, or an error icon and text if the [Future] completes with an
-// error. Assume the `_calculation` field is set by pressing a button elsewhere
-// in the UI.
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(new MyApp());
 
-/// This is the main application widget.
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  static const String _title = 'Flutter Code Sample';
-
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: _title,
-      home: MyStatefulWidget(),
+    return new MaterialApp(
+      title: 'Flutter Demo',
+      theme: new ThemeData(
+        primarySwatch: Colors.purple,
+      ),
+      home: new MyHomePage(),
     );
   }
 }
 
-/// This is the stateful widget that the main application instantiates.
-class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({Key? key}) : super(key: key);
-
+class MyHomePage extends StatefulWidget {
   @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+  _MyHomePageState createState() => new _MyHomePageState();
 }
 
-/// This is the private State class that goes with MyStatefulWidget.
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  final Future<String> _calculation = Future<String>.delayed(
-    const Duration(seconds: 2),
-        () => 'Data Loaded',
-  );
+class _MyHomePageState extends State<MyHomePage> {
+  List<String> items = ["1", "2", "3", "4", "5", "6", "7", "8"];
+  RefreshController _refreshController =
+  RefreshController(initialRefresh: false);
+
+  void _onRefresh() async{
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async{
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+    items.add((items.length+1).toString());
+    if(mounted)
+      setState(() {
+
+      });
+    _refreshController.loadComplete();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTextStyle(
-      style: Theme.of(context).textTheme.headline2!,
-      textAlign: TextAlign.center,
-      child: FutureBuilder<String>(
-        future: _calculation, // a previously-obtained Future<String> or null
-        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-          List<Widget> children;
-          if (snapshot.hasData) {
-            children = <Widget>[
-              const Icon(
-                Icons.check_circle_outline,
-                color: Colors.green,
-                size: 60,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text('Result: ${snapshot.data}'),
-              )
-            ];
-          } else if (snapshot.hasError) {
-            children = <Widget>[
-              const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 60,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text('Error: ${snapshot.error}'),
-              )
-            ];
-          } else {
-            children = const <Widget>[
-              SizedBox(
-                child: CircularProgressIndicator(),
-                width: 60,
-                height: 60,
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 16),
-                child: Text('Awaiting result...'),
-              )
-            ];
-          }
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: children,
-            ),
-          );
-        },
+    return Scaffold(
+      appBar: AppBar(),
+      body: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: true,
+        header: const 	MaterialClassicHeader(),
+
+        footer: CustomFooter(
+          builder: (BuildContext? context,LoadStatus? mode){
+            Widget body ;
+            if(mode==LoadStatus.idle){
+              body =  Text("pull up load");
+            }
+            else if(mode==LoadStatus.loading){
+              body =  CupertinoActivityIndicator();
+            }
+            else if(mode == LoadStatus.failed){
+              body = Text("Load Failed!Click retry!");
+            }
+            else if(mode == LoadStatus.canLoading){
+              body = Text("سلام");
+            }
+            else{
+              body = Text("No more Data");
+            }
+            return Container(
+              height: 55.0,
+              child: Center(child:body),
+            );
+          },
+        ),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+
+        child: ListView.builder(
+          itemBuilder: (c, i) => Card(child: Center(child: Text(items[i]))),
+          itemExtent: 100.0,
+          itemCount: items.length,
+        ),
       ),
     );
   }
+
+// from 1.5.0, it is not necessary to add this line
+//@override
+// void dispose() {
+// TODO: implement dispose
+//  _refreshController.dispose();
+//  super.dispose();
+// }
 }

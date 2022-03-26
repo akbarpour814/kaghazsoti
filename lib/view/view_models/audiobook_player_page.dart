@@ -1,4 +1,5 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
@@ -8,6 +9,9 @@ import 'package:takfood_seller/view/view_models/book_introduction_page.dart';
 import 'package:takfood_seller/view/view_models/progress_bar/custom_progress_bar.dart';
 import 'package:takfood_seller/view/view_models/progress_bar/playOrPauseController.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../controller/custom_dio.dart';
+import 'custom_circular_progress_indicator.dart';
 
 class AudiobookPlayerPage extends StatefulWidget {
   const AudiobookPlayerPage({
@@ -19,11 +23,28 @@ class AudiobookPlayerPage extends StatefulWidget {
 }
 
 class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
+  Future _initParts() async {
+    Response<dynamic> _customDio = await CustomDio.dio.post('dashboard/books/${audiobookInPlay.slug}/audio');
+
+    if(_customDio.statusCode == 200 && audiobookInPlay.parts.isEmpty) {
+      audiobookInPlay.setParts(_customDio.data['data']);
+
+      audioPlayer.setAudioSource(
+        ConcatenatingAudioSource(
+          children: List<AudioSource>.generate(audiobookInPlay.parts.length, (index) => AudioSource.uri(Uri.parse(audiobookInPlay.parts[index].path),),),
+        ),
+      );
+    }
+
+    return _customDio;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(),
-      body: _body(),
+      body: FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _body() :  const Center(child: CustomCircularProgressIndicator()); }, future: _initParts(),),
+
       bottomNavigationBar: const Divider(
         height: 0.0,
         thickness: 1.0,
@@ -92,7 +113,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(audiobookInPlay.parts[audioPlayer.currentIndex!].name),
+                        Text(audiobookInPlay.parts[audioPlayer.currentIndex ?? 0].name),
                         SizedBox(
                           height: 4.0.h,
                         ),

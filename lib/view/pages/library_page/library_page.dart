@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:takfood_seller/controller/database.dart';
+// import 'package:takfood_seller/controller/database.dart';
 import 'package:takfood_seller/main.dart';
 import 'package:takfood_seller/model/book.dart';
 import 'package:takfood_seller/model/user.dart';
@@ -14,6 +14,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
+import '../../view_models/custom_circular_progress_indicator.dart';
 
 class MyLibraryPage extends StatefulWidget {
   const MyLibraryPage({Key? key}) : super(key: key);
@@ -23,7 +24,10 @@ class MyLibraryPage extends StatefulWidget {
 }
 
 class _MyLibraryPageState extends State<MyLibraryPage> {
-  late List<MyBook> _myBooks;
+  late Response<dynamic> _customDio;
+  late CustomResponse customResponse;
+
+  late List<Book> _myBooks;
 
   @override
   void initState() {
@@ -33,10 +37,25 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   }
 
   Future _initMyBooks() async {
-    Response<dynamic> httpsResponse = await CustomDio.dio.get('dashboard/my_books');
-    Map<String, dynamic> data = httpsResponse.data;
+    _customDio = await CustomDio.dio.get('dashboard/my_books');
 
-    return httpsResponse;
+    if(_customDio.statusCode == 200) {
+      _myBooks.clear();
+
+      Map<String, dynamic> data = _customDio.data;
+
+      for(Map<String, dynamic> book in data['data']) {
+        _customDio = await CustomDio.dio.post('books/${book['slug']}');
+
+        if(_customDio.statusCode == 200) {
+          customResponse = CustomResponse.fromJson(_customDio.data);
+
+          _myBooks.add(Book.fromJson(customResponse.data));
+        }
+      }
+    }
+
+    return _customDio;
   }
 
   @override
@@ -44,7 +63,6 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      //body: FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ?  : const CircularProgressIndicator();}, future: _initMyBooks(),),
       bottomNavigationBar: const PlayerBottomNavigationBar(),
     );
   }
@@ -58,8 +76,12 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
     );
   }
 
-  Widget _body() {
-    if (database.user.library.isEmpty) {
+  FutureBuilder _body() {
+    return FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _innerBody() : const Center(child: CustomCircularProgressIndicator());}, future: _initMyBooks(),);
+  }
+
+  Widget _innerBody() {
+    if (_myBooks.isEmpty) {
       return const Center(
         child: Text('کتابی در کتابخانه شما موجود نمی باشد.'),
       );
@@ -67,9 +89,9 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
       return SingleChildScrollView(
         child: Column(
           children: List<MyBook>.generate(
-            database.user.library.length,
+            _myBooks.length,
             (index) => MyBook(
-              book: database.user.library[index],
+              book: _myBooks[index],
             ),
           ),
         ),
@@ -96,15 +118,7 @@ class _MyBookState extends State<MyBook> {
     return InkWell(
       onTap: () {
         setState(() {
-          _initParts();
-
           audiobookInPlay = widget.book;
-
-          audioPlayer.setAudioSource(
-            ConcatenatingAudioSource(
-              children: List<AudioSource>.generate(audiobookInPlay.parts.length, (index) => AudioSource.uri(Uri.parse(audiobookInPlay.parts[index].path),),),
-            ),
-          );
 
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -127,12 +141,6 @@ class _MyBookState extends State<MyBook> {
         ),
       ),
     );
-  }
-
-  void _initParts() async {
-    Response<dynamic> httpsResponse = await CustomDio.dio.post('dashboard/books/${widget.book.slug}/audio');
-
-    widget.book.setParts(httpsResponse.data['data']);
   }
 
   Padding _bookCover() {

@@ -23,7 +23,7 @@ import 'view/pages/home_page/home_page.dart';
 import 'view/pages/search_page/search_page.dart';
 import 'view/pages/profile_page/profile_page.dart';
 
-final SharedValue<bool> audioIsPlaying = SharedValue(value: false);
+SharedValue<bool> audioIsPlaying = SharedValue(value: false);
 
 AudioPlayer audioPlayer = AudioPlayer();
 
@@ -89,7 +89,7 @@ class MyApp extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 child: child!,
               ),
-              home: const SplashPage(),
+              home:  SplashPage(),
             );
           },
         );

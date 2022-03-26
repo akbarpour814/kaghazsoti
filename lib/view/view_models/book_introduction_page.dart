@@ -68,16 +68,14 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         ),
         onTap: () {
           setState(() {
-            int index = markedUser.indexWhere((element) => element == widget.book.id);
-
-            if(index >= 0) {
+            if(markedUser.contains(widget.book.id)) {
               widget.book.marked = false;
 
-              markedUser.removeAt(index);
+              markedUser.remove(widget.book.id);
             } else {
               widget.book.marked = true;
 
-              //markedUser.add(widget.book);
+              markedUser.add(widget.book.id);
             }
           });
         },
@@ -157,22 +155,9 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           child: FloatingActionButton(
             onPressed: () {
               setState(() {
-                audiobookInPlay = widget.book;
+                audioIsPlaying.$ = true;
 
-                //audioPlayer.setUrl(widget.book.demo);
                 audioPlayer.setUrl(widget.book.demo);
-
-                // audioIsPlaying.$ = true;
-                //
-                // audioPlayer.play();
-
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) {
-                      return AudiobookPlayerPage();
-                    },
-                  ),
-                );
               });
             },
             child: const Icon(

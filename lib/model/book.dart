@@ -29,6 +29,18 @@ class Book {
   late List<Book> otherBooksByThePublisher;
   late List<Book> relatedBooks;
 
+  Book.library(Map<String, dynamic> json) {
+    id = json['id'];
+    slug = json['slug'];
+    name = json['title'];
+    author = (json['author'])['name'];
+
+    ////////////////////////
+    duration = 'duration';
+    ////////////////////////////
+
+    bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${json['image']}';
+  }
   Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> product = json['product'];
 

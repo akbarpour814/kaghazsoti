@@ -6,7 +6,6 @@ import 'package:sizer/sizer.dart';
 import '../../../controller/custom_response.dart';
 import '../../../controller/custom_dio.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
-import '/controller/database.dart';
 import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
@@ -24,6 +23,7 @@ class _SearchPageState extends State<SearchPage> {
 
   final TextEditingController _textEditingController = TextEditingController();
   late SearchTopic _searchTopic;
+  late List<Book> _booksTemp;
   late List<Book> _books;
 
   late String _searchKey = '';
@@ -33,7 +33,7 @@ class _SearchPageState extends State<SearchPage> {
     _searchTopic = SearchTopic.name;
 
     _books = [];
-    //_books.addAll(database.books);
+    _booksTemp = [];
 
     super.initState();
   }
@@ -42,8 +42,11 @@ class _SearchPageState extends State<SearchPage> {
     _customDio = await CustomDio.dio.post('books');
 
     if(_customDio.statusCode == 200) {
+      _booksTemp.clear();
+
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
+      //int lastPage = _customResponse.data['last_page'];
       int lastPage = 1;
 
       for(int i = 1; i <= lastPage; ++i) {
@@ -54,11 +57,16 @@ class _SearchPageState extends State<SearchPage> {
 
           for(Map<String, dynamic> book in _customResponse.data['data']) {
 
-            Response<dynamic> httpsResponse = await CustomDio.dio.post('books/${book['slug']}');
+            _customDio = await CustomDio.dio.post('books/${book['slug']}');
 
-            CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+            if(_customDio.statusCode == 200) {
+              _customResponse = CustomResponse.fromJson(_customDio.data);
 
-            _books.add(Book.fromJson(customResponse.data));
+              Book _book = Book.fromJson(_customDio.data);
+
+              _booksTemp.add(_book);
+              _books.add(_book);
+            }
           }
         }
       }
@@ -85,7 +93,11 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _body() {
+  FutureBuilder _body() {
+    return FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _innerBody() : const Center(child: CustomCircularProgressIndicator()); }, future: _initBooks(),);
+  }
+
+  Widget _innerBody() {
     return Column(
       children: [
         Padding(
@@ -108,7 +120,7 @@ class _SearchPageState extends State<SearchPage> {
           height: 0.0,
           thickness: 1.0,
         ),
-        FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _searchResults() : const CustomCircularProgressIndicator(); }, future: _initBooks(),),
+        _searchResults()
       ],
     );
   }
@@ -182,11 +194,11 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Expanded _searchResults() {
-    if ((_books.isEmpty) && (_searchKey != '')) {
+    if ((_booksTemp.isEmpty) && (_searchKey != '')) {
       return Expanded(
         child: Center(
           child:
-              Text('کتابی با ${_searchTopic.title} «${_searchKey}» یافت نشد.'),
+              Text('کتابی با ${_searchTopic.title} «$_searchKey» یافت نشد.'),
         ),
       );
     } else {
@@ -194,9 +206,9 @@ class _SearchPageState extends State<SearchPage> {
         child: SingleChildScrollView(
           child: Column(
             children: List.generate(
-              _books.length,
+              _booksTemp.length,
               (index) => BookShortIntroduction(
-                book: _books[index],
+                book: _booksTemp[index],
                 searchTopic: _searchTopic,
                 searchKey: _searchKey,
               ),
@@ -212,34 +224,34 @@ class _SearchPageState extends State<SearchPage> {
       _searchKey = _textEditingController.text;
 
       if (_searchKey == '') {
-        _books.clear();
+        _booksTemp.clear();
 
-        _books.addAll(database.books);
+        _booksTemp.addAll(_books);
       } else {
         switch (_searchTopic) {
           case SearchTopic.name:
             {
-              _books.clear();
+              _booksTemp.clear();
 
-              _books.addAll(database.books
+              _booksTemp.addAll(_books
                   .where((element) => element.name.contains(_searchKey)));
 
               break;
             }
           case SearchTopic.author:
             {
-              _books.clear();
+              _booksTemp.clear();
 
-              _books.addAll(database.books
+              _booksTemp.addAll(_books
                   .where((element) => element.author.contains(_searchKey)));
 
               break;
             }
           case SearchTopic.publisherOfPrintedVersion:
             {
-              _books.clear();
+              _booksTemp.clear();
 
-              _books.addAll(database.books.where((element) =>
+              _booksTemp.addAll(_books.where((element) =>
                   element.publisherOfPrintedVersion.contains(_searchKey)));
 
               break;

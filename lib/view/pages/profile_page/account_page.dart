@@ -298,6 +298,14 @@ class _AccountPageState extends State<AccountPage> {
               'اطلاعات شما با موفقیت به روز رسانی شد.',
             ),
           );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar(
+              context,
+              Ionicons.refresh_outline,
+              'لطفاً دوباره امتحان کنید.',
+            ),
+          );
         }
       });
     }
