@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:material_color_generator/material_color_generator.dart';
+import 'package:takfood_seller/controller/check_internet_connection.dart';
 import 'package:takfood_seller/test.dart';
 import 'package:takfood_seller/view/pages/login_pages/login_page.dart';
 import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
@@ -45,10 +49,30 @@ void main() async {
     markedBooksId.add(book['id']);
   }
 
+  xxx();
+
+
   runApp(
     SharedValue.wrapApp(
       const MyApp(),
     ),
+  );
+}
+
+void xxx() {
+  InternetConnectionChecker().onStatusChange.listen(
+        (InternetConnectionStatus status) {
+      switch (status) {
+        case InternetConnectionStatus.connected:
+        // ignore: avoid_print
+          print('Data connection is available.');
+          break;
+        case InternetConnectionStatus.disconnected:
+        // ignore: avoid_print
+          print('You are disconnected from the internet.');
+          break;
+      }
+    },
   );
 }
 

@@ -217,6 +217,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
     return Flexible(
       child: PlayOrPauseController(
         playerBottomNavigationBar: false,
+        bookIntroductionPage: false,
       ),
     );
   }

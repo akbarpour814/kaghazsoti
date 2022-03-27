@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '/main.dart';
 import '../category_page/books_page.dart';
@@ -23,9 +24,24 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+    return SafeArea(
+      child: Scaffold(
+        body: _body(),
+        bottomNavigationBar: const PlayerBottomNavigationBar(),
+      ),
+    );
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor:
+        Color(0xFF00444D), // navigation bar color
+      ),
+      child: SafeArea(
+        child: Scaffold(
+          body: _body(),
+          bottomNavigationBar: const PlayerBottomNavigationBar(),
+        ),
+      ),
     );
   }
 

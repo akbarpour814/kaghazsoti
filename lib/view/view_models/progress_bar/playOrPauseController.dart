@@ -5,8 +5,9 @@ import 'package:takfood_seller/main.dart';
 
 class PlayOrPauseController extends StatefulWidget {
   late bool playerBottomNavigationBar;
+  late bool bookIntroductionPage;
 
-  PlayOrPauseController({Key? key, required this.playerBottomNavigationBar,}) : super(key: key);
+  PlayOrPauseController({Key? key, required this.playerBottomNavigationBar, required this.bookIntroductionPage,}) : super(key: key);
 
   @override
   _PlayOrPauseControllerState createState() => _PlayOrPauseControllerState();
@@ -24,6 +25,12 @@ class _PlayOrPauseControllerState extends State<PlayOrPauseController> {
         final playerState = snapshot.data;
         final processingState = playerState?.processingState;
         final playing = playerState?.playing;
+
+        if(widget.bookIntroductionPage) {
+          demoIsPlaying.$ = true;
+        } else {
+          demoIsPlaying.$ = false;
+        }
 
         if (processingState == ProcessingState.loading || processingState == ProcessingState.buffering) {
           playOrPauseIcon = widget.playerBottomNavigationBar ? const Icon(Ionicons.reload_outline, color: Colors.white,) : const CircularProgressIndicator(color: Colors.white,);

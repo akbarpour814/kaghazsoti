@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:takfood_seller/main.dart';
 import 'package:takfood_seller/model/comment.dart';
 import 'package:takfood_seller/model/user.dart';
@@ -465,6 +467,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                         _displayOfDetails[index]
                             ? Icons.expand_less
                             : Icons.expand_more,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                   ],

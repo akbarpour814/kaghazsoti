@@ -21,6 +21,7 @@ import '/controller/custom_dio.dart';
 import 'custom_circular_progress_indicator.dart';
 import 'custom_snack_bar.dart';
 import 'player_bottom_navigation_bar.dart';
+import 'progress_bar/playOrPauseController.dart';
 
 class BookIntroductionPage extends StatefulWidget {
   late Book book;
@@ -198,19 +199,25 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         Positioned(
           left: 2.5.w,
           bottom: 2.5.w,
-          child: FloatingActionButton(
+          /*child: FloatingActionButton(
             onPressed: () {
               setState(() {
                 audioIsPlaying.$ = true;
                 demoIsPlaying.$ = true;
 
                 audioPlayer.setUrl(widget.book.demo);
+
+                audioPlayer.play();
               });
             },
             child: const Icon(
               Ionicons.play_outline,
               color: Colors.white,
             ),
+          ),*/
+          child: PlayOrPauseController(
+            playerBottomNavigationBar: false,
+            bookIntroductionPage: true,
           ),
         ),
       ],

@@ -4,6 +4,7 @@ import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 
+
 class BooksPage extends StatefulWidget {
   late String title;
   late List<Book> books;

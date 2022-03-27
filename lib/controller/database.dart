@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:takfood_seller/model/purchase.dart';
 import '/controller/custom_response.dart';
 import '/controller/custom_dio.dart';
 import '/model/HomePageCategoryData.dart';
@@ -92,7 +93,17 @@ class Database {
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
 
       user.library.add(Book.fromJson(customResponse.data));
+
+
+
+
+
+
+
+      user.cart.add(Book.fromJson(customResponse.data));
     }
+
+    user.purchaseHistory.add(Purchase(number: 1, type: 'type', prices: 200, date: DateTime.now(), status: PurchaseStatus.bought));
   }
 
   Future<void> _initCategories() async {

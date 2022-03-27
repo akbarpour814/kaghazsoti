@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:persian_number_utility/persian_number_utility.dart';
 class Comment {
@@ -14,7 +15,10 @@ class Comment {
     topic = TopicExtension.topics.keys.elementAt(findTopic > -1 ? findTopic : TopicExtension.topics.length - 1);
     text = json['body'];
     status = CommentStatus.answered;
-    date = json['created_at'].toString().toPersianDate(digitType: NumStrLanguage.Farsi);
+
+    DateTime dateTime = DateTime.parse(json['created_at']);
+    date = '${DateFormat('HH:mm').format(dateTime.toLocal())} - ${dateTime.toPersianDate(twoDigits: true)}';
+
     response = '';
   }
 }

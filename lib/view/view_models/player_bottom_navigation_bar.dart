@@ -97,7 +97,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
 
   Flexible _playOrPauseButton() {
     return Flexible(
-      child: PlayOrPauseController(playerBottomNavigationBar: true,),
+      child: PlayOrPauseController(playerBottomNavigationBar: true, bookIntroductionPage: true,),
     );
   }
 }

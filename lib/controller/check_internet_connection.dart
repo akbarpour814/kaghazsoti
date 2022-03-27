@@ -1,19 +1,21 @@
-// import 'dart:io';
-//
-// late bool internetIsConnected;
-//
-// Future<Stream<bool>> checkInternetConnection() async {
-//   while(true) {
-//     try {
-//       final result = await InternetAddress.lookup('example.com');
-//
-//       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-//         internetIsConnected = true;
-//
-//         yield internetIsConnected;
-//       }
-//     } on SocketException catch (_) {
-//       print('not connected');
-//     }
-//   }
-// }
+import 'dart:io';
+
+bool internetIsConnected = false;
+
+Future checkInternetConnection() async {
+  final result = await InternetAddress.lookup('https://kaghazsoti.com/');
+
+  try {
+
+
+    if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+      internetIsConnected = true;
+    }
+
+    print('connected');
+  } on SocketException catch (_) {
+    print('not connected');
+  }
+
+  return result;
+}

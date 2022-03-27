@@ -175,6 +175,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         keyboardType: TextInputType.visiblePassword,
         decoration: InputDecoration(
           helperText: 'رمز عبور',
+          hintText: 'لطفاً رمز عبور را وارد کنید.',
           errorText: _passwordError ? 'رمز عبور وارد شده شتباه است.' : null,
           suffixIcon: const Icon(Ionicons.key_outline),
         ),
