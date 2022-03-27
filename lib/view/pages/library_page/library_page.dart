@@ -119,6 +119,10 @@ class _MyBookState extends State<MyBook> {
       onTap: () {
         setState(() {
           audiobookInPlay = widget.book;
+          audioPlayer.stop();
+
+          audioIsPlaying.$ = false;
+          demoIsPlaying.$ = false;
 
           Navigator.of(context).push(
             MaterialPageRoute(

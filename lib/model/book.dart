@@ -1,3 +1,4 @@
+import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:takfood_seller/main.dart';
 
 class Book {
@@ -58,6 +59,7 @@ class Book {
 
 
     price = product['price'];
+    price = price == '0' ? 'رایگان' : '${price.seRagham()} تومان';
 
     //////////////////////////
     marked = markedBooksId.contains(product['id']);

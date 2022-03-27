@@ -28,7 +28,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _navigatorToAudiobookPlayerPage(context),
+            demoIsPlaying.of(context) ? _stopDemoPlayer(): _navigatorToAudiobookPlayerPage(context),
             _progressBar(),
             _playOrPauseButton(),
           ],
@@ -40,6 +40,25 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
         thickness: 1.0,
       );
     }
+  }
+
+  Flexible _stopDemoPlayer() {
+    return Flexible(
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            audioPlayer.stop();
+
+            audioIsPlaying.$ = false;
+            demoIsPlaying.$ = false;
+          });
+        },
+        child: const Icon(
+          Ionicons.close_outline,
+          color: Colors.white,
+        ),
+      ),
+    );
   }
 
   Flexible _navigatorToAudiobookPlayerPage(BuildContext context) {

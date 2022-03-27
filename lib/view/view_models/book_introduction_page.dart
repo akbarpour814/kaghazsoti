@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/view/pages/profile_page/marked_page.dart';
+import 'package:takfood_seller/view/view_models/show_stars.dart';
 import 'package:zarinpal/zarinpal.dart';
 import '../../controller/custom_response.dart';
 import '../pages/category_page/books_page.dart';
@@ -18,6 +19,7 @@ import 'package:sizer/sizer.dart';
 import '/controller/database.dart';
 import '/controller/custom_dio.dart';
 import 'custom_circular_progress_indicator.dart';
+import 'custom_snack_bar.dart';
 import 'player_bottom_navigation_bar.dart';
 
 class BookIntroductionPage extends StatefulWidget {
@@ -34,10 +36,17 @@ class BookIntroductionPage extends StatefulWidget {
 
 class _BookIntroductionPageState extends State<BookIntroductionPage>
     with TickerProviderStateMixin {
-  final TextEditingController _textEditingController = TextEditingController();
+  late Response<dynamic> _customDio;
+  late CustomResponse _customResponse;
+  TextEditingController _commentController = TextEditingController();
+  String? _commentError;
   late TabController _tabController;
   late int _tabIndex;
   late bool _commentPosted;
+  late List<bool> _displayOfDetails;
+  late int _previousIndex;
+  late int _numberOfStars;
+  late List<bool> _stars;
 
   @override
   void initState() {
@@ -45,19 +54,18 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       length: 3,
       vsync: this,
     );
-
     _tabIndex = 0;
-
     _commentPosted = false;
+    _displayOfDetails = List<bool>.generate(widget.book.reviews.length, (index) => false);
+    _previousIndex = -1;
+    _numberOfStars = 0;
+    _stars = List<bool>.generate(5, (index) => false);
 
     super.initState();
   }
 
   Future _initRelatedBooks() async {
     widget.book.relatedBooks.clear();
-
-    late Response<dynamic> _customDio;
-    CustomResponse _customResponse;
 
     for(String slug in widget.book.relatedBooksSlug) {
       _customDio = await CustomDio.dio.post('books/$slug');
@@ -194,6 +202,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             onPressed: () {
               setState(() {
                 audioIsPlaying.$ = true;
+                demoIsPlaying.$ = true;
 
                 audioPlayer.setUrl(widget.book.demo);
               });
@@ -219,24 +228,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text.rich(
-                  TextSpan(
-                    text: ''.padLeft(5 - widget.book.numberOfStars, '\u2605'),
-                    style: Theme.of(context)
-                        .textTheme
-                        .caption
-                        ?.copyWith(color: Colors.amber.withOpacity(0.4),),
-                    children: <InlineSpan>[
-                      TextSpan(
-                        text: ''.padLeft(widget.book.numberOfStars, '\u2605'),
-                        style: Theme.of(context)
-                            .textTheme
-                            .caption
-                            ?.copyWith(color: Colors.amber,),
-                      ),
-                    ],
-                  ),
-                ),
+                ShowStars(numberOfStars: widget.book.numberOfStars,),
                 Text(
                   '${widget.book.numberOfVotes.toString()} رای',
                   style: Theme
@@ -247,7 +239,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
               ],
             ),
             Text(
-              '${widget.book.price.toString()} تومان',
+              widget.book.price,
               style: Theme
                   .of(context)
                   .textTheme
@@ -309,7 +301,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           length: 3,
           child: TabBar(
             controller: _tabController,
-            //indicatorColor: const Color(0xFFC6DADE),
             indicatorWeight: 3.0,
             tabs: const <Tab>[
               Tab(
@@ -427,7 +418,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           ),
           Property(
             property: 'مبلغ',
-            value: '${widget.book.price.toString()} تومان',
+            value: widget.book.price,
             valueInTheEnd: false,
             lastProperty: true,
           ),
@@ -490,7 +481,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('نظر خود را بنویسید.'),
+          Text('نظر شما:', style: TextStyle(color: Theme.of(context).primaryColor),),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 18.0),
             child: Row(
@@ -499,11 +490,23 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                 5,
                     (index) =>
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        setState(() {
+                          if(_stars[index]) {
+                            _stars[index] = false;
+
+                            _numberOfStars--;
+                          } else {
+                            _stars[index] = true;
+
+                            _numberOfStars++;
+                          }
+                        });
+                      },
                       child: Icon(
                         Icons.star,
                         size: 25.0.sp,
-                        color: Colors.amber.withOpacity(0.4),
+                        color: _stars[index] ? Colors.amber : Colors.amber.withOpacity(0.4),
                       ),
                     ),
               ),
@@ -512,8 +515,10 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           Padding(
             padding: const EdgeInsets.only(bottom: 18.0),
             child: TextField(
-              controller: _textEditingController,
+              controller: _commentController,
               decoration: InputDecoration(
+                errorText: _commentError,
+                hintText: 'لطفاً نظر خود را بنویسید.',
                 border: _outlineInputBorder,
                 focusedBorder: _outlineInputBorder,
                 disabledBorder: _outlineInputBorder,
@@ -522,11 +527,17 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                 focusedErrorBorder: _outlineInputBorder,
               ),
               maxLines: 8,
-              cursorColor: Theme
-                  .of(context)
-                  .dividerColor
-                  .withOpacity(0.6),
+              cursorColor: Theme.of(context).dividerColor.withOpacity(0.6),
               cursorWidth: 1.0,
+              onChanged: (String text) {
+                setState(() {
+                  if(_commentController.text.length < 3) {
+                    _commentError = 'نظر شما باید بیش از حرف داشته باشد.';
+                  } else {
+                    _commentError = null;
+                  }
+                });
+              },
             ),
           ),
           Center(
@@ -536,16 +547,17 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                 child: ElevatedButton.icon(
                   onPressed: () {
                     setState(() {
-                      _commentPosted =
-                      _commentPosted ? false : true;
+                      if(_commentController.text.isEmpty) {
+                        _commentError = 'لطفاً نظر خود را بنویسید.';
+                      } else if(_commentController.text.length < 3) {
+                        _commentError = 'نظر شما باید بیش از حرف داشته باشد.';
+                      } else {
+                        _commentRegistration();
+                      }
                     });
                   },
-                  label: Text(_commentPosted
-                      ? 'نظر شما ثبت شد'
-                      : 'ثبت نظر',),
-                  icon: Icon(_commentPosted
-                      ? Ionicons.checkmark_done_outline
-                      : Ionicons.checkmark_outline),
+                  label: const Text('ثبت نظر',),
+                  icon: const Icon(Ionicons.checkmark_outline),
                 ),
               ),
             ),
@@ -561,6 +573,40 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     ];
 
     return _tabs[index];
+  }
+
+  void _commentRegistration() async {
+    _customDio = await CustomDio.dio.post(
+      'dashboard/books/${widget.book.slug}/review',
+      data: {
+        'comment': _commentController.text,
+        'rate': _numberOfStars,
+      },
+    );
+
+    setState(() {
+      if (_customDio.statusCode == 200) {
+        _commentController = TextEditingController();
+        _numberOfStars = 0;
+        _stars = List<bool>.generate(5, (index) => false);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          customSnackBar(
+            context,
+            Ionicons.checkmark_done_outline,
+            'نظر شما با موفقیت ثبت شد.',
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          customSnackBar(
+            context,
+            Ionicons.refresh_outline,
+            'لطفاً دوباره امتحان کنید.',
+          ),
+        );
+      }
+    });
   }
 
   Visibility _otherPublisherBooks() {
@@ -662,32 +708,102 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     return Visibility(
       visible: (widget.book.reviews.isNotEmpty) && (_tabIndex == 2),
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
+        padding: EdgeInsets.only(left: 5.0.w, top: 0.0, right: 5.0.w, bottom: 16.0,),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5.0.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'نظرات کاربران',
-                    style: TextStyle(
-                      color: Theme
-                          .of(context)
-                          .primaryColor,
-                    ),
-                  ),
-                  Divider(
-                    height: 4.0.h,
-                    thickness: 1.0,
-                  ),
-                ],
+            Text(
+              'نظرات کاربران',
+              style: TextStyle(
+                color: Theme
+                    .of(context)
+                    .primaryColor,
               ),
             ),
+            Divider(
+              height: 4.0.h,
+              thickness: 1.0,
+            ),
             Column(
-              children: List.generate(widget.book.reviews.length, (index) => Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(widget.book.reviews[index].userName.toString()), Text(widget.book.reviews[index].review),],),),
+              children: List.generate(
+                widget.book.reviews.length,
+                    (index) => Padding(
+                  padding: EdgeInsets.only(
+                    top: 0.0,
+                    bottom: index == widget.book.reviews.length - 1 ? 0.0 : 8.0,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      left: 18.0,
+                      top: 18.0,
+                      right: 18.0,
+                      bottom: 8.0,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Theme.of(context).primaryColor),
+                      borderRadius:
+                      const BorderRadius.all(Radius.circular(5.0)),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(widget.book.reviews[index].userName.toString()),
+                            ShowStars(numberOfStars: widget.book.reviews[index].numberOfStars,),
+                          ],
+                        ),
+                        Visibility(
+                          visible: _displayOfDetails[index],
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Divider(
+                                height: 24.0,
+                                thickness: 1.0,
+                              ),
+                              Text(
+                                '- ${widget.book.reviews[index].review}',
+                                textAlign: TextAlign.justify,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(
+                          height: 24.0,
+                          thickness: 1.0,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              if (index == _previousIndex &&
+                                  _displayOfDetails[index]) {
+                                _displayOfDetails[index] = false;
+                              } else if (index == _previousIndex &&
+                                  !_displayOfDetails[index]) {
+                                _displayOfDetails[index] = true;
+                              } else if (index != _previousIndex) {
+                                if (_previousIndex != -1) {
+                                  _displayOfDetails[_previousIndex] = false;
+                                }
+                                _displayOfDetails[index] = true;
+                              }
+
+                              _previousIndex = index;
+                            });
+                          },
+                          child: Icon(
+                            _displayOfDetails[index]
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

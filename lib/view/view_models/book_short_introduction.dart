@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:takfood_seller/view/view_models/show_stars.dart';
 import '../../main.dart';
 import '../pages/search_page/search_page.dart';
 import '/model/book.dart';
@@ -193,35 +194,9 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
     }
   }
 
-  // Flexible _numberOfStars(BuildContext context) {
-  //   return Flexible(
-  //     child: Text(
-  //       ''.padLeft(widget.book.numberOfStars, '\u2605'),
-  //       style:
-  //       Theme.of(context).textTheme.caption?.copyWith(color: Colors.amber),
-  //     ),
-  //   );
-  // }
-
   Flexible _numberOfStars(BuildContext context) {
     return Flexible(
-      child: Text.rich(
-        TextSpan(
-          text: ''.padLeft(5 - widget.book.numberOfStars, '\u2605'),
-          style: Theme.of(context).textTheme.caption?.copyWith(
-                color: Colors.amber.withOpacity(0.4),
-              ),
-          children: <InlineSpan>[
-            TextSpan(
-              text: ''.padLeft(widget.book.numberOfStars, '\u2605'),
-              style: Theme.of(context)
-                  .textTheme
-                  .caption
-                  ?.copyWith(color: Colors.amber),
-            ),
-          ],
-        ),
-      ),
+      child: ShowStars(numberOfStars: widget.book.numberOfStars,),
     );
   }
 
@@ -271,7 +246,7 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
   Flexible _price(BuildContext context) {
     return Flexible(
       child: Text(
-        '${widget.book.price.toString()} تومان',
+        widget.book.price,
         style: Theme.of(context).textTheme.caption,
       ),
     );

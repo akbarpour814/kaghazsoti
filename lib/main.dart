@@ -24,6 +24,7 @@ import 'view/pages/search_page/search_page.dart';
 import 'view/pages/profile_page/profile_page.dart';
 
 SharedValue<bool> audioIsPlaying = SharedValue(value: false);
+SharedValue<bool> demoIsPlaying = SharedValue(value: false);
 
 AudioPlayer audioPlayer = AudioPlayer();
 

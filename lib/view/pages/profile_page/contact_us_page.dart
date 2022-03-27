@@ -15,8 +15,6 @@ import '../../../controller/custom_response.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 import '../../view_models/custom_snack_bar.dart';
 
-
-
 class ContactUsPage extends StatefulWidget {
   const ContactUsPage({Key? key}) : super(key: key);
 
@@ -231,11 +229,11 @@ class _ContactUsPageState extends State<ContactUsPage> {
         onPressed: () {
           setState(() {
             if((_topic == null) && (_textEditingController.text.isEmpty)) {
-              _errorText = 'لطفاً نظر خود را به همراه موضوع وارد کنید.';
+              _errorText = 'لطفاً نظر خود را به همراه موضوع بنویسید.';
             } else if(_topic == null) {
-              _errorText = 'لطفاً موضوع را وارد کنید.';
+              _errorText = 'لطفاً موضوع را انتخاب کنید.';
             } else if(_textEditingController.text.isEmpty) {
-              _errorText = 'لطفاً نظر خود را وارد کنید.';
+              _errorText = 'لطفاً نظر خود را بنویسید.';
             } else {
               _errorText = null;
 
@@ -328,12 +326,12 @@ class _ContactUsPageState extends State<ContactUsPage> {
                         property: 'موضوع',
                         value: _comments[index].topic.title!,
                         valueInTheEnd: false,
-                        lastProperty: false),
+                        lastProperty: false,),
                     Property(
                         property: 'تاریخ ارسال',
                         value: _comments[index].date,
                         valueInTheEnd: false,
-                        lastProperty: false),
+                        lastProperty: false,),
                     Padding(
                       padding: const EdgeInsets.only(
                         left: 0.0,
