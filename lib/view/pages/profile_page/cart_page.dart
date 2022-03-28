@@ -25,13 +25,18 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
+  late bool _dataIsLoading;
   late List<Book> _cart;
+  late bool _issuanceOfPurchaseInvoicePermission;
   late int _totalPrice;
 
   @override
   void initState() {
-    _totalPrice = 0;
+    _dataIsLoading = true;
     _cart = [];
+    _issuanceOfPurchaseInvoicePermission = false;
+
+    _totalPrice = 0;
 
     super.initState();
   }
@@ -48,6 +53,8 @@ class _CartPageState extends State<CartPage> {
         _cart.add(Book.fromJson(_customResponse.data));
       }
     }
+
+    _dataIsLoading = false;
 
     return _customDio;
   }
@@ -90,16 +97,16 @@ class _CartPageState extends State<CartPage> {
         child: Text('محصولی در سبد خرید شما وجود ندارد.'),
       );
     } else {
-      return FutureBuilder(
+      return _dataIsLoading ? FutureBuilder(
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           return snapshot.hasData
               ? _innerBody()
               : const Center(
-                  child: CustomCircularProgressIndicator(),
-                );
+            child: CustomCircularProgressIndicator(),
+          );
         },
         future: _initCart(),
-      );
+      ) : _innerBody();
     }
   }
 
@@ -157,20 +164,35 @@ class _CartPageState extends State<CartPage> {
                 ),
               ),
             ),
-            SizedBox(
-              width: 100.0.w - (2 * 5.0.w),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  
-                },
-                label: const Text('خرید با پرداخت اینترنتی'),
-                icon: const Icon(Ionicons.card_outline),
-              ),
-            ),
+            _issuanceOfPurchaseInvoiceButton(),
           ],
         ),
       ),
     );
+  }
+
+  SizedBox _issuanceOfPurchaseInvoiceButton() {
+    return SizedBox(
+      width: 100.0.w - (2 * 5.0.w),
+      child: ElevatedButton.icon(
+        onPressed: () {},
+        label: const Text('خرید با پرداخت اینترنتی'),
+        icon: const Icon(Ionicons.card_outline),
+      ),
+    );
+  }
+
+  void _issuanceOfPurchaseInvoice() async {
+    _customDio = await CustomDio.dio.post('dashboard/invoices/create', data: {'id': List<String>.generate(_cart.length, (index) => '${_cart[index].id}')},);
+
+    if(_customDio.statusCode == 200) {
+      _customDio = await CustomDio.dio.post('dashboard/invoices');
+
+      if(_customDio.statusCode == 200) {
+        
+      }
+    }
+
   }
 
   Padding _books() {
@@ -185,7 +207,12 @@ class _CartPageState extends State<CartPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('کتاب ها', style: TextStyle(color: Theme.of(context).primaryColor,),),
+            Text(
+              'کتاب ها',
+              style: TextStyle(
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
             Divider(
               height: 4.0.h,
               thickness: 1.0,
@@ -193,7 +220,7 @@ class _CartPageState extends State<CartPage> {
             Column(
               children: List<Card>.generate(
                 _cart.length,
-                    (index) => _book(index),
+                (index) => _book(index),
               ),
             ),
           ],
@@ -227,7 +254,19 @@ class _CartPageState extends State<CartPage> {
             MaterialPageRoute(
               builder: (context) {
                 return BookIntroductionPage(
-                  bookIntroduction: BookIntroduction(id: _cart[index].id, slug: _cart[index].slug, name: _cart[index].name, author: _cart[index].author, publisherOfPrintedVersion: _cart[index].publisherOfPrintedVersion, duration: _cart[index].duration, price: _cart[index].price, numberOfVotes: _cart[index].numberOfVotes, numberOfStars: _cart[index].numberOfStars, bookCoverPath: _cart[index].bookCoverPath,),
+                  bookIntroduction: BookIntroduction(
+                    id: _cart[index].id,
+                    slug: _cart[index].slug,
+                    name: _cart[index].name,
+                    author: _cart[index].author,
+                    publisherOfPrintedVersion:
+                        _cart[index].publisherOfPrintedVersion,
+                    duration: _cart[index].duration,
+                    price: _cart[index].price,
+                    numberOfVotes: _cart[index].numberOfVotes,
+                    numberOfStars: _cart[index].numberOfStars,
+                    bookCoverPath: _cart[index].bookCoverPath,
+                  ),
                 );
               },
             ),
@@ -272,15 +311,15 @@ class _CartPageState extends State<CartPage> {
           'قیمت:\n${_cart[index].price}',
           style: Theme.of(context).textTheme.caption,
         ),
-        trailing: _bookDeleteButton(index),
+        trailing: _bookRemoveButton(index),
       ),
     );
   }
 
-  OutlinedButton _bookDeleteButton(int index) {
+  OutlinedButton _bookRemoveButton(int index) {
     return OutlinedButton(
       onPressed: () {
-        _bookDelete(index);
+        _bookRemove(index);
       },
       child: const Text(
         'حذف',
@@ -307,7 +346,7 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  void _bookDelete(int index) async {
+  void _bookRemove(int index) async {
     setState(() {
       cartSlug.remove(_cart[index].slug);
 
