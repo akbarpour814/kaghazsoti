@@ -61,7 +61,8 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _body() {
-    if(database.user.cart.isEmpty) {
+    //----------------------------------------------------------------------------------------------------------
+    if(true) {
       return const Center(child: Text('محصولی در سبد خرید شما وجود ندارد.'),);
     } else {
       return SingleChildScrollView(
@@ -89,7 +90,7 @@ class _CartPageState extends State<CartPage> {
                         height: 4.0.h,
                         thickness: 1.0,
                       ),
-                      Column(
+                      /*Column(
                         children: List<Card>.generate(
                           database.user.cart.length,
                               (index) {
@@ -209,7 +210,7 @@ class _CartPageState extends State<CartPage> {
                             );
                           },
                         ),
-                      ),
+                      ),*/
                       Divider(
                         height: 4.0.h,
                         thickness: 1.0,

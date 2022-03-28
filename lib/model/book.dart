@@ -1,5 +1,6 @@
 import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:takfood_seller/main.dart';
+import 'package:takfood_seller/model/book_introduction.dart';
 
 class Book {
   late int id;
@@ -9,13 +10,13 @@ class Book {
   late String subcategory;
   late String author;
   late String announcer;
-  late double fileSize;
+  late String fileSize;
   late String publisherOfPrintedVersion;
   late int printedVersionYear;
   late String publisherOfAudioVersion;
   late int audioVersionYear;
   late int numberOfChapters;
-  late int numberOfPages;
+  late String numberOfPages;
   late String duration;
   late String price;
   late bool marked;
@@ -27,65 +28,94 @@ class Book {
   late List<Part> parts;
   late String demo;
   late String bookCoverPath;
-  late List<Book> otherBooksByThePublisher;
-  late List<String> relatedBooksSlug;
-  late List<Book> relatedBooks;
+  late List<BookIntroduction> otherBooksByThePublisher;
+  late List<BookIntroduction> relatedBooks;
 
   Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> product = json['product'];
 
-    id = product['id'];
-    slug = product['slug'];
-    name = product['title'];
-    category = (product['category'])['name'];
-    subcategory = (product['parent_category'])['name'];
-    author = (product['author'])['name'];
-    announcer = (product['narrator'])['name'];
+    id = product['id'] ?? -1;
+    slug = product['slug'] ?? '';
+    name = product['title'] ?? '';
+    category = product['category'] == null ? '' : (product['category'])['name']  ?? '';
+    subcategory = product['parent_category'] == null ? '' : (product['parent_category'])['name']  ?? '';
+    author = product['author'] == null ? '' : (product['author'])['name']  ?? '';
+    announcer = product['narrator'] == null ? '' : (product['narrator'])['name']  ?? '';
 
     /////////////////////
-    fileSize = 0;
+    fileSize = (product['download_volume'] ?? 0.0).toString();
     ////////////////////////
 
-    publisherOfPrintedVersion = (product['publisher'])['name'];
+    publisherOfPrintedVersion = product['publisher'] == null ? '' : (product['publisher'])['name']  ?? '';
     printedVersionYear = product['publish_year'] ?? 0;
-    publisherOfAudioVersion = (product['audio_publisher'])['name'];
+    publisherOfAudioVersion = product['audio_publisher'] == null ? '' : (product['audio_publisher'])['name']  ?? '';
     audioVersionYear = product['audio_publish_year'] ?? 0;
 
     ///////////////////
-    numberOfChapters = 0;
-    numberOfPages = 0;
-    duration = 'duration';
+    numberOfChapters = product['orders_count'] ?? 0;
+    numberOfPages = (product['page_count'] ?? 0).toString();
+    duration = product['duration'] ?? '00:00:00';
     //////////////////////
 
 
-    price = product['price'];
+    price = product['price'] ?? '0';
     price = price == '0' ? 'رایگان' : '${price.seRagham()} تومان';
 
     //////////////////////////
     marked = markedBooksId.contains(product['id']);
-    numberOfVotes = 0;
-    numberOfStars = double.parse(product['rating']).toInt();
+    numberOfVotes = product['vote'] ?? 0;
+    numberOfStars = double.parse(product['rating'] ?? 0.0).toInt();
     aboutBook = 'aboutBook';
     partOfTheBook = 'partOfTheBook';
     /////////////////////////
 
 
     reviews = [];
-    setReviews(json['reviews']);
+    setReviews(json['reviews'] ?? []);
 
     parts = [];
     demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}';
-    bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
+    bookCoverPath = product['image'] == null ? defaultBookCover : 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
 
     /////////////////////////////////////////////////////////
     otherBooksByThePublisher = [];
     /////////////////////////////////////////////////////////
 
-    relatedBooksSlug = [];
-    setRelatedBooksSlug(json['similar']);
     relatedBooks = [];
+    setRelatedBooks(json['similar'] ?? []);
+
+    //_toString();
   }
 
+  void _toString() {
+    print(id);
+    print(slug);
+    print(name);
+    print(category);
+    print(subcategory);
+    print(author);
+    print(announcer);
+    print(fileSize);
+    print(publisherOfPrintedVersion);
+    print(printedVersionYear);
+    print(publisherOfAudioVersion);
+    print(audioVersionYear);
+    print(numberOfChapters);
+    print(numberOfPages);
+    print( duration);
+    print(price);
+    print(marked);
+    print(numberOfVotes);
+    print(numberOfStars);
+    print(aboutBook);
+    print(partOfTheBook);
+    print(reviews);
+    print(parts);
+    print(demo);
+    print(bookCoverPath);
+    print(otherBooksByThePublisher);
+    print(relatedBooks);
+  }
 
   void setReviews(List<dynamic> reviewsAsMap) {
     for(Map<String, dynamic> review in reviewsAsMap) {
@@ -99,9 +129,9 @@ class Book {
     }
   }
 
-  void setRelatedBooksSlug(List<dynamic> relatedBooksSlugAsMap) {
-    for(Map<String, dynamic> relatedBookSlug in relatedBooksSlugAsMap) {
-      relatedBooksSlug.add(relatedBookSlug['slug']);
+  void setRelatedBooks(List<dynamic> relatedBooksAsMap) {
+    for(Map<String, dynamic> bookIntroduction in relatedBooksAsMap) {
+      relatedBooks.add(BookIntroduction.fromJson(bookIntroduction));
     }
   }
 }
@@ -129,17 +159,3 @@ class Part {
     path = 'https://kaghazsoti.uage.ir/storage/book-files/${json['url']}';
   }
 }
-/*
-class RelatedBook {
-  late int id;
-  late String slug;
-  late String name;
-  late String bookCoverPath;
-
-  RelatedBook.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['title'];
-    slug = json['slug'];
-    bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${json['image']}';
-  }
-}*/

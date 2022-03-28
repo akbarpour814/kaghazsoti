@@ -1,5 +1,7 @@
 import 'package:persian_number_utility/persian_number_utility.dart';
 
+import '../main.dart';
+
 class BookIntroduction {
   late int id;
   late String slug;
@@ -13,25 +15,25 @@ class BookIntroduction {
   late String bookCoverPath;
 
   BookIntroduction.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    slug = json['slug'];
-    name = json['title'];
-    author = (json['author'])['name'];
-    publisherOfPrintedVersion = (json['publisher'])['name'];
+    id = json['id'] ?? -1;
+    slug = json['slug'] ?? '';
+    name = json['title'] ?? '';
+    author = json['author'] == null ? '' : (json['author'])['name']   ?? '';
+    publisherOfPrintedVersion = json['publisher'] == null ? '' : (json['publisher'])['name']   ?? '';
 
     //////////////////////////
-    duration = 'duration';
+    duration = json['duration'] ?? '';
     //////////////////////
 
 
-    price = json['price'];
+    price = json['price'] ?? '0';
     price = price == '0' ? 'رایگان' : '${price.seRagham()} تومان';
 
     /////////////////////////
-    numberOfVotes = 0;
+    numberOfVotes = json['vote'] ?? 0;
     ////////////////////////
 
-    numberOfStars = double.parse(json['rating']).toInt();
-    bookCoverPath = 'https://kaghazsoti.uage.ir/storage/books/${json['image']}';
+    numberOfStars = double.parse(json['rating'] ?? 0.0).toInt();
+    bookCoverPath = json['image'] == null ? defaultBookCover : 'https://kaghazsoti.uage.ir/storage/books/${json['image']}';
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:takfood_seller/view/pages/category_page/subcategory_books_page.dart';
 import '/model/category.dart';
-import '/view/pages/category_page/books_page.dart';
+import '../../view_models/books_page.dart';
 import '/view/view_models/category_name.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 
@@ -61,13 +62,9 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
           widget.subcategories.length,
           (index) => CategoryName(
             iconData: null,
-            title: widget.subcategories[index].title,
+            title: widget.subcategories[index].name,
             lastCategory: false,
-            page: BooksPage(
-              title:
-              '${widget.title} - ${widget.subcategories[index].title}',
-              books: widget.subcategories[index].books,
-            ),
+            page: SubcategoryBooksPage(subcategory: widget.subcategories[index],),
           ),
         ),
       ),

@@ -18,6 +18,8 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
+  late Response<dynamic> _customDio;
+  late CustomResponse _customResponse;
   late List<Category> _categories;
 
   @override
@@ -28,12 +30,12 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future _initCategories() async {
-    Response<dynamic> _customDio = await CustomDio.dio.post('categories');
+    _customDio = await CustomDio.dio.post('categories');
 
     if(_customDio.statusCode == 200) {
       _categories.clear();
 
-      CustomResponse _customResponse = CustomResponse.fromJson(_customDio.data);
+      _customResponse = CustomResponse.fromJson(_customDio.data);
 
       Map<String, IconData> categoriesIcon = {
         'کتاب صوتی': Ionicons.musical_notes_outline,
@@ -87,11 +89,11 @@ class _CategoryPageState extends State<CategoryPage> {
           _categories.length,
           (index) => CategoryName(
             iconData: _categories[index].iconData,
-            title: _categories[index].title,
+            title: _categories[index].name,
             lastCategory: false,
             page: SubcategoriesPage(
               iconData: _categories[index].iconData,
-              title: _categories[index].title,
+              title: _categories[index].name,
               subcategories: _categories[index].subcategories,
             ),
           ),

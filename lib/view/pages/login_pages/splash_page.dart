@@ -20,8 +20,6 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   void initState() {
-    database = Database();
-
     _loginStep();
 
     super.initState();
@@ -32,7 +30,7 @@ class _SplashPageState extends State<SplashPage> {
 
     _firstLogin = sharedPreferences.getBool('firstLogin') ?? false;
 
-    if (database.downloadDone) {
+    if (true) {
       Future.delayed(const Duration(seconds: 6), () {
         Navigator.pushReplacement(
           context,

@@ -5,9 +5,10 @@ import 'package:takfood_seller/view/view_models/book_introduction_page.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../main.dart';
+import '../../model/book_introduction.dart';
 
 class BooksListView extends StatelessWidget {
-  late List<Book> books;
+  late List<BookIntroduction> books;
 
   BooksListView({
     Key? key,
@@ -32,7 +33,7 @@ class BooksListView extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return BookIntroductionPage(book: books[index]);
+                      return BookIntroductionPage(bookIntroduction: books[index]);
                     },
                   ),
                 );

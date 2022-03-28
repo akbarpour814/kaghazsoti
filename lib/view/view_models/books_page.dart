@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import '../../model/book_introduction.dart';
 import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
@@ -7,7 +8,7 @@ import '/view/view_models/player_bottom_navigation_bar.dart';
 
 class BooksPage extends StatefulWidget {
   late String title;
-  late List<Book> books;
+  late List<BookIntroduction> books;
   BooksPage({Key? key, required this.title, required this.books,}) : super(key: key);
 
   @override

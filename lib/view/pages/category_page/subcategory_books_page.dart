@@ -1,44 +1,38 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:takfood_seller/model/category.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
-import '../../../controller/database.dart';
-import '../../../model/book.dart';
 import '../../../model/book_introduction.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
+import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 
-List<BookIntroduction> markedBooks = [];
 
-class MarkedPage extends StatefulWidget {
-  const MarkedPage({
-    Key? key
-  }) : super(key: key);
+class SubcategoryBooksPage extends StatefulWidget {
+  late Subcategory subcategory;
+  SubcategoryBooksPage({Key? key, required this.subcategory,}) : super(key: key);
 
   @override
-  _MarkedPageState createState() => _MarkedPageState();
+  _SubcategoryBooksPageState createState() => _SubcategoryBooksPageState();
 }
 
-class _MarkedPageState extends State<MarkedPage> {
+class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
+  late Response<dynamic> _customDio;
+  late CustomResponse _customResponse;
 
-  @override
-  void initState() {
-
-    super.initState();
-  }
-
-  Future _initMarkedBooks() async {
-    Response<dynamic> _customDio = await CustomDio.dio.get('dashboard/users/wish');
+  Future _initSubcategoryBooks() async {
+    _customDio = await CustomDio.dio.post('categories/${widget.subcategory.slug}');
 
     if(_customDio.statusCode == 200) {
-      markedBooks.clear();
+      widget.subcategory.books.clear();
 
-      CustomResponse _customResponse = CustomResponse.fromJson(_customDio.data);
+      _customResponse = CustomResponse.fromJson(_customDio.data);
 
       for(Map<String, dynamic> bookIntroduction in _customResponse.data['data']) {
-        markedBooks.add(BookIntroduction.fromJson(bookIntroduction));
+        widget.subcategory.books.add(BookIntroduction.fromJson(bookIntroduction));
       }
     }
 
@@ -56,11 +50,9 @@ class _MarkedPageState extends State<MarkedPage> {
 
   AppBar _appBar() {
     return AppBar(
-      title: const Text('نشان شده ها'),
+      title: Text(widget.subcategory.name),
+      centerTitle: false,
       automaticallyImplyLeading: false,
-      leading: const Icon(
-        Ionicons.bookmark_outline,
-      ),
       actions: [
         InkWell(
           child: const Padding(
@@ -79,32 +71,23 @@ class _MarkedPageState extends State<MarkedPage> {
 
   FutureBuilder _body() {
     return FutureBuilder(
-      builder:
-          (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         return snapshot.hasData
             ? _innerBody()
             : const Center(child: CustomCircularProgressIndicator());
       },
-      future: _initMarkedBooks(),
+      future: _initSubcategoryBooks(),
     );
   }
 
-  Widget _innerBody() {
-    if (markedBooks.isEmpty) {
-      return const Center(
-        child: Text('شما تا کنون کتابی را نشان نکرده اید.'),
-      );
-    } else {
-      return SingleChildScrollView(
-        child: Column(
-          children: List.generate(
-            markedBooks.length,
-            (index) => BookShortIntroduction(
-              book: markedBooks[index],
-            ),
-          ),
+  SingleChildScrollView _innerBody() {
+    return SingleChildScrollView(
+      child: Column(
+        children: List<BookShortIntroduction>.generate(
+          widget.subcategory.books.length,
+              (index) => BookShortIntroduction(book: widget.subcategory.books[index],),
         ),
-      );
-    }
+      ),
+    );
   }
 }

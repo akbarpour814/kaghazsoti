@@ -13,6 +13,7 @@ import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
 import 'controller/custom_response.dart';
 import 'controller/database.dart';
 import 'controller/custom_dio.dart';
+import 'model/book_introduction.dart';
 import 'view/pages/login_pages/splash_page.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +33,8 @@ SharedValue<bool> demoIsPlaying = SharedValue(value: false);
 
 AudioPlayer audioPlayer = AudioPlayer();
 
-late Book audiobookInPlay;
+late BookIntroduction audiobookInPlay;
+int audiobookInPlayId = -1;
 
 late SharedPreferences sharedPreferences;
 

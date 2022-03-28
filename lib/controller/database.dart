@@ -4,25 +4,39 @@ import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/model/purchase.dart';
 import '/controller/custom_response.dart';
 import '/controller/custom_dio.dart';
-import '/model/HomePageCategoryData.dart';
+import '/model/home_page_category_data.dart';
 
 import '/model/book.dart';
 import '/model/category.dart';
 import '/model/comment.dart';
 import '/model/user.dart';
 
-late Database database;
+//late Database database;
 Map<String, String> headers =
 {
   'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA',
   'Accept': 'application/json',
   'client': 'api'};
 
+/*
 class Database {
   late Response<dynamic> httpsResponse;
   late CustomResponse customResponse;
 
-  late User user;
+  late User user = User(
+    token: '50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA',
+    firstAndLastName: "customResponse.data['name']",
+    email: "customResponse.data['email']",
+    phoneNumber: 0*/
+/*""customResponse.data['mobile']""*//*
+,
+    walletBalance: 0,
+    cart: [],
+    purchaseHistory: [],
+    markedBooks: [],
+    comments: [],
+    library: [],
+  );
   List<Category> categories = [];
   List<HomePageCategoryData> homePageCategories = [];
   List<Book> books = [];
@@ -30,10 +44,10 @@ class Database {
   bool downloadDone = false;
 
   Database() {
-    _initUser();
-    _initCategories();
-    _initHomePageCategories();
-    _initBooks();
+    // _initUser();
+    // _initCategories();
+    // _initHomePageCategories();
+    // _initBooks();
 
     downloadDone = true;
   }
@@ -47,7 +61,9 @@ class Database {
       token: '50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA',
       firstAndLastName: "customResponse.data['name']",
       email: "customResponse.data['email']",
-      phoneNumber: 0/*""customResponse.data['mobile']""*/,
+      phoneNumber: 0*/
+/*""customResponse.data['mobile']""*//*
+,
       walletBalance: 0,
       cart: [],
       purchaseHistory: [],
@@ -167,4 +183,4 @@ class Database {
       }
     }
   }
-}
+}*/

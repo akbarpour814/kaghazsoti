@@ -14,6 +14,7 @@ import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
+import '../../../model/book_introduction.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 
 class MyLibraryPage extends StatefulWidget {
@@ -27,7 +28,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   late Response<dynamic> _customDio;
   late CustomResponse customResponse;
 
-  late List<Book> _myBooks;
+  late List<BookIntroduction> _myBooks;
 
   @override
   void initState() {
@@ -44,14 +45,8 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
 
       Map<String, dynamic> data = _customDio.data;
 
-      for(Map<String, dynamic> book in data['data']) {
-        _customDio = await CustomDio.dio.post('books/${book['slug']}');
-
-        if(_customDio.statusCode == 200) {
-          customResponse = CustomResponse.fromJson(_customDio.data);
-
-          _myBooks.add(Book.fromJson(customResponse.data));
-        }
+      for(Map<String, dynamic> bookIntroduction in data['data']) {
+        _myBooks.add(BookIntroduction.fromJson(bookIntroduction));
       }
     }
 
@@ -101,7 +96,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
 }
 
 class MyBook extends StatefulWidget {
-  late Book book;
+  late BookIntroduction book;
 
   MyBook({
     Key? key,
@@ -119,6 +114,8 @@ class _MyBookState extends State<MyBook> {
       onTap: () {
         setState(() {
           audiobookInPlay = widget.book;
+
+          audiobookInPlayId = -1;
           audioPlayer.stop();
 
           audioIsPlaying.$ = false;

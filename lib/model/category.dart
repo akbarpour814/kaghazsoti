@@ -1,51 +1,35 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
-import '/controller/custom_response.dart';
-import '/controller/custom_dio.dart';
-import 'book.dart';
+import '/model/book_introduction.dart';
 
 class Category {
   late int id;
-  late String title;
+  late String name;
   late IconData iconData;
   late List<Subcategory> subcategories = [];
 
-  Category({required this.title, required this.iconData, required this.subcategories});
-
   Category.fromJson(this.iconData, Map<String, dynamic> json) {
     id = json['id'];
-    title = json['name'];
+    name = json['name'];
 
     for(Map<String, dynamic> subcategory in json['children']) {
-      subcategories.add(Subcategory.fromJson(title, iconData, subcategory));
+      subcategories.add(Subcategory.fromJson(name, iconData, subcategory));
     }
   }
 }
 
 class Subcategory {
   late int id;
-  late String title;
+  late String name;
+  late String slug;
   late String categoryTitle;
   late IconData iconData;
-  late List<Book> books = [];
-
-  Subcategory({required this.title, required this.categoryTitle, required this.iconData, required this.books});
+  late List<BookIntroduction> books;
 
   Subcategory.fromJson(this.categoryTitle, this.iconData, Map<String, dynamic> json) {
     id = json['id'];
-    title = json['name'];
-
-    _initBooks(json);
-  }
-
-  void _initBooks(Map<String, dynamic> json) async {
-    for(Map<String, dynamic> book in json['children']) {
-      Response<dynamic> httpsResponse = await CustomDio.dio.post('books/${book['slug']}');
-
-      CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
-
-      books.add(Book.fromJson(customResponse.data));
-    }
+    name = json['name'];
+    slug = json['slug'];
+    books = [];
   }
 }

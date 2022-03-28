@@ -47,7 +47,7 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         children: [
           _navigatorToAccountPage(),
-          _navigatorToWalletPage(),
+          //_navigatorToWalletPage(),
           _navigatorToCartPage(),
           _navigatorToPurchaseHistoryPage(),
           _navigatorToMarkedPage(),
@@ -72,14 +72,14 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  CategoryName _navigatorToWalletPage() {
-    return CategoryName(
-      iconData: Ionicons.wallet_outline,
-      title: 'اعتبار من',
-      lastCategory: false,
-      page: const WalletPage(),
-    );
-  }
+  // CategoryName _navigatorToWalletPage() {
+  //   return CategoryName(
+  //     iconData: Ionicons.wallet_outline,
+  //     title: 'اعتبار من',
+  //     lastCategory: false,
+  //     page: const WalletPage(),
+  //   );
+  // }
 
   CategoryName _navigatorToCartPage() {
     return CategoryName(
@@ -157,7 +157,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Card(
       color: Colors.transparent,
       elevation: 0.0,
-      shape: Theme.of(context).cardTheme.shape,
+
       child: ListTile(
         leading: Icon(
           MyApp.themeNotifier.value == ThemeMode.light
@@ -194,7 +194,6 @@ class _ProfilePageState extends State<ProfilePage> {
       child: const Card(
         color: Colors.transparent,
         elevation: 0.0,
-        shape: Border(),
         child: ListTile(
           leading: Icon(
             Ionicons.exit_outline,

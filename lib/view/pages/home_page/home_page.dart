@@ -1,14 +1,17 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:takfood_seller/model/book_introduction.dart';
+import '../../../controller/custom_dio.dart';
+import '../../../controller/custom_response.dart';
+import '../../view_models/custom_circular_progress_indicator.dart';
 import '/main.dart';
-import '../category_page/books_page.dart';
-import '/controller/database.dart';
+import '../../view_models/books_page.dart';
 
 import 'package:sizer/sizer.dart';
 
-import '/model/HomePageCategoryData.dart';
-import '/model/book.dart';
+import '/model/home_page_category_data.dart';
 import '/view/view_models/books_list_view.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 
@@ -20,7 +23,38 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late List<HomePageCategoryView> category;
+  late Response<dynamic> _customDio;
+  late CustomResponse _customResponse;
+  late List<HomePageCategoryData> _homePageCategoriesData;
+
+  @override
+  void initState() {
+    _homePageCategoriesData = [];
+
+    super.initState();
+  }
+
+  Future _initHomePageCategoriesData() async {
+    _customDio = await CustomDio.dio.post('home');
+
+    if (_customDio.statusCode == 200) {
+      _homePageCategoriesData.clear();
+
+      _customResponse = CustomResponse.fromJson(_customDio.data);
+
+      _homePageCategoriesData.add(HomePageCategoryData.fromJson('کتاب های صوتی', (_customResponse.data['books'])['کتاب-صوتی']));
+
+      _homePageCategoriesData.add(HomePageCategoryData.fromJson('نامه های صوتی', (_customResponse.data['books'])['نامه-صوتی']));
+
+      _homePageCategoriesData.add(HomePageCategoryData.fromJson('کتاب های الکترونیکی', (_customResponse.data['books'])['کتاب-الکترونیکی']));
+
+      _homePageCategoriesData.add(HomePageCategoryData.fromJson('پادکست ها', (_customResponse.data['books'])['پادکست']));
+
+      _homePageCategoriesData.add(HomePageCategoryData.fromJson('کتاب های کودک و نوجوان', (_customResponse.data['books'])['کتاب-کودک-و-نوجوان']));
+    }
+
+    return _customDio;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,22 +67,37 @@ class _HomePageState extends State<HomePage> {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
-        statusBarColor:
-        Color(0xFF00444D), // navigation bar color
+        statusBarColor: Color(0xFF00444D), // navigation bar color
       ),
       child: SafeArea(
         child: Scaffold(
-          body: _body(),
+          body: _innerBody(),
           bottomNavigationBar: const PlayerBottomNavigationBar(),
         ),
       ),
     );
   }
 
-  SingleChildScrollView _body() {
+  FutureBuilder _body() {
+    return FutureBuilder(
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        return snapshot.hasData
+            ? _innerBody()
+            : const Center(child: CustomCircularProgressIndicator());
+      },
+      future: _initHomePageCategoriesData(),
+    );
+  }
+
+  SingleChildScrollView _innerBody() {
     return SingleChildScrollView(
       child: Column(
-        children: List<HomePageCategoryView>.generate(database.homePageCategories.length, (index) => HomePageCategoryView(homePageCategoryData: database.homePageCategories[index],),),
+        children: List<HomePageCategoryView>.generate(
+          _homePageCategoriesData.length,
+          (index) => HomePageCategoryView(
+            homePageCategoryData: _homePageCategoriesData[index],
+          ),
+        ),
       ),
     );
   }
@@ -134,7 +183,8 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
   }
 
   Column _latestBooksPart() {
-    return _latestAndBestSellingBooks('تازه ترین', widget.homePageCategoryData.latestBooks);
+    return _latestAndBestSellingBooks(
+        'تازه ترین', widget.homePageCategoryData.latestBooks);
   }
 
   Column _bestSellingBooksPart() {
@@ -144,7 +194,8 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
     );
   }
 
-  Column _latestAndBestSellingBooks(String title, List<Book> books) {
+  Column _latestAndBestSellingBooks(
+      String title, List<BookIntroduction> books) {
     return Column(
       children: [
         Card(
@@ -165,8 +216,9 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
                     builder: (context) {
                       return BooksPage(
                         title:
-                              '$title ${widget.homePageCategoryData.bookCategoryName}',
-                          books: books,);
+                            '$title ${widget.homePageCategoryData.bookCategoryName}',
+                        books: books,
+                      );
                     },
                   ),
                 );

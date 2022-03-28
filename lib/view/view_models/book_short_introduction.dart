@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:takfood_seller/view/view_models/show_stars.dart';
 import '../../main.dart';
+import '../../model/book_introduction.dart';
 import '../pages/search_page/search_page.dart';
 import '/model/book.dart';
 import '/view/view_models/book_introduction_page.dart';
 import 'package:sizer/sizer.dart';
 
 class BookShortIntroduction extends StatefulWidget {
-  late Book book;
+  late BookIntroduction book;
   late SearchTopic? searchTopic;
   late String? searchKey;
 
@@ -31,7 +32,7 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
           MaterialPageRoute(
             builder: (context) {
               return BookIntroductionPage(
-                book: widget.book,
+                bookIntroduction: widget.book,
               );
             },
           ),

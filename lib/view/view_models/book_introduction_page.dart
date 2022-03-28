@@ -7,7 +7,8 @@ import 'package:takfood_seller/view/pages/profile_page/marked_page.dart';
 import 'package:takfood_seller/view/view_models/show_stars.dart';
 import 'package:zarinpal/zarinpal.dart';
 import '../../controller/custom_response.dart';
-import '../pages/category_page/books_page.dart';
+import '../../model/book_introduction.dart';
+import 'books_page.dart';
 import '/main.dart';
 import '/model/book.dart';
 import '/view/pages/profile_page/cart_page.dart';
@@ -24,21 +25,22 @@ import 'player_bottom_navigation_bar.dart';
 import 'progress_bar/playOrPauseController.dart';
 
 class BookIntroductionPage extends StatefulWidget {
-  late Book book;
+  late BookIntroduction bookIntroduction;
 
   BookIntroductionPage({
     Key? key,
-    required this.book,
+    required this.bookIntroduction,
   }) : super(key: key);
 
   @override
   _BookIntroductionPageState createState() => _BookIntroductionPageState();
 }
 
-class _BookIntroductionPageState extends State<BookIntroductionPage>
-    with TickerProviderStateMixin {
+class _BookIntroductionPageState extends State<BookIntroductionPage> with TickerProviderStateMixin {
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
+  late bool _dataIsLoading;
+  late Book _book;
   TextEditingController _commentController = TextEditingController();
   String? _commentError;
   late TabController _tabController;
@@ -51,13 +53,15 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
   @override
   void initState() {
+    _dataIsLoading = true;
+
     _tabController = TabController(
       length: 3,
       vsync: this,
     );
     _tabIndex = 0;
     _commentPosted = false;
-    _displayOfDetails = List<bool>.generate(widget.book.reviews.length, (index) => false);
+
     _previousIndex = -1;
     _numberOfStars = 0;
     _stars = List<bool>.generate(5, (index) => false);
@@ -65,17 +69,17 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     super.initState();
   }
 
-  Future _initRelatedBooks() async {
-    widget.book.relatedBooks.clear();
+  Future _initBook() async {
+    _customDio = await CustomDio.dio.post('books/${widget.bookIntroduction.slug}');
 
-    for(String slug in widget.book.relatedBooksSlug) {
-      _customDio = await CustomDio.dio.post('books/$slug');
+    if(_customDio.statusCode == 200) {
+      _customResponse = CustomResponse.fromJson(_customDio.data);
 
-      if(_customDio.statusCode == 200) {
-        _customResponse = CustomResponse.fromJson(_customDio.data);
+      _book = Book.fromJson(_customResponse.data);
 
-        widget.book.relatedBooks.add(Book.fromJson(_customResponse.data));
-      }
+      _displayOfDetails = List<bool>.generate(_book.reviews.length, (index) => false);
+
+      _dataIsLoading = false;
     }
 
     return _customDio;
@@ -92,24 +96,20 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
   AppBar _appBar() {
     return AppBar(
-      title: Text(widget.book.name),
+      title: Text(widget.bookIntroduction.name),
       leading: InkWell(
         child: Icon(
           Ionicons.bookmark_outline,
-          color: markedBooksId.contains(widget.book.id) ? Colors.pinkAccent : Colors.white,
+          color: markedBooksId.contains(widget.bookIntroduction.id) ? Colors.pinkAccent : Colors.white,
         ),
         onTap: () {
           setState(() {
             _setMarkedBooks();
 
-            if(markedBooksId.contains(widget.book.id)) {
-              widget.book.marked = false;
-
-              markedBooksId.remove(widget.book.id);
+            if(markedBooksId.contains(widget.bookIntroduction.id)) {
+              markedBooksId.remove(widget.bookIntroduction.id);
             } else {
-              widget.book.marked = true;
-
-              markedBooksId.add(widget.book.id);
+              markedBooksId.add(widget.bookIntroduction.id);
             }
           });
         },
@@ -131,19 +131,21 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
   }
 
   void _setMarkedBooks() async {
-    await CustomDio.dio.post('dashboard/users/wish', data: {'book_id': widget.book.id});
+    await CustomDio.dio.post('dashboard/users/wish', data: {'book_id': _book.id});
   }
 
-  FutureBuilder _body() {
-    return FutureBuilder(
+  Widget _body() {
+    return _dataIsLoading
+        ? FutureBuilder(
       builder:
           (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         return snapshot.hasData
             ? _innerBody()
             : const Center(child: CustomCircularProgressIndicator());
       },
-      future: _initRelatedBooks(),
-    );
+      future: _initBook(),
+    )
+        : _innerBody();
   }
 
   SingleChildScrollView _innerBody() {
@@ -191,7 +193,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
             child: FadeInImage.assetNetwork(
               placeholder: defaultBookCover,
-              image: widget.book.bookCoverPath,
+              image: _book.bookCoverPath,
               fit: BoxFit.cover,
             ),
           ),
@@ -215,14 +217,35 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
               color: Colors.white,
             ),
           ),*/
-          child: PlayOrPauseController(
-            playerBottomNavigationBar: false,
-            bookIntroductionPage: true,
+          child: (audioIsPlaying.of(context)) && (audiobookInPlayId == _book.id) ? PlayOrPauseController(playerBottomNavigationBar: false, demoIsPlaying: true,) : FloatingActionButton(
+            onPressed: () {
+              setState(() {
+
+                audiobookInPlayId = _book.id;
+
+
+                audioPlayer.setUrl(_book.demo);
+
+                demoIsPlaying.$ = true;
+
+                audioIsPlaying.$ = true;
+              });
+            },
+            child: const Icon(
+              Ionicons.play_outline,
+              color: Colors.white,
+            ),
           ),
         ),
       ],
     );
   }
+
+  // PlayOrPauseController _playOrPauseController() {
+  //
+  //
+  //   return ;
+  // }
 
   Padding _bookPricesAndVotes() {
     return Padding(
@@ -235,9 +258,9 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ShowStars(numberOfStars: widget.book.numberOfStars,),
+                ShowStars(numberOfStars: _book.numberOfStars,),
                 Text(
-                  '${widget.book.numberOfVotes.toString()} رای',
+                  '${_book.numberOfVotes.toString()} رای',
                   style: Theme
                       .of(context)
                       .textTheme
@@ -246,7 +269,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
               ],
             ),
             Text(
-              widget.book.price,
+              _book.price,
               style: Theme
                   .of(context)
                   .textTheme
@@ -353,79 +376,79 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         children: [
           Property(
             property: 'نام',
-            value: widget.book.name,
+            value: _book.name,
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'دسته',
-            value: '${widget.book.category} - ${widget.book.subcategory}',
+            value: '${_book.category} - ${_book.subcategory}',
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'نویسنده',
-            value: widget.book.author,
+            value: _book.author,
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'گوینده',
-            value: widget.book.announcer,
+            value: _book.announcer,
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'حجم دانلود',
-            value: widget.book.fileSize.toString(),
+            value: _book.fileSize.toString(),
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'ناشر چاپی',
-            value: widget.book.publisherOfPrintedVersion,
+            value: _book.publisherOfPrintedVersion,
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'سال انتشار چاچی',
-            value: widget.book.printedVersionYear.toString(),
+            value: _book.printedVersionYear.toString(),
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'ناشر صوتی',
-            value: widget.book.publisherOfAudioVersion,
+            value: _book.publisherOfAudioVersion,
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'سال انتشار صوت',
-            value: widget.book.audioVersionYear.toString(),
+            value: _book.audioVersionYear.toString(),
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'تعداد فصل',
-            value: widget.book.numberOfChapters.toString(),
+            value: _book.numberOfChapters.toString(),
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'تعداد صفحات',
-            value: widget.book.numberOfPages.toString(),
+            value: _book.numberOfPages.toString(),
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'زمان پخش یا مطالعه',
-            value: widget.book.duration,
+            value: _book.duration,
             valueInTheEnd: false,
             lastProperty: false,
           ),
           Property(
             property: 'مبلغ',
-            value: widget.book.price,
+            value: _book.price,
             valueInTheEnd: false,
             lastProperty: true,
           ),
@@ -444,7 +467,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.book.aboutBook,
+            _book.aboutBook,
             textAlign: TextAlign.justify,
           ),
           Center(
@@ -455,7 +478,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           ),
           Center(
             child: Text(
-              'قسمتی از کتاب ${widget.book.name}',
+              'قسمتی از کتاب ${_book.name}',
               style: Theme
                   .of(context)
                   .textTheme
@@ -471,7 +494,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             height: 2.5.h,
           ),
           Text(
-            widget.book.partOfTheBook,
+            _book.partOfTheBook,
             textAlign: TextAlign.justify,
           ),
         ],
@@ -584,7 +607,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
   void _commentRegistration() async {
     _customDio = await CustomDio.dio.post(
-      'dashboard/books/${widget.book.slug}/review',
+      'dashboard/books/${_book.slug}/review',
       data: {
         'comment': _commentController.text,
         'rate': _numberOfStars,
@@ -596,6 +619,8 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         _commentController = TextEditingController();
         _numberOfStars = 0;
         _stars = List<bool>.generate(5, (index) => false);
+        _dataIsLoading = true;
+        _tabIndex = 2;
 
         ScaffoldMessenger.of(context).showSnackBar(
           customSnackBar(
@@ -618,25 +643,25 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
   Visibility _otherPublisherBooks() {
     return Visibility(
-      visible: (widget.book.otherBooksByThePublisher.isNotEmpty) && (_tabIndex != 2),
+      visible: (_book.otherBooksByThePublisher.isNotEmpty) && (_tabIndex != 2),
       child: _otherBooks(
         'کتاب های دیگر ناشر',
-        widget.book.otherBooksByThePublisher,
+        _book.otherBooksByThePublisher,
       ),
     );
   }
 
   Visibility _relatedBooks() {
     return Visibility(
-      visible: (widget.book.relatedBooks.isNotEmpty) && (_tabIndex != 2),
+      visible: (_book.relatedBooks.isNotEmpty) && (_tabIndex != 2),
       child: _otherBooks(
         'کتاب های مرتبط',
-        widget.book.relatedBooks,
+        _book.relatedBooks,
       ),
     );
   }
 
-  Padding _otherBooks(String title, List<Book> books) {
+  Padding _otherBooks(String title, List<BookIntroduction> books) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: Column(
@@ -660,13 +685,13 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                     ),
                     OutlinedButton(
                       onPressed: () {
-                        print(widget.book.slug);
+                        print(_book.slug);
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) {
                               return BooksPage(
                                 title:
-                                '$title با کتاب ${widget.book.name}',
+                                '$title با کتاب ${_book.name}',
                                 books: books,
                               );
                             },
@@ -713,7 +738,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
   Visibility _userComments() {
     return Visibility(
-      visible: (widget.book.reviews.isNotEmpty) && (_tabIndex == 2),
+      visible: (_book.reviews.isNotEmpty) && (_tabIndex == 2),
       child: Padding(
         padding: EdgeInsets.only(left: 5.0.w, top: 0.0, right: 5.0.w, bottom: 16.0,),
         child: Column(
@@ -733,11 +758,11 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
             Column(
               children: List.generate(
-                widget.book.reviews.length,
+                _book.reviews.length,
                     (index) => Padding(
                   padding: EdgeInsets.only(
                     top: 0.0,
-                    bottom: index == widget.book.reviews.length - 1 ? 0.0 : 8.0,
+                    bottom: index == _book.reviews.length - 1 ? 0.0 : 8.0,
                   ),
                   child: Container(
                     padding: const EdgeInsets.only(
@@ -756,8 +781,8 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(widget.book.reviews[index].userName.toString()),
-                            ShowStars(numberOfStars: widget.book.reviews[index].numberOfStars,),
+                            Text(_book.reviews[index].userName.toString()),
+                            ShowStars(numberOfStars: _book.reviews[index].numberOfStars,),
                           ],
                         ),
                         Visibility(
@@ -770,7 +795,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                                 thickness: 1.0,
                               ),
                               Text(
-                                '- ${widget.book.reviews[index].review}',
+                                '- ${_book.reviews[index].review}',
                                 textAlign: TextAlign.justify,
                               ),
                             ],

@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:sizer/sizer.dart';
+import 'package:takfood_seller/model/book_introduction.dart';
 
 import '../../../controller/custom_response.dart';
 import '../../../controller/custom_dio.dart';
@@ -20,16 +21,18 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
+  late bool _dataIsLoading;
 
   final TextEditingController _textEditingController = TextEditingController();
   late SearchTopic _searchTopic;
-  late List<Book> _booksTemp;
-  late List<Book> _books;
+  late List<BookIntroduction> _booksTemp;
+  late List<BookIntroduction> _books;
 
   late String _searchKey = '';
 
   @override
   void initState() {
+    _dataIsLoading = true;
     _searchTopic = SearchTopic.name;
 
     _books = [];
@@ -41,35 +44,34 @@ class _SearchPageState extends State<SearchPage> {
   Future _initBooks() async {
     _customDio = await CustomDio.dio.post('books');
 
-    if(_customDio.statusCode == 200) {
+    if (_customDio.statusCode == 200) {
+      _books.clear();
       _booksTemp.clear();
 
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
-      //int lastPage = _customResponse.data['last_page'];
-      int lastPage = 1;
+      int lastPage = _customResponse.data['last_page'];
+      //lastPage = 1;
 
-      for(int i = 1; i <= lastPage; ++i) {
-        _customDio = await CustomDio.dio.post('books', queryParameters: {'page': i},);
+      for (int i = 1; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.post(
+          'books',
+          queryParameters: {'page': i},
+        );
 
-        if(_customDio.statusCode == 200) {
+        if (_customDio.statusCode == 200) {
           _customResponse = CustomResponse.fromJson(_customDio.data);
 
-          for(Map<String, dynamic> book in _customResponse.data['data']) {
+          for (Map<String, dynamic> book in _customResponse.data['data']) {
+            BookIntroduction _book = BookIntroduction.fromJson(book);
 
-            _customDio = await CustomDio.dio.post('books/${book['slug']}');
-
-            if(_customDio.statusCode == 200) {
-              _customResponse = CustomResponse.fromJson(_customDio.data);
-
-              Book _book = Book.fromJson(_customDio.data);
-
-              _booksTemp.add(_book);
-              _books.add(_book);
-            }
+            _booksTemp.add(_book);
+            _books.add(_book);
           }
         }
       }
+
+      _dataIsLoading = false;
     }
 
     return _customDio;
@@ -93,8 +95,18 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  FutureBuilder _body() {
-    return FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _innerBody() : const Center(child: CustomCircularProgressIndicator()); }, future: _initBooks(),);
+  Widget _body() {
+    return _dataIsLoading
+        ? FutureBuilder(
+      builder:
+          (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        return snapshot.hasData
+            ? _innerBody()
+            : const Center(child: CustomCircularProgressIndicator());
+      },
+      future: _initBooks(),
+    )
+        : _innerBody();
   }
 
   Widget _innerBody() {
@@ -197,8 +209,7 @@ class _SearchPageState extends State<SearchPage> {
     if ((_booksTemp.isEmpty) && (_searchKey != '')) {
       return Expanded(
         child: Center(
-          child:
-              Text('کتابی با ${_searchTopic.title} «$_searchKey» یافت نشد.'),
+          child: Text('کتابی با ${_searchTopic.title} «$_searchKey» یافت نشد.'),
         ),
       );
     } else {
@@ -233,8 +244,8 @@ class _SearchPageState extends State<SearchPage> {
             {
               _booksTemp.clear();
 
-              _booksTemp.addAll(_books
-                  .where((element) => element.name.contains(_searchKey)));
+              _booksTemp.addAll(
+                  _books.where((element) => element.name.contains(_searchKey)));
 
               break;
             }

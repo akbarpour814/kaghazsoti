@@ -23,15 +23,27 @@ class AudiobookPlayerPage extends StatefulWidget {
 }
 
 class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
+  late List<Part> _parts;
+
+  @override
+  void initState() {
+    _parts = [];
+
+    super.initState();
+  }
+
   Future _initParts() async {
     Response<dynamic> _customDio = await CustomDio.dio.post('dashboard/books/${audiobookInPlay.slug}/audio');
 
-    if(_customDio.statusCode == 200 && audiobookInPlay.parts.isEmpty) {
-      audiobookInPlay.setParts(_customDio.data['data']);
+    if(_customDio.statusCode == 200 && _parts.isEmpty) {
+
+      for(Map<String, dynamic> part in _customDio.data['data']) {
+        _parts.add(Part.fromJson(part));
+      }
 
       audioPlayer.setAudioSource(
         ConcatenatingAudioSource(
-          children: List<AudioSource>.generate(audiobookInPlay.parts.length, (index) => AudioSource.uri(Uri.parse(audiobookInPlay.parts[index].path),),),
+          children: List<AudioSource>.generate(_parts.length, (index) => AudioSource.uri(Uri.parse(_parts[index].path),),),
         ),
       );
     }
@@ -113,7 +125,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(audiobookInPlay.parts[audioPlayer.currentIndex ?? 0].name),
+                        Text(_parts[audioPlayer.currentIndex ?? 0].name),
                         SizedBox(
                           height: 4.0.h,
                         ),
@@ -157,7 +169,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
             builder: (context) {
-              return BookIntroductionPage(book: audiobookInPlay);
+              return BookIntroductionPage(bookIntroduction: audiobookInPlay);
             },
           ));
         },
@@ -215,10 +227,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
 
   Flexible _playOrPauseButton() {
     return Flexible(
-      child: PlayOrPauseController(
-        playerBottomNavigationBar: false,
-        bookIntroductionPage: false,
-      ),
+      child: PlayOrPauseController(playerBottomNavigationBar: false, demoIsPlaying: false,),
     );
   }
 
@@ -254,9 +263,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
   Widget _bookIndex() {
     Column _bookIndex = Column(
       children: List<Card>.generate(
-        audiobookInPlay.parts.length,
+        _parts.length,
         (index) {
-          Part _part = audiobookInPlay.parts[index];
+          Part _part = _parts[index];
 
           return Card(
             color: Colors.transparent,
