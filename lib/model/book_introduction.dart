@@ -14,6 +14,20 @@ class BookIntroduction {
   late int numberOfStars;
   late String bookCoverPath;
 
+
+  BookIntroduction({
+    required this.id,
+    required this.slug,
+    required this.name,
+    required this.author,
+    required this.publisherOfPrintedVersion,
+    required this.duration,
+    required this.price,
+    required this.numberOfVotes,
+    required this.numberOfStars,
+    required this.bookCoverPath,
+  });
+
   BookIntroduction.fromJson(Map<String, dynamic> json) {
     id = json['id'] ?? -1;
     slug = json['slug'] ?? '';

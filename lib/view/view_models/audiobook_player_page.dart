@@ -13,6 +13,7 @@ import 'package:sizer/sizer.dart';
 import '../../controller/custom_dio.dart';
 import 'custom_circular_progress_indicator.dart';
 
+List<Part> parts = [];
 class AudiobookPlayerPage extends StatefulWidget {
   const AudiobookPlayerPage({
     Key? key,
@@ -23,40 +24,44 @@ class AudiobookPlayerPage extends StatefulWidget {
 }
 
 class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
-  late List<Part> _parts;
-
-  @override
-  void initState() {
-    _parts = [];
-
-    super.initState();
-  }
 
   Future _initParts() async {
-    Response<dynamic> _customDio = await CustomDio.dio.post('dashboard/books/${audiobookInPlay.slug}/audio');
+    Response<dynamic> _customDio = await CustomDio.dio
+        .post('dashboard/books/${audiobookInPlay!.slug}/audio');
 
-    if(_customDio.statusCode == 200 && _parts.isEmpty) {
+    if (_customDio.statusCode == 200 && parts.isEmpty) {
+      setState(() {
+        for (Map<String, dynamic> part in _customDio.data['data']) {
+          parts.add(Part.fromJson(part));
+        }
 
-      for(Map<String, dynamic> part in _customDio.data['data']) {
-        _parts.add(Part.fromJson(part));
-      }
-
-      audioPlayer.setAudioSource(
-        ConcatenatingAudioSource(
-          children: List<AudioSource>.generate(_parts.length, (index) => AudioSource.uri(Uri.parse(_parts[index].path),),),
-        ),
-      );
+        _setAudioSource();
+      });
     }
 
     return _customDio;
+  }
+
+  void _setAudioSource() {
+   setState(() {
+     audioPlayer.setAudioSource(
+       ConcatenatingAudioSource(
+         children: List<AudioSource>.generate(
+           parts.length,
+               (index) => AudioSource.uri(
+             Uri.parse(parts[index].path),
+           ),
+         ),
+       ),
+     );
+   });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(),
-      body: FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _body() :  const Center(child: CustomCircularProgressIndicator()); }, future: _initParts(),),
-
+      body: _body(),
       bottomNavigationBar: const Divider(
         height: 0.0,
         thickness: 1.0,
@@ -66,7 +71,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
 
   AppBar _appBar() {
     return AppBar(
-      title: Text(audiobookInPlay.name),
+      title: Text(audiobookInPlay!.name),
       automaticallyImplyLeading: false,
       leading: InkWell(
         onTap: () {
@@ -103,6 +108,23 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
   }
 
   Widget _body() {
+    if((parts.isEmpty) && (previousAudiobookInPlayId != audiobookInPlay!.id)) {
+      return FutureBuilder(
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          return snapshot.hasData
+              ? _innerBody()
+              : const Center(child: CustomCircularProgressIndicator());
+        },
+        future: _initParts(),
+      );
+    } else {
+      _setAudioSource();
+
+      return _innerBody();
+    }
+  }
+
+  Widget _innerBody() {
     Column _body = Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +147,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(_parts[audioPlayer.currentIndex ?? 0].name),
+                        Text(parts[audioPlayer.currentIndex ?? 0].name),
                         SizedBox(
                           height: 4.0.h,
                         ),
@@ -169,7 +191,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
         onTap: () {
           Navigator.of(context).push(MaterialPageRoute(
             builder: (context) {
-              return BookIntroductionPage(bookIntroduction: audiobookInPlay);
+              return BookIntroductionPage(bookIntroduction: audiobookInPlay!);
             },
           ));
         },
@@ -190,7 +212,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
             ),
             child: FadeInImage.assetNetwork(
               placeholder: defaultBookCover,
-              image: audiobookInPlay.bookCoverPath,
+              image: audiobookInPlay!.bookCoverPath,
               fit: BoxFit.cover,
             ),
           ),
@@ -218,7 +240,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
           onTap: audioPlayer.hasNext ? audioPlayer.seekToNext : null,
           child: Icon(
             Ionicons.play_forward_outline,
-            color: audioPlayer.hasNext ? Theme.of(context).primaryColor : Colors.grey,
+            color: audioPlayer.hasNext
+                ? Theme.of(context).primaryColor
+                : Colors.grey,
           ),
         ),
       ),
@@ -227,7 +251,10 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
 
   Flexible _playOrPauseButton() {
     return Flexible(
-      child: PlayOrPauseController(playerBottomNavigationBar: false, demoIsPlaying: false,),
+      child: PlayOrPauseController(
+        playerBottomNavigationBar: false,
+        demoIsPlaying: false,
+      ),
     );
   }
 
@@ -239,7 +266,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
           onTap: audioPlayer.hasPrevious ? audioPlayer.seekToPrevious : null,
           child: Icon(
             Ionicons.play_back_outline,
-            color: audioPlayer.hasPrevious ? Theme.of(context).primaryColor : Colors.grey,
+            color: audioPlayer.hasPrevious
+                ? Theme.of(context).primaryColor
+                : Colors.grey,
           ),
         ),
       ),
@@ -263,9 +292,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
   Widget _bookIndex() {
     Column _bookIndex = Column(
       children: List<Card>.generate(
-        _parts.length,
+        parts.length,
         (index) {
-          Part _part = _parts[index];
+          Part _part = parts[index];
 
           return Card(
             color: Colors.transparent,
@@ -274,7 +303,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
             child: ListTile(
               title: Text(_part.name),
               subtitle: Text(_part.time),
-              trailing: index == audioPlayer.currentIndex! ? const Icon(Ionicons.download_outline) : null,
+              trailing: index == audioPlayer.currentIndex!
+                  ? const Icon(Ionicons.download_outline)
+                  : null,
             ),
           );
         },

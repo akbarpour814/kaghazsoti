@@ -50,6 +50,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
   late int _previousIndex;
   late int _numberOfStars;
   late List<bool> _stars;
+  late bool _availableInCart;
 
   @override
   void initState() {
@@ -78,6 +79,8 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
       _book = Book.fromJson(_customResponse.data);
 
       _displayOfDetails = List<bool>.generate(_book.reviews.length, (index) => false);
+
+      _availableInCart = cartSlug.contains(_book.slug);
 
       _dataIsLoading = false;
     }
@@ -159,7 +162,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
               children: [
                 _bookCover(),
                 _bookPricesAndVotes(),
-                _purchaseButtons(),
+                _cartButton(),
                 _tabsTopic(),
                 _tab(_tabIndex),
               ],
@@ -241,11 +244,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
     );
   }
 
-  // PlayOrPauseController _playOrPauseController() {
-  //
-  //
-  //   return ;
-  // }
 
   Padding _bookPricesAndVotes() {
     return Padding(
@@ -269,7 +267,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
               ],
             ),
             Text(
-              _book.price,
+              libraryId.contains(_book.id) ? 'موجود در کتابخانه' : _book.price,
               style: Theme
                   .of(context)
                   .textTheme
@@ -281,42 +279,38 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
     );
   }
 
-  Row _purchaseButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: 42.5.w,
-          child: ElevatedButton.icon(
-            onPressed: () {
-
-
-            },
-            label: const Text('خرید'),
-            icon: const Icon(Ionicons.card_outline),
+  Visibility _cartButton() {
+    return Visibility(
+      visible: !libraryId.contains(_book.id),
+      child: SizedBox(
+        width: 100.0.w - (2 * 5.0.w),
+        child: ElevatedButton.icon(
+          onPressed: () {
+            _setCart();
+          },
+          label: Text(_availableInCart ? 'حذف از سبد خرید' : 'افزودن به سبد خرید'),
+          icon: Icon(
+            _availableInCart ?
+              Ionicons.bag_remove_outline :
+              Ionicons.bag_add_outline,
           ),
         ),
-        SizedBox(
-          width: 42.5.w,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) {
-                    return const CartPage();
-                  },
-                ),
-              );
-            },
-            label: const Text('سبد خرید'),
-            icon: const Icon(
-                Ionicons.cart_outline
-            ),
-          ),
-        ),
-      ],
+      ),
     );
+  }
+
+  void _setCart() async {
+    setState(() {
+      if(_availableInCart) {
+        cartSlug.remove(_book.slug);
+      } else {
+        cartSlug.add(_book.slug);
+      }
+
+      _availableInCart = cartSlug.contains(_book.slug);
+    });
+
+    await sharedPreferences.setStringList('cartSlug', cartSlug);
   }
 
   Padding _tabsTopic() {

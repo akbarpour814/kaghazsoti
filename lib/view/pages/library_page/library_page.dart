@@ -113,6 +113,8 @@ class _MyBookState extends State<MyBook> {
     return InkWell(
       onTap: () {
         setState(() {
+          previousAudiobookInPlayId = audiobookInPlay == null ? -1 : audiobookInPlay!.id;
+
           audiobookInPlay = widget.book;
 
           audiobookInPlayId = -1;

@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:takfood_seller/view/view_models/custom_circular_progress_indicator.dart';
+import '../../../controller/custom_dio.dart';
+import '../../../controller/custom_response.dart';
 import '/view/view_models/persistent_bottom_navigation_bar.dart';
 import '/controller/database.dart';
 import 'login_page.dart';
@@ -16,32 +19,61 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
+  late Response<dynamic> _customDio;
+  late CustomResponse _customResponse;
+  late bool _dataIsLoading;
   late bool _firstLogin;
+
 
   @override
   void initState() {
-    _loginStep();
+    _dataIsLoading = true;
+
 
     super.initState();
   }
 
-  void _loginStep() async {
+
+  Future _loginStep() async {
     sharedPreferences = await SharedPreferences.getInstance();
+
+    _customDio = await CustomDio.dio.get('dashboard/users/wish');
+
+    if(_customDio.statusCode == 200) {
+      _customResponse = CustomResponse.fromJson(_customDio.data);
+
+      for(Map<String, dynamic> book in _customResponse.data['data']) {
+        markedBooksId.add(book['id']);
+      }
+    }
+
+
+    _customDio = await CustomDio.dio.get('dashboard/my_books');
+
+    if(_customDio.statusCode == 200) {
+      Map<String, dynamic> data = _customDio.data;
+
+      for(Map<String, dynamic> bookIntroduction in data['data']) {
+        libraryId.add(bookIntroduction['id']);
+      }
+    }
+
+    cartSlug = sharedPreferences.getStringList('cartSlug') ?? [];
 
     _firstLogin = sharedPreferences.getBool('firstLogin') ?? false;
 
-    if (true) {
-      Future.delayed(const Duration(seconds: 6), () {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => (_firstLogin
-                ? const LoginPage()
-                : const PersistentBottomNavigationBar()),
-          ),
-        );
-      });
-    }
+    Future.delayed(const Duration(seconds: 6), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => (_firstLogin
+              ? const LoginPage()
+              : const PersistentBottomNavigationBar()),
+        ),
+      );
+    });
+
+    return _customDio;
   }
 
   @override
@@ -64,7 +96,7 @@ class _SplashPageState extends State<SplashPage> {
                 ],
               ),
             ),
-            const CustomCircularProgressIndicator(),
+            FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return const CustomCircularProgressIndicator(); }, future: _loginStep(),),
           ],
         ),
       ),

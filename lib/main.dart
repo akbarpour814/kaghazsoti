@@ -33,8 +33,9 @@ SharedValue<bool> demoIsPlaying = SharedValue(value: false);
 
 AudioPlayer audioPlayer = AudioPlayer();
 
-late BookIntroduction audiobookInPlay;
+BookIntroduction? audiobookInPlay;
 int audiobookInPlayId = -1;
+int previousAudiobookInPlayId = -1;
 
 late SharedPreferences sharedPreferences;
 
@@ -42,18 +43,10 @@ String defaultBanner = 'assets/images/InShot_۲۰۲۲۰۳۲۳_۱۴۳۱۱۲۶۲۴
 String defaultBookCover = 'assets/images/defaultBookCover.jpg';
 
 late List<int> markedBooksId = [];
+late List<int> libraryId = [];
+late List<String> cartSlug = [];
 
-void main() async {
-  Response<dynamic> httpsResponse = await CustomDio.dio.get('dashboard/users/wish');
-  CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
-
-  for(Map<String, dynamic> book in customResponse.data['data']) {
-    markedBooksId.add(book['id']);
-  }
-
-  xxx();
-
-
+void main() {
   runApp(
     SharedValue.wrapApp(
       const MyApp(),

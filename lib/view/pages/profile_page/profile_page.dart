@@ -83,7 +83,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   CategoryName _navigatorToCartPage() {
     return CategoryName(
-      iconData: Ionicons.cart_outline,
+      iconData: Ionicons.bag_outline,
       title: 'سبد خرید',
       lastCategory: false,
       page: const CartPage(),
