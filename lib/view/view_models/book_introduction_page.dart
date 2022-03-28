@@ -368,83 +368,122 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
       ),
       child: Column(
         children: [
-          Property(
-            property: 'نام',
-            value: _book.name,
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.name.isNotEmpty,
+            child: Property(
+              property: 'نام',
+              value: _book.name,
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'دسته',
-            value: '${_book.category} - ${_book.subcategory}',
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: (_book.category.isNotEmpty) && (_book.subcategory.isNotEmpty),
+            child: Property(
+              property: 'دسته',
+              value: '${_book.category} - ${_book.subcategory}',
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'نویسنده',
-            value: _book.author,
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.author.isNotEmpty,
+            child: Property(
+              property: 'نویسنده',
+              value: _book.author,
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'گوینده',
-            value: _book.announcer,
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.announcer.isNotEmpty,
+            child: Property(
+              property: 'گوینده',
+              value: _book.announcer,
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'حجم دانلود',
-            value: _book.fileSize.toString(),
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.fileSize != '0.0',
+            child: Property(
+              property: 'حجم دانلود',
+              value: _book.fileSize.toString(),
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'ناشر چاپی',
-            value: _book.publisherOfPrintedVersion,
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.publisherOfPrintedVersion.isNotEmpty,
+            child: Property(
+              property: 'ناشر چاپی',
+              value: _book.publisherOfPrintedVersion,
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'سال انتشار چاچی',
-            value: _book.printedVersionYear.toString(),
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.printedVersionYear != 0,
+            child: Property(
+              property: 'سال انتشار چاچی',
+              value: _book.printedVersionYear.toString(),
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'ناشر صوتی',
-            value: _book.publisherOfAudioVersion,
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.publisherOfAudioVersion.isNotEmpty,
+            child: Property(
+              property: 'ناشر صوتی',
+              value: _book.publisherOfAudioVersion,
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'سال انتشار صوت',
-            value: _book.audioVersionYear.toString(),
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.audioVersionYear != 0,
+            child: Property(
+              property: 'سال انتشار صوت',
+              value: _book.audioVersionYear.toString(),
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'تعداد فصل',
-            value: _book.numberOfChapters.toString(),
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.numberOfChapters != 0,
+            child: Property(
+              property: 'تعداد فصل',
+              value: _book.numberOfChapters.toString(),
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'تعداد صفحات',
-            value: _book.numberOfPages.toString(),
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.numberOfPages != '0',
+            child: Property(
+              property: 'تعداد صفحات',
+              value: _book.numberOfPages.toString(),
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'زمان پخش یا مطالعه',
-            value: _book.duration,
-            valueInTheEnd: false,
-            lastProperty: false,
+          Visibility(
+            visible: _book.duration.isNotEmpty,
+            child: Property(
+              property: 'زمان پخش یا مطالعه',
+              value: _book.duration,
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
           ),
-          Property(
-            property: 'مبلغ',
-            value: _book.price,
-            valueInTheEnd: false,
-            lastProperty: true,
+          Visibility(
+            visible: _book.price.isNotEmpty,
+            child: Property(
+              property: 'مبلغ',
+              value: _book.price,
+              valueInTheEnd: false,
+              lastProperty: true,
+            ),
           ),
         ],
       ),

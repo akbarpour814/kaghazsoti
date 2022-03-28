@@ -54,7 +54,7 @@ class Book {
     ///////////////////
     numberOfChapters = product['orders_count'] ?? 0;
     numberOfPages = (product['page_count'] ?? 0).toString();
-    duration = product['duration'] ?? '00:00:00';
+    duration = product['duration'] ?? '';
     //////////////////////
 
 
