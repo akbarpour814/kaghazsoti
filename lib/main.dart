@@ -108,7 +108,7 @@ class MyApp extends StatelessWidget {
               themeMode: currentMode,
               builder: (context, child) => Directionality(
                 textDirection: TextDirection.rtl,
-                child: child!,
+                child: XXXX(child!),
               ),
               home: const SplashPage(),
             );
@@ -205,6 +205,43 @@ class MyApp extends StatelessWidget {
       cursorColor: _primaryColor,
       selectionColor: _primaryColor.withOpacity(0.6),
       selectionHandleColor: _primaryColor,
+    );
+  }
+}
+
+class XXXX extends StatefulWidget {
+  final Widget child;
+  const XXXX(this.child,{Key? key}) : super(key: key);
+
+  @override
+  _XXXXState createState() => _XXXXState();
+}
+
+class _XXXXState extends State<XXXX> {
+
+  @override
+  void initState() {
+    InternetConnectionChecker().onStatusChange.listen(
+          (InternetConnectionStatus status) {
+        switch (status) {
+          case InternetConnectionStatus.connected:
+          // ignore: avoid_print
+            print('Data connection is available.');
+            break;
+          case InternetConnectionStatus.disconnected:
+          // ignore: avoid_print
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opps!')));
+            print('You are disconnected from the internet.');
+            break;
+        }
+      },
+    );
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: widget.child,
     );
   }
 }

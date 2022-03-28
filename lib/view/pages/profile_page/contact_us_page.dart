@@ -331,7 +331,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                         lastProperty: false,),
                     Property(
                         property: 'تاریخ ارسال',
-                        value: _comments[index].date,
+                        value: _comments[index].sentDate,
                         valueInTheEnd: false,
                         lastProperty: false,),
                     Padding(
@@ -398,43 +398,8 @@ class _ContactUsPageState extends State<ContactUsPage> {
                                     value: '',
                                     valueInTheEnd: false,
                                     lastProperty: false,),
-                                Text(
-                                  '- ${_comments[index].response}',
-                                  textAlign: TextAlign.justify,
-                                ),
+                                Column(crossAxisAlignment: CrossAxisAlignment.start, children: List<Text>.generate(_comments[index].answers.length, (commentIndex) => Text('${commentIndex + 1}- ${_comments[index].answers[commentIndex]}', textAlign: TextAlign.start,),),),
                               ],
-                            ),
-                          ),
-                          Visibility(
-                            visible: _comments[index].status ==
-                                CommentStatus.cancelled,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 12.0),
-                              child: SizedBox(
-                                width: 100.0.w - (2 * 18.0) - (2 * 5.0.w),
-                                child: ElevatedButton.icon(
-                                  onPressed: () {},
-                                  label:
-                                  const Text('ویرایش و ارسال دوباره'),
-                                  icon: const Icon(Ionicons.create_outline),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Visibility(
-                            visible: _comments[index].status ==
-                                CommentStatus.waiting,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 12.0),
-                              child: SizedBox(
-                                width: 100.0.w - (2 * 18.0) - (2 * 5.0.w),
-                                child: ElevatedButton.icon(
-                                  onPressed: () {},
-                                  label: const Text('لغو ارسال نظر'),
-                                  icon: const Icon(
-                                      Ionicons.trash_bin_outline),
-                                ),
-                              ),
                             ),
                           ),
                         ],

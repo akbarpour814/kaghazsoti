@@ -6,20 +6,29 @@ class Comment {
   late Topic topic;
   late String text;
   late CommentStatus status;
-  late String date;
-  late String response;
+  late List<String> answers;
+  late String sentDate;
+  late DateTime sentDateTime;
+  late String lastAnswerDate;
+  late DateTime lastAnswerDateTime;
 
   Comment.fromJson(Map<String, dynamic> json) {
     int findTopic = TopicExtension.topics.values.toList().indexWhere((element) => element == json['title']);
 
     topic = TopicExtension.topics.keys.elementAt(findTopic > -1 ? findTopic : TopicExtension.topics.length - 1);
     text = json['body'];
-    status = CommentStatus.answered;
+    status = json['status'] == 'done' ? CommentStatus.answered : CommentStatus.waiting;
 
-    DateTime dateTime = DateTime.parse(json['created_at']);
-    date = '${DateFormat('HH:mm').format(dateTime.toLocal())} - ${dateTime.toPersianDate(twoDigits: true)}';
+    answers = [];
+    for(Map<String, dynamic> answer in json['answers']) {
+      answers.add(answer['body']);
+    }
 
-    response = '';
+    sentDateTime = DateTime.parse(json['created_at']);
+    sentDate = '${DateFormat('HH:mm').format(sentDateTime.toLocal())} - ${sentDateTime.toPersianDate(twoDigits: true)}';
+
+    lastAnswerDateTime = DateTime.parse(json['updated_at']);
+    lastAnswerDate = '${DateFormat('HH:mm').format(sentDateTime.toLocal())} - ${sentDateTime.toPersianDate(twoDigits: true)}';
   }
 }
 
