@@ -30,6 +30,7 @@ class Book {
   late String bookCoverPath;
   late List<BookIntroduction> otherBooksByThePublisher;
   late List<BookIntroduction> relatedBooks;
+  late List<int> users;
 
   Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> product = json['product'];
@@ -72,6 +73,15 @@ class Book {
 
     reviews = [];
     setReviews(json['reviews'] ?? []);
+    int myReviewIndex = reviews.indexWhere((element) => element.id == userId);
+
+    if(myReviewIndex >= 0) {
+      Review myReview = reviews[myReviewIndex];
+
+      reviews.removeAt(myReviewIndex);
+
+      reviews.insert(0, myReview);
+    }
 
     parts = [];
     demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}';
@@ -84,7 +94,10 @@ class Book {
     relatedBooks = [];
     setRelatedBooks(json['similar'] ?? []);
 
-    //_toString();
+    users = [];
+    for(Map<String, dynamic> user in json['users']) {
+      users.add(user['id']);
+    }
   }
 
   void _toString() {
@@ -137,12 +150,14 @@ class Book {
 }
 
 class Review {
-  late int userName;
+  late int id;
+  late int name;
   late String review;
   late int numberOfStars;
 
   Review.fromJson(Map<String, dynamic> json) {
-    userName = json['user_id'];
+    id = json['user_id'];
+    name = json['user_id'];
     review = json['review'];
     numberOfStars = json['rating'];
   }

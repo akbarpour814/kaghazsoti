@@ -52,6 +52,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
   late List<bool> _stars;
   late bool _availableInCart;
 
+
   @override
   void initState() {
     _dataIsLoading = true;
@@ -533,7 +534,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
         ],
       ),
     );
-    Container _comments = Container(
+    Visibility _comments = Visibility(visible: !_book.users.contains(userId), child: Container(
       padding: const EdgeInsets.all(18.0),
       decoration: BoxDecoration(
         border: Border.all(color: Theme
@@ -627,9 +628,9 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
           ),
         ],
       ),
-    );
+    ));
 
-    late final List<Container> _tabs = [
+    late final List<Widget> _tabs = [
       _bookSpecifications,
       _aboutBook,
       _comments,
@@ -814,7 +815,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(_book.reviews[index].userName.toString()),
+                            Text('${_book.reviews[index].id == userId ? 'نظر شما' : _book.reviews[index].name}'),
                             ShowStars(numberOfStars: _book.reviews[index].numberOfStars,),
                           ],
                         ),

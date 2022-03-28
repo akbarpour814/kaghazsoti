@@ -58,6 +58,12 @@ class _SplashPageState extends State<SplashPage> {
       }
     }
 
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    _customDio = await CustomDio.dio.get('user', options: Options(headers: headers));
+    if(_customDio.statusCode == 200) {
+      userId = _customDio.data['id'];
+    }
+    ///////////////////////////////////////////////////////////////////////////////////////////
     cartSlug = sharedPreferences.getStringList('cartSlug') ?? [];
 
     _firstLogin = sharedPreferences.getBool('firstLogin') ?? false;

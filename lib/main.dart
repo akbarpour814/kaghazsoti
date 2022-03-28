@@ -45,6 +45,7 @@ String defaultBookCover = 'assets/images/defaultBookCover.jpg';
 late List<int> markedBooksId = [];
 late List<int> libraryId = [];
 late List<String> cartSlug = [];
+late int userId;
 
 void main() {
   runApp(
