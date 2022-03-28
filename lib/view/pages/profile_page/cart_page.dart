@@ -189,7 +189,7 @@ class _CartPageState extends State<CartPage> {
       _customDio = await CustomDio.dio.post('dashboard/invoices');
 
       if(_customDio.statusCode == 200) {
-        
+
       }
     }
 

@@ -1,19 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
+import 'package:takfood_seller/model/book_introduction.dart';
 
 class Purchase {
-  late int number;
-  late String type;
-  late int prices;
-  late DateTime date;
+  late int id;
+  late String price;
+  late String date;
   late PurchaseStatus status;
+  late List<BookIntroduction> books;
 
-  Purchase({
-    required this.number,
-    required this.type,
-    required this.prices,
-    required this.date,
-    required this.status,
-  });
+  Purchase.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+
+    int priceTemp = json['final_price'] ?? 0;
+    price = priceTemp == 0 ? 'رایگان' : '${priceTemp.toString().seRagham()} تومان';
+
+    DateTime dateTime = DateTime.parse(json['created_at']);
+    date = '${DateFormat('HH:mm').format(dateTime.toLocal())} - ${dateTime.toPersianDate(twoDigits: true)}';
+
+    String statusTemp = json['real_status'];
+    status = statusTemp == 'پرداخت شده' ? PurchaseStatus.bought : PurchaseStatus.waiting;
+
+    books = [];
+    for(Map<String, dynamic> bookIntroduction in json['items']) {
+      books.add(BookIntroduction.fromJson(bookIntroduction['book']));
+    }
+  }
 }
 
 enum PurchaseStatus {
@@ -22,8 +35,8 @@ enum PurchaseStatus {
 
 extension PurchaseStatusExtension on PurchaseStatus {
   static const Map<PurchaseStatus, String> statusOfPurchases = {
-    PurchaseStatus.bought: 'خریداری شد',
-    PurchaseStatus.waiting: 'در انتظار خرید',
+    PurchaseStatus.bought: 'پرداخت شده',
+    PurchaseStatus.waiting: 'پرداخت نشده',
     PurchaseStatus.cancelled: 'لغو خرید',
   };
 
