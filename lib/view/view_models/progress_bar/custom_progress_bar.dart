@@ -9,21 +9,21 @@ import '../../../main.dart';
 class CustomProgressBar extends StatefulWidget {
   late AudioPlayer audioPlayer;
   late TimeLabelLocation timeLabelLocation;
-  late Color baseBarColor;
-  late Color progressBarColor;
-  late Color bufferedBarColor;
-  late Color thumbColor;
-  late Color thumbGlowColor;
+  Color? baseBarColor;
+  Color? progressBarColor;
+  Color? bufferedBarColor;
+  Color? thumbColor;
+  Color? thumbGlowColor;
 
   CustomProgressBar({
     Key? key,
     required this.audioPlayer,
     required this.timeLabelLocation,
-    required this.baseBarColor,
-    required this.progressBarColor,
-    required this.bufferedBarColor,
-    required this.thumbColor,
-    required this.thumbGlowColor,
+    this.baseBarColor,
+    this.progressBarColor,
+    this.bufferedBarColor,
+    this.thumbColor,
+    this.thumbGlowColor,
   }) : super(key: key);
 
   @override
@@ -88,9 +88,6 @@ class _CustomProgressBarState extends State<CustomProgressBar> {
           progress: value.current,
           buffered: value.buffered,
           total: value.total,
-          // progress: Duration(milliseconds: 1000),
-          // buffered: Duration(milliseconds: 2000),
-          // total: Duration(milliseconds: 5000),
           onSeek: seek,
           timeLabelLocation: widget.timeLabelLocation,
           baseBarColor: widget.baseBarColor,

@@ -51,10 +51,9 @@ class BooksListView extends StatelessWidget {
                     _bookCover(index),
                     Divider(
                       height: 0.0,
-                      thickness: 1.0,
                       color: Theme.of(context).primaryColor,
                     ),
-                    _bookName(index),
+                    _bookName(index, context),
                   ],
                 ),
               ),
@@ -83,13 +82,14 @@ class BooksListView extends StatelessWidget {
     );
   }
 
-  Expanded _bookName(int index) {
+  Expanded _bookName(int index, BuildContext context) {
     return Expanded(
       child: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
             books[index].name,
+            style: TextStyle(color: Theme.of(context).primaryColor),
             maxLines: 1,
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,

@@ -268,7 +268,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
             Text(
               libraryId.contains(_book.id) ? 'موجود در کتابخانه' : _book.price,
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headline5!.copyWith(color: Theme.of(context).primaryColor),
             ),
           ],
         ),
@@ -292,6 +292,11 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                 ? Ionicons.bag_remove_outline
                 : Ionicons.bag_add_outline,
           ),
+          style: ButtonStyle(shape: MaterialStateProperty.all(
+            const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+            ),
+          ),),
         ),
       ),
     );
@@ -316,7 +321,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Material(
         color: Theme.of(context).primaryColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(5.0)),
         child: DefaultTabController(
           length: 3,
           child: TabBar(
@@ -497,7 +501,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           Center(
             child: Divider(
               height: 10.0.h,
-              thickness: 1.0,
             ),
           ),
           Center(
@@ -722,34 +725,14 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                           ),
                         );
                       },
-                      child: Text(
+                      child: const Text(
                         'نمایش همه',
-                        style: Theme.of(context)
-                            .textTheme
-                            .caption!
-                            .copyWith(color: Theme.of(context).primaryColor),
-                      ),
-                      style: ButtonStyle(
-                        shape: MaterialStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              18.0,
-                            ),
-                            side: BorderSide(
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          ),
-                        ),
-                        side: MaterialStateProperty.all(
-                          BorderSide(color: Theme.of(context).primaryColor),
-                        ),
                       ),
                     ),
                   ],
                 ),
                 Divider(
                   height: 4.0.h,
-                  thickness: 1.0,
                 ),
               ],
             ),
@@ -781,7 +764,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
             Divider(
               height: 4.0.h,
-              thickness: 1.0,
             ),
             Column(
               children: List.generate(
@@ -822,7 +804,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                             children: [
                               const Divider(
                                 height: 24.0,
-                                thickness: 1.0,
                               ),
                               Text(
                                 '- ${_book.reviews[index].review}',
@@ -833,7 +814,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                         ),
                         const Divider(
                           height: 24.0,
-                          thickness: 1.0,
                         ),
                         InkWell(
                           onTap: () {

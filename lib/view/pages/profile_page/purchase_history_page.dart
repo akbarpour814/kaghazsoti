@@ -171,7 +171,6 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
             _books(index),
             const Divider(
               height: 24.0,
-              thickness: 1.0,
             ),
             InkWell(
               onTap: () {
@@ -273,7 +272,6 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
         children: [
           const Divider(
             height: 24.0,
-            thickness: 1.0,
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

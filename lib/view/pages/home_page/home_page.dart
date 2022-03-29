@@ -224,27 +224,8 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
                   ),
                 );
               },
-              child: Text(
+              child: const Text(
                 'نمایش همه',
-                style: Theme.of(context)
-                    .textTheme
-                    .caption!
-                    .copyWith(color: Theme.of(context).primaryColor),
-              ),
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      18.0,
-                    ),
-                    side: BorderSide(
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ),
-                side: MaterialStateProperty.all(
-                  BorderSide(color: Theme.of(context).primaryColor),
-                ),
               ),
             ),
           ),

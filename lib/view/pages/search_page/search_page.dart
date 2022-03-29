@@ -130,7 +130,6 @@ class _SearchPageState extends State<SearchPage> {
               _selectASearchTopic(),
               const Divider(
                 height: 32.0,
-                thickness: 1.0,
               ),
               _searchTextField(),
             ],
@@ -138,7 +137,6 @@ class _SearchPageState extends State<SearchPage> {
         ),
         const Divider(
           height: 0.0,
-          thickness: 1.0,
         ),
         _searchResults()
       ],

@@ -160,7 +160,6 @@ class _CartPageState extends State<CartPage> {
             ),
             Divider(
               height: 4.0.h,
-              thickness: 1.0,
             ),
             Column(
               children: List<Card>.generate(

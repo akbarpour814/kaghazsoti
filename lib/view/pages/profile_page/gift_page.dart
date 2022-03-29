@@ -71,7 +71,6 @@ class _GiftPageState extends State<GiftPage> {
               ),
               Divider(
                 height: 4.0.h,
-                thickness: 1.0,
               ),
               Padding(
                 padding: EdgeInsets.only(bottom: 0.5.h),

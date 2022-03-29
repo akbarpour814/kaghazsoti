@@ -198,7 +198,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
         ),
         const Divider(
           height: 32.0,
-          thickness: 1.0,
         ),
       ],
     );
@@ -314,7 +313,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
         ),
         const Divider(
           height: 32.0,
-          thickness: 1.0,
         ),
         Column(
           children: List.generate(
@@ -386,7 +384,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
                         children: [
                           const Divider(
                             height: 24.0,
-                            thickness: 1.0,
                           ),
                           Property(
                               property: 'دیدگاه شما',
@@ -405,7 +402,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
                               children: [
                                 const Divider(
                                   height: 24.0,
-                                  thickness: 1.0,
                                 ),
                                 Property(
                                     property: 'پاسخ ما',
@@ -421,7 +417,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
                     ),
                     const Divider(
                       height: 24.0,
-                      thickness: 1.0,
                     ),
                     InkWell(
                       onTap: () {

@@ -24,7 +24,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
     if (playing.of(context)) {
       return Container(
         padding: const EdgeInsets.all(8.0),
-        color: const Color(0xFF005C6B),
+        color: Theme.of(context).primaryColor,
         width: 100.0.w,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -39,7 +39,6 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
     } else {
       return const Divider(
         height: 0.0,
-        thickness: 1.0,
       );
     }
   }

@@ -193,7 +193,6 @@ class _FrequentlyAskedQuestionsPageState
             children: [
               Divider(
                 height: 4.0.h,
-                thickness: 1.0,
               ),
               Text(
                 answer,

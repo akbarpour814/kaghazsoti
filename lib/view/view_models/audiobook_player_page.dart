@@ -70,7 +70,6 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
       body: _body(),
       bottomNavigationBar: const Divider(
         height: 0.0,
-        thickness: 1.0,
       ),
     );
   }
@@ -183,7 +182,6 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
           padding: EdgeInsets.only(top: 16.0),
           child: Divider(
             height: 0.0,
-            thickness: 1.0,
           ),
         ),
         _bookIndex(),

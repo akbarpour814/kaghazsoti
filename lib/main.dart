@@ -30,7 +30,8 @@ import 'view/pages/home_page/home_page.dart';
 import 'view/pages/search_page/search_page.dart';
 import 'view/pages/profile_page/profile_page.dart';
 
-PlayerBottomNavigationBar playerBottomNavigationBar = const PlayerBottomNavigationBar();
+PlayerBottomNavigationBar playerBottomNavigationBar =
+    const PlayerBottomNavigationBar();
 SharedValue<bool> audioIsPlaying = SharedValue(value: false);
 SharedValue<bool> demoIsPlaying = SharedValue(value: false);
 SharedValue<bool> playing = SharedValue(value: false);
@@ -63,14 +64,14 @@ void main() {
 
 void xxx() {
   InternetConnectionChecker().onStatusChange.listen(
-        (InternetConnectionStatus status) {
+    (InternetConnectionStatus status) {
       switch (status) {
         case InternetConnectionStatus.connected:
-        // ignore: avoid_print
+          // ignore: avoid_print
           print('Data connection is available.');
           break;
         case InternetConnectionStatus.disconnected:
-        // ignore: avoid_print
+          // ignore: avoid_print
           print('You are disconnected from the internet.');
           break;
       }
@@ -79,7 +80,8 @@ void xxx() {
 }
 
 class MyApp extends StatelessWidget {
-  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
+  static final ValueNotifier<ThemeMode> themeNotifier =
+      ValueNotifier(ThemeMode.light);
   final MaterialColor _primarySwatch = const MaterialColor(
     0xFF005C6B,
     {
@@ -96,6 +98,7 @@ class MyApp extends StatelessWidget {
     },
   );
   final Color _primaryColor = const Color(0xFF005C6B);
+  final String _fontFamily = 'Vazir';
 
   const MyApp({Key? key}) : super(key: key);
 
@@ -109,8 +112,8 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
               title: 'Kaghaze souti',
               debugShowCheckedModeBanner: false,
-              theme: _theme(),
-              darkTheme: _darkTheme(),
+              theme: _theme(context),
+              darkTheme: _darkTheme(context),
               themeMode: currentMode,
               builder: (context, child) => Directionality(
                 textDirection: TextDirection.rtl,
@@ -124,31 +127,31 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  ThemeData _theme() {
+  ThemeData _theme(BuildContext context) {
     return ThemeData(
-        fontFamily: 'Vazir',
-        primarySwatch: generateMaterialColor(color: _primaryColor),
-        primaryColor: _primaryColor,
-        scaffoldBackgroundColor: Colors.white,
-        dividerColor: _primaryColor,
-        appBarTheme: const AppBarTheme(
-          centerTitle: true,
-          titleTextStyle: TextStyle(
-            fontFamily: 'Vazir',
-          ),
+      fontFamily: _fontFamily,
+      primarySwatch: generateMaterialColor(color: _primaryColor),
+      primaryColor: _primaryColor,
+      scaffoldBackgroundColor: Colors.white,
+      dividerColor: _primaryColor,
+      appBarTheme: const AppBarTheme(
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontFamily: 'Vazir',
         ),
-
-        cardTheme: _cardTheme(),
-        floatingActionButtonTheme: _floatingActionButtonTheme(),
-        inputDecorationTheme: _inputDecorationTheme(),
-        textSelectionTheme: _textSelectionTheme(),
+      ),
+      cardTheme: _cardTheme(),
+      inputDecorationTheme: _inputDecorationTheme(),
+      textSelectionTheme: _textSelectionTheme(),
+      outlinedButtonTheme: _outlinedButtonTheme(context),
+      dividerTheme: _dividerTheme(),
     );
   }
 
-  ThemeData _darkTheme() {
+  ThemeData _darkTheme(BuildContext context) {
     return ThemeData(
       brightness: Brightness.dark,
-      fontFamily: 'Vazir',
+      fontFamily: _fontFamily,
       primarySwatch: generateMaterialColor(color: _primaryColor),
       primaryColor: _primaryColor,
       scaffoldBackgroundColor: Colors.black,
@@ -162,9 +165,10 @@ class MyApp extends StatelessWidget {
         ),
       ),
       cardTheme: _cardTheme(),
-      floatingActionButtonTheme: _floatingActionButtonTheme(),
       inputDecorationTheme: _inputDecorationTheme(),
       textSelectionTheme: _textSelectionTheme(),
+      outlinedButtonTheme: _outlinedButtonTheme(context),
+      dividerTheme: _dividerTheme(),
     );
   }
 
@@ -179,11 +183,11 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  FloatingActionButtonThemeData _floatingActionButtonTheme() {
-    return FloatingActionButtonThemeData(
-      backgroundColor: _primaryColor,
-    );
-  }
+  // FloatingActionButtonThemeData _floatingActionButtonTheme() {
+  //   return FloatingActionButtonThemeData(
+  //     backgroundColor: _primaryColor,
+  //   );
+  // }
 
   InputDecorationTheme _inputDecorationTheme() {
     return InputDecorationTheme(
@@ -214,30 +218,58 @@ class MyApp extends StatelessWidget {
       selectionHandleColor: _primaryColor,
     );
   }
+
+  OutlinedButtonThemeData _outlinedButtonTheme(BuildContext context) {
+    return OutlinedButtonThemeData(
+      style: ButtonStyle(
+        textStyle: MaterialStateProperty.all(Theme.of(context)
+            .textTheme
+            .caption!
+            .copyWith(fontFamily: _fontFamily)),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+              18.0,
+            ),
+            side: BorderSide(
+              color: _primaryColor,
+            ),
+          ),
+        ),
+        side: MaterialStateProperty.all(
+          BorderSide(color: _primaryColor),
+        ),
+      ),
+    );
+  }
+
+  DividerThemeData _dividerTheme() {
+    return const DividerThemeData(thickness: 1.0);
+  }
 }
 
 class XXXX extends StatefulWidget {
   final Widget child;
-  const XXXX(this.child,{Key? key}) : super(key: key);
+  const XXXX(this.child, {Key? key}) : super(key: key);
 
   @override
   _XXXXState createState() => _XXXXState();
 }
 
 class _XXXXState extends State<XXXX> {
-
   @override
   void initState() {
     InternetConnectionChecker().onStatusChange.listen(
-          (InternetConnectionStatus status) {
+      (InternetConnectionStatus status) {
         switch (status) {
           case InternetConnectionStatus.connected:
-          // ignore: avoid_print
+            // ignore: avoid_print
             print('Data connection is available.');
             break;
           case InternetConnectionStatus.disconnected:
-          // ignore: avoid_print
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Opps!')));
+            // ignore: avoid_print
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: Text('Opps!')));
             print('You are disconnected from the internet.');
             break;
         }
@@ -245,6 +277,7 @@ class _XXXXState extends State<XXXX> {
     );
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
