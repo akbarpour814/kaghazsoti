@@ -4,6 +4,7 @@ import 'package:ionicons/ionicons.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
 import '../../../controller/database.dart';
+import '../../../main.dart';
 import '../../../model/book.dart';
 import '../../../model/book_introduction.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
@@ -61,7 +62,7 @@ class _MarkedPageState extends State<MarkedPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

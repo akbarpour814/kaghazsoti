@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
     return SafeArea(
       child: Scaffold(
         body: _body(),
-        bottomNavigationBar: const PlayerBottomNavigationBar(),
+        bottomNavigationBar: playerBottomNavigationBar,
       ),
     );
 
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
       child: SafeArea(
         child: Scaffold(
           body: _innerBody(),
-          bottomNavigationBar: const PlayerBottomNavigationBar(),
+          bottomNavigationBar: playerBottomNavigationBar,
         ),
       ),
     );

@@ -73,7 +73,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 
@@ -141,6 +141,8 @@ class _MyBookState extends State<MyBook> {
           playing.$ = false;
           demoIsPlaying.$ = false;
 
+          audioPlayer = AudioPlayer();
+
           player = audioPlayer;
 
           Navigator.of(context).push(
@@ -206,63 +208,4 @@ class _MyBookState extends State<MyBook> {
       ),
     );
   }
-
-  /*SizedBox _navigatorButtons(BuildContext context) {
-    return SizedBox(
-      height: 13.0.h,
-      width: 15.0.w,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _navigatorToAudiobookPlayerPage(context),
-          _navigatorToBookIntroductionPage(context),
-        ],
-      ),
-    );
-  }
-
-  Flexible _navigatorToAudiobookPlayerPage(BuildContext context) {
-    return Flexible(
-      child: InkWell(
-        child: Icon(
-          Ionicons.play_circle_outline,
-          color: Theme.of(context).primaryColor,
-        ),
-        onTap: () {
-          setState(() {
-            audiobookInPlay = widget.book;
-          });
-
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return const AudiobookPlayerPage();
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Flexible _navigatorToBookIntroductionPage(BuildContext context) {
-    return Flexible(
-      child: InkWell(
-        child: Icon(
-          Ionicons.information_circle_outline,
-          color: Theme.of(context).primaryColor,
-        ),
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return BookIntroductionPage(book: widget.book);
-              },
-            ),
-          );
-        },
-      ),
-    );
-  }*/
 }

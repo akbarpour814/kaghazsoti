@@ -28,7 +28,7 @@ class _GiftPageState extends State<GiftPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

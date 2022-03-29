@@ -4,6 +4,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/model/category.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
+import '../../../main.dart';
 import '../../../model/book_introduction.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 import '/model/book.dart';
@@ -59,7 +60,7 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

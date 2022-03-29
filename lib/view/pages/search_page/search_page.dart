@@ -6,6 +6,7 @@ import 'package:takfood_seller/model/book_introduction.dart';
 
 import '../../../controller/custom_response.dart';
 import '../../../controller/custom_dio.dart';
+import '../../../main.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
@@ -89,7 +90,7 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

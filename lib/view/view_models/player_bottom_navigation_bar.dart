@@ -89,7 +89,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
     return SizedBox(
       width: 75.0.w,
       child: CustomProgressBar(
-        audioPlayer: player,
+        audioPlayer: demoIsPlaying.of(context) ? demoPlayer : audioPlayer,
         timeLabelLocation: TimeLabelLocation.none,
         baseBarColor: Colors.white,
         progressBarColor: const Color(0xFF55929C),
@@ -102,7 +102,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
 
   Flexible _playOrPauseButton() {
     return Flexible(
-      child: PlayOrPauseController(audioPlayer: player, playerBottomNavigationBar: true, demoIsPlaying: false,),
+      child: PlayOrPauseController(audioPlayer: player, playerBottomNavigationBar: true,),
     );
   }
 }

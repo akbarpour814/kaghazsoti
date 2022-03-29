@@ -36,6 +36,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
           parts.add(Part.fromJson(part));
         }
 
+        audioIsPlaying.$ = true;
+        playing.$ = true;
+
         _setAudioSource();
       });
     }
@@ -55,6 +58,8 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
          ),
        ),
      );
+
+
    });
   }
 
@@ -94,7 +99,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
               audioPlayer.stop();
 
               audioIsPlaying.$ = false;
-              demoIsPlaying.$ = false;
+              playing.$ = false;
 
               parts.clear();
 
@@ -261,7 +266,6 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
       child: PlayOrPauseController(
         audioPlayer: audioPlayer,
         playerBottomNavigationBar: false,
-        demoIsPlaying: false,
       ),
     );
   }

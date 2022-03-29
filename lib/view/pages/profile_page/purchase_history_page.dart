@@ -8,6 +8,7 @@ import 'package:takfood_seller/view/view_models/property.dart';
 
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
+import '../../../main.dart';
 import '../../view_models/book_introduction_page.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 
@@ -83,7 +84,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/view/pages/category_page/subcategory_books_page.dart';
+import '../../../main.dart';
 import '/model/category.dart';
 import '../../view_models/books_page.dart';
 import '/view/view_models/category_name.dart';
@@ -28,7 +29,7 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

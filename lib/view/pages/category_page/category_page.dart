@@ -5,6 +5,7 @@ import 'package:ionicons/ionicons.dart';
 //import '/controller/database.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
+import '../../../main.dart';
 import '../../../model/category.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 import '/view/pages/category_page/subcategories_page.dart';
@@ -64,7 +65,7 @@ class _CategoryPageState extends State<CategoryPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

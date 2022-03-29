@@ -11,6 +11,7 @@ import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
 import '../../../controller/database.dart';
 import '../../../controller/functions_for_checking_user_information_format.dart';
+import '../../../main.dart';
 import '../../view_models/custom_snack_bar.dart';
 
 class AccountPage extends StatefulWidget {
@@ -64,7 +65,7 @@ class _AccountPageState extends State<AccountPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

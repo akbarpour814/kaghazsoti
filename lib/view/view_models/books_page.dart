@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import '../../main.dart';
 import '../../model/book_introduction.dart';
 import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
@@ -21,7 +22,7 @@ class _BooksPageState extends State<BooksPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

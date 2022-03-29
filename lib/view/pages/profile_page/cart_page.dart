@@ -64,7 +64,7 @@ class _CartPageState extends State<CartPage> {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
       floatingActionButton: cartSlug.isNotEmpty ? _issuanceOfPurchaseInvoiceButton() : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

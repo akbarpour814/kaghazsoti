@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import '../../../main.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
 
@@ -115,7 +116,7 @@ class _FrequentlyAskedQuestionsPageState
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 

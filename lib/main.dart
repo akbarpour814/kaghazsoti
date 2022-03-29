@@ -11,6 +11,7 @@ import 'package:takfood_seller/test.dart';
 import 'package:takfood_seller/view/pages/login_pages/login_page.dart';
 import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
 import 'package:takfood_seller/view/view_models/audiobook_player_page.dart';
+import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
 import 'controller/custom_response.dart';
 import 'controller/database.dart';
 import 'controller/custom_dio.dart';
@@ -29,6 +30,7 @@ import 'view/pages/home_page/home_page.dart';
 import 'view/pages/search_page/search_page.dart';
 import 'view/pages/profile_page/profile_page.dart';
 
+PlayerBottomNavigationBar playerBottomNavigationBar = const PlayerBottomNavigationBar();
 SharedValue<bool> audioIsPlaying = SharedValue(value: false);
 SharedValue<bool> demoIsPlaying = SharedValue(value: false);
 SharedValue<bool> playing = SharedValue(value: false);

@@ -6,9 +6,8 @@ import 'package:takfood_seller/main.dart';
 class PlayOrPauseController extends StatefulWidget {
   late AudioPlayer audioPlayer;
   late bool playerBottomNavigationBar;
-  late bool demoIsPlaying;
 
-  PlayOrPauseController({Key? key, required this.audioPlayer, required this.playerBottomNavigationBar, required this.demoIsPlaying,}) : super(key: key);
+  PlayOrPauseController({Key? key, required this.audioPlayer, required this.playerBottomNavigationBar,}) : super(key: key);
 
   @override
   _PlayOrPauseControllerState createState() => _PlayOrPauseControllerState();
@@ -34,13 +33,15 @@ class _PlayOrPauseControllerState extends State<PlayOrPauseController> {
           playOrPauseIcon = const Icon(Ionicons.play_outline, color: Colors.white,);
           playOrPauseFunction = widget.audioPlayer.play;
         } else if (processingState != ProcessingState.completed) {
-          audioIsPlaying.$ = true;
-          
           playOrPauseIcon = const Icon(Ionicons.pause_outline, color: Colors.white,);
           playOrPauseFunction = widget.audioPlayer.pause;
         } else {
           playOrPauseIcon = const Icon(Ionicons.refresh_outline, color: Colors.white,);
           playOrPauseFunction = () => widget.audioPlayer.seek(Duration.zero, index: widget.audioPlayer.effectiveIndices!.first);
+        }
+
+        if(demoIsPlaying.of(context) && audioIsPlaying.of(context)) {
+          demoPlayer.stop();
         }
 
         if(widget.playerBottomNavigationBar) {

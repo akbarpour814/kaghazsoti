@@ -95,7 +95,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 
@@ -213,14 +213,12 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           bottom: 2.5.w,
           child: (playing.of(context)) && (audiobookInPlayId == _book.id)
               ? PlayOrPauseController(
-                  audioPlayer: demoPlayer,
+                  audioPlayer: player,
                   playerBottomNavigationBar: false,
-                  demoIsPlaying: true,
                 )
               : FloatingActionButton(
                   onPressed: () {
                     setState(() {
-                      parts.clear();
 
                       player.stop();
                       audioPlayer.stop();
@@ -232,6 +230,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
                       player = demoPlayer;
 
+                      audioIsPlaying.$ = false;
                       demoIsPlaying.$ = true;
 
                       playing.$ = true;
