@@ -286,6 +286,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
             context,
             Ionicons.checkmark_done_outline,
             'نظر شما با موفقیت ثبت شد.',
+            4,
           ),
         );
       } else {
@@ -294,6 +295,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
             context,
             Ionicons.refresh_outline,
             'لطفاً دوباره امتحان کنید.',
+            4,
           ),
         );
       }

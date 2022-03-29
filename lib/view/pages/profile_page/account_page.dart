@@ -301,6 +301,7 @@ class _AccountPageState extends State<AccountPage> {
               context,
               Ionicons.checkmark_done_outline,
               'اطلاعات شما با موفقیت به روز رسانی شد.',
+              4,
             ),
           );
         } else {
@@ -309,6 +310,7 @@ class _AccountPageState extends State<AccountPage> {
               context,
               Ionicons.refresh_outline,
               'لطفاً دوباره امتحان کنید.',
+              4,
             ),
           );
         }

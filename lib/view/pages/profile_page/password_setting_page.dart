@@ -249,7 +249,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
 
           if (_newPasswordRegistered) {
             ScaffoldMessenger.of(context).showSnackBar(
-              customSnackBar(context, Ionicons.checkmark_done_outline, 'رمز عبور جدید ثبت شد.',),
+              customSnackBar(context, Ionicons.checkmark_done_outline, 'رمز عبور جدید ثبت شد.', 4,),
             );
           }
 

@@ -8,8 +8,10 @@ import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
 import 'package:takfood_seller/view/view_models/custom_text_field.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../controller/functions_for_checking_user_information_format.dart';
 import '../../../main.dart';
 import '../../view_models/custom_snack_bar.dart';
+import '../../view_models/persistent_bottom_navigation_bar.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -19,10 +21,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
+  late  bool _internetConnectionChecker;
+  late Response<dynamic> _customDio;
+  late CustomResponse _customResponse;
   final TextEditingController _emailOrPhoneNumberController = TextEditingController();
-  bool _emailOrPhoneNumberError = false;
+  String? _emailOrPhoneNumberError;
   final TextEditingController _passwordController = TextEditingController();
-  bool _passwordError = false;
+  String? _passwordError;
 
   late bool _loginPermission;
   late bool _emailOrPhoneNumber;
@@ -32,15 +37,17 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   void initState() {
     _loginPermission = false;
-    _emailOrPhoneNumber = false;
+    _emailOrPhoneNumber = true;
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _body(),
+    return SafeArea(
+      child: Scaffold(
+        body: _body(),
+      ),
     );
   }
 
@@ -67,7 +74,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               _informationConfirmButton(),
               Container(
                 margin: EdgeInsets.only(top: 15.0.h),
-                height: 8.0.h,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -156,14 +162,18 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         decoration: InputDecoration(
           helperText: _emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه',
           hintText: 'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
-          errorText: _emailOrPhoneNumberError ? _emailOrPhoneNumber ? '' : '' : null,
+          errorText: _emailOrPhoneNumberError,
           suffixIcon: Icon(
             _emailOrPhoneNumber
                 ? Ionicons.mail_outline
                 : Ionicons.phone_portrait_outline,
           ),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _emailOrPhoneNumberError = null;
+          });
+        },
       ),
     );
   }
@@ -178,10 +188,14 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         decoration: InputDecoration(
           helperText: 'رمز عبور',
           hintText: 'لطفاً رمز عبور را وارد کنید.',
-          errorText: _passwordError ? 'رمز عبور وارد شده شتباه است.' : null,
+          errorText: _passwordError,
           suffixIcon: const Icon(Ionicons.key_outline),
         ),
-        onChanged: (String text) {},
+        onChanged: (String text) {
+          setState(() {
+            _passwordError = null;
+          });
+        },
       ),
     );
   }
@@ -204,14 +218,64 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   void _informationConfirm() async {
-    Response<dynamic> response = await CustomDio.dio.post('login', data: {'email' : _emailOrPhoneNumberController.text, 'password' : _passwordController.text},);
+    _emailOrPhoneNumberError = UserInformationFormatCheck.checkEmailFormat(
+      _emailOrPhoneNumberController,
+        'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
+    );
+
+    _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, 'لطفاً رمز عبور را وارد کنید.',);
+
+    if((_emailOrPhoneNumberError == null) && (_passwordError == null)) {
+      _customDio = await CustomDio.dio.post('login', data: {'email' : _emailOrPhoneNumberController.text, 'password' : _passwordController.text},);
+
+      if(_customDio.statusCode == 200) {
+        _customResponse = CustomResponse.fromJson(_customDio.data);
+
+        _loginPermission = true;
+
+        if(_customResponse.success) {
+          _emailOrPhoneNumberError = null;
+          _passwordError = null;
+
+          tokenLogin = _customResponse.data['token'];
+          await sharedPreferences.setString('tokenLogin', _customResponse.data['token']);
+          await sharedPreferences.setBool('firstLogin', false);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar(
+              context,
+              Ionicons.checkmark_done_outline,
+              'به کاغذ صوتی خوش آمدید.',
+              2,
+            ),
+          );
+
+          Future.delayed(const Duration(seconds: 3), () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PersistentBottomNavigationBar(),
+              ),
+            );
+          });
+
+        } else {
+          _emailOrPhoneNumberError = 'کاربری با ایمیل وارد شده یافت نشد.';
+          _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
+
+          _loginPermission = false;
+        }
+      }
+    }
+
+
     
-    _informationConfirmResponse = CustomResponse.fromJson(response.data);
+
   }
 
-  InkWell _forgotPasswordButton() {
-    return InkWell(
-      onTap: () {
+  TextButton _forgotPasswordButton() {
+    return TextButton(
+      onPressed: () {
         if (!_loginPermission) {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -233,9 +297,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  InkWell _registrationButton() {
-    return InkWell(
-      onTap: () {
+  TextButton _registrationButton() {
+    return TextButton(
+      onPressed: () {
         if (!_loginPermission) {
           Navigator.of(context).push(
             MaterialPageRoute(

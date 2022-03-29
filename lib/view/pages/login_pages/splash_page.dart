@@ -18,11 +18,12 @@ class SplashPage extends StatefulWidget {
   _SplashPageState createState() => _SplashPageState();
 }
 
+late bool firstLogin;
 class _SplashPageState extends State<SplashPage> {
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late bool _dataIsLoading;
-  late bool _firstLogin;
+
 
 
   @override
@@ -37,62 +38,74 @@ class _SplashPageState extends State<SplashPage> {
   Future _loginStep() async {
     sharedPreferences = await SharedPreferences.getInstance();
 
-    _customDio = await CustomDio.dio.get('dashboard/users/wish');
+    cartSlug = sharedPreferences.getStringList('cartSlug') ?? [];
 
-    if(_customDio.statusCode == 200) {
-      _customResponse = CustomResponse.fromJson(_customDio.data);
-
-      for(Map<String, dynamic> book in _customResponse.data['data']) {
-        markedBooksId.add(book['id']);
-      }
-    }
+    firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
 
 
-    _customDio = await CustomDio.dio.get('dashboard/my_books');
+    if(!firstLogin) {
+      setState(() {
+        tokenLogin = sharedPreferences.getString('tokenLogin') ?? '';
+      });
 
-    if(_customDio.statusCode == 200) {
+      _customDio = await CustomDio.dio.get('dashboard/users/wish');
 
-      Map<String, dynamic> data = _customDio.data;
+      if(_customDio.statusCode == 200) {
+        _customResponse = CustomResponse.fromJson(_customDio.data);
 
-      int lastPage = data['last_page'];
-
-      for(Map<String, dynamic> bookIntroduction in data['data']) {
-        markedBooksId.add(bookIntroduction['id']);
+        for(Map<String, dynamic> book in _customResponse.data['data']) {
+          markedBooksId.add(book['id']);
+        }
       }
 
-      for(int i = 2; i <= lastPage; ++i) {
-        _customDio = await CustomDio.dio.get('dashboard/my_books', queryParameters: {'page': i},);
 
-        if(_customDio.statusCode == 200) {
-          data = _customDio.data;
+      _customDio = await CustomDio.dio.get('dashboard/my_books');
 
-          for(Map<String, dynamic> bookIntroduction in data['data']) {
-            markedBooksId.add(bookIntroduction['id']);
+      if(_customDio.statusCode == 200) {
+
+        Map<String, dynamic> data = _customDio.data;
+
+        int lastPage = data['last_page'];
+
+        for(Map<String, dynamic> bookIntroduction in data['data']) {
+          markedBooksId.add(bookIntroduction['id']);
+        }
+
+        for(int i = 2; i <= lastPage; ++i) {
+          _customDio = await CustomDio.dio.get('dashboard/my_books', queryParameters: {'page': i},);
+
+          if(_customDio.statusCode == 200) {
+            data = _customDio.data;
+
+            for(Map<String, dynamic> bookIntroduction in data['data']) {
+              markedBooksId.add(bookIntroduction['id']);
+            }
           }
         }
       }
+
+      /////////////////////////////////////////////////////////////////////////////////////////////
+      _customDio = await CustomDio.dio.get('user');
+      if(_customDio.statusCode == 200) {
+        userId = _customDio.data['id'];
+      }
+      ///////////////////////////////////////////////////////////////////////////////////////////
+
+      Future.delayed(const Duration(seconds: 6), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => (firstLogin
+                ? const LoginPage()
+                : const PersistentBottomNavigationBar()),
+          ),
+        );
+      });
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    _customDio = await CustomDio.dio.get('user');
-    if(_customDio.statusCode == 200) {
-      userId = _customDio.data['id'];
-    }
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    cartSlug = sharedPreferences.getStringList('cartSlug') ?? [];
 
-    _firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
 
-    Future.delayed(const Duration(seconds: 6), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => (_firstLogin
-              ? const LoginPage()
-              : const PersistentBottomNavigationBar()),
-        ),
-      );
-    });
+
 
     return _customDio;
   }

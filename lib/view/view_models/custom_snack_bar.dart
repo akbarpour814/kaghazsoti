@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../../main.dart';
 
-SnackBar customSnackBar(BuildContext context, IconData contentIcon, String contentText) {
+SnackBar customSnackBar(BuildContext context, IconData contentIcon, String contentText, int duration) {
   return SnackBar(
     backgroundColor: Theme.of(context).primaryColor,
     shape: const Border(
       bottom: BorderSide(color: Colors.white),
     ),
     padding: const EdgeInsets.all(8.0),
+    duration: Duration(seconds: duration),
     content: Row(
       children: [
         Padding(

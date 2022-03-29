@@ -187,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
   InkWell _logOut() {
     return InkWell(
       onTap: () async {
-        await sharedPreferences.setBool('logOut', true);
+        await sharedPreferences.setBool('firstLogin', true);
 
         Restart.restartApp();
       },

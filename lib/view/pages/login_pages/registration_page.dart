@@ -291,7 +291,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
         if (_registeredInformation) {
           ScaffoldMessenger.of(context).showSnackBar(
-            customSnackBar(context, Ionicons.checkmark_done_outline, 'خوش آمدید.',),
+            customSnackBar(context, Ionicons.checkmark_done_outline, 'خوش آمدید.', 2,),
           );
         }
 
