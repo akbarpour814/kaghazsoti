@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:takfood_seller/view/pages/profile_page/marked_page.dart';
 import 'package:takfood_seller/view/view_models/show_stars.dart';
 import 'package:zarinpal/zarinpal.dart';
@@ -225,8 +226,11 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
             onPressed: () {
               setState(() {
 
-                audiobookInPlayId = _book.id;
+                parts.clear();
 
+
+
+                audiobookInPlayId = _book.id;
 
                 audioPlayer.setUrl(_book.demo);
 
@@ -534,7 +538,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
         ],
       ),
     );
-    Visibility _comments = Visibility(visible: !_book.users.contains(userId), child: Container(
+    Visibility _comments = Visibility(visible: !_book.reviewed, child: Container(
       padding: const EdgeInsets.all(18.0),
       decoration: BoxDecoration(
         border: Border.all(color: Theme

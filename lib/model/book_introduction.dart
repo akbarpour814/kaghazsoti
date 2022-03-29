@@ -1,4 +1,5 @@
 import 'package:persian_number_utility/persian_number_utility.dart';
+import 'package:takfood_seller/model/price_format.dart';
 
 import '../main.dart';
 
@@ -40,8 +41,8 @@ class BookIntroduction {
     //////////////////////
 
 
-    price = json['price'] ?? '0';
-    price = price == '0' ? 'رایگان' : '${price.seRagham()} تومان';
+    price = PriceFormat.priceFormat(price: int.parse(json['price'] ?? '0'), isFree: true);
+
 
     /////////////////////////
     numberOfVotes = json['vote'] ?? 0;

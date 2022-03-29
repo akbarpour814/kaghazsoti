@@ -7,6 +7,7 @@ import 'package:takfood_seller/view/view_models/progress_bar/progress_notifier.d
 import '../../../main.dart';
 
 class CustomProgressBar extends StatefulWidget {
+  late AudioPlayer audioPlayer;
   late TimeLabelLocation timeLabelLocation;
   late Color baseBarColor;
   late Color progressBarColor;

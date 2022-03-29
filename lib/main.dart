@@ -10,6 +10,7 @@ import 'package:takfood_seller/controller/check_internet_connection.dart';
 import 'package:takfood_seller/test.dart';
 import 'package:takfood_seller/view/pages/login_pages/login_page.dart';
 import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
+import 'package:takfood_seller/view/view_models/audiobook_player_page.dart';
 import 'controller/custom_response.dart';
 import 'controller/database.dart';
 import 'controller/custom_dio.dart';
@@ -31,7 +32,7 @@ import 'view/pages/profile_page/profile_page.dart';
 SharedValue<bool> audioIsPlaying = SharedValue(value: false);
 SharedValue<bool> demoIsPlaying = SharedValue(value: false);
 
-AudioPlayer audioPlayer = AudioPlayer();
+//AudioPlayer audioPlayer = AudioPlayer();
 
 BookIntroduction? audiobookInPlay;
 int audiobookInPlayId = -1;
@@ -106,6 +107,7 @@ class MyApp extends StatelessWidget {
               theme: _theme(),
               darkTheme: _darkTheme(),
               themeMode: currentMode,
+              routes: {'/audiobook_player_page' : (BuildContext context) => AudiobookPlayerPage()},
               builder: (context, child) => Directionality(
                 textDirection: TextDirection.rtl,
                 child: XXXX(child!),
@@ -131,6 +133,7 @@ class MyApp extends StatelessWidget {
             fontFamily: 'Vazir',
           ),
         ),
+
         cardTheme: _cardTheme(),
         floatingActionButtonTheme: _floatingActionButtonTheme(),
         inputDecorationTheme: _inputDecorationTheme(),

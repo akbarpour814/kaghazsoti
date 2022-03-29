@@ -29,7 +29,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
     Response<dynamic> _customDio = await CustomDio.dio
         .post('dashboard/books/${audiobookInPlay!.slug}/audio');
 
-    if (_customDio.statusCode == 200 && parts.isEmpty) {
+    if ((_customDio.statusCode == 200) && (parts.isEmpty) && (!demoIsPlaying.of(context))) {
       setState(() {
         for (Map<String, dynamic> part in _customDio.data['data']) {
           parts.add(Part.fromJson(part));
@@ -91,7 +91,12 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
             setState(() {
               audioPlayer.stop();
 
+              audioPlayer = AudioPlayer();
+
               audioIsPlaying.$ = false;
+              demoIsPlaying.$ = false;
+
+              parts.clear();
 
               Navigator.of(context).pop();
             });
@@ -108,7 +113,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
   }
 
   Widget _body() {
-    if((parts.isEmpty) && (previousAudiobookInPlayId != audiobookInPlay!.id)) {
+    if((parts.isEmpty) || (previousAudiobookInPlayId != audiobookInPlay!.id) || (demoIsPlaying.of(context))) {
       return FutureBuilder(
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           return snapshot.hasData
@@ -118,7 +123,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
         future: _initParts(),
       );
     } else {
-      _setAudioSource();
+      if(!audioIsPlaying.of(context)) {
+        _setAudioSource();
+      }
 
       return _innerBody();
     }
@@ -147,7 +154,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(parts[audioPlayer.currentIndex ?? 0].name),
+                        Text(parts.isNotEmpty ? parts[audioPlayer.currentIndex ?? 0].name : ''),
                         SizedBox(
                           height: 4.0.h,
                         ),

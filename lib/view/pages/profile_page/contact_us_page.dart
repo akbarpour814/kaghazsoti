@@ -6,7 +6,6 @@ import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:takfood_seller/main.dart';
 import 'package:takfood_seller/model/comment.dart';
 import 'package:takfood_seller/model/user.dart';
-import 'package:takfood_seller/view/view_models/datetime_format.dart';
 import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:takfood_seller/view/view_models/property.dart';
 import 'package:sizer/sizer.dart';

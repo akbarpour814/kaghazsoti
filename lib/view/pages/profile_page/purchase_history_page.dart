@@ -48,6 +48,12 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
         _purchaseHistory.add(Purchase.fromJson(purchase));
       }
 
+      List<Purchase> _purchaseHistoryTemp = [];
+      _purchaseHistoryTemp.addAll(_purchaseHistory.reversed.toList());
+
+      _purchaseHistory.clear();
+      _purchaseHistory.addAll(_purchaseHistoryTemp);
+
       _displayOfDetails =
           List<bool>.generate(_purchaseHistory.length, (index) => false);
 
@@ -194,7 +200,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
   Property _purchasePrice(int index) {
     return Property(
       property: 'مبلغ سفارش',
-      value: _purchaseHistory[index].price,
+      value: _purchaseHistory[index].finalPrice,
       valueInTheEnd: false,
       lastProperty: false,
     );

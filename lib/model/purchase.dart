@@ -2,22 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:takfood_seller/model/book_introduction.dart';
+import 'package:takfood_seller/model/date_time_format.dart';
+import 'package:takfood_seller/model/price_format.dart';
 
 class Purchase {
   late int id;
-  late String price;
+  late String couponDiscount;
+  late String totalPrice;
+  late String finalPrice;
   late String date;
   late PurchaseStatus status;
   late List<BookIntroduction> books;
 
   Purchase.fromJson(Map<String, dynamic> json) {
     id = json['id'];
-
-    int priceTemp = json['final_price'] ?? 0;
-    price = priceTemp == 0 ? 'رایگان' : '${priceTemp.toString().seRagham()} تومان';
-
-    DateTime dateTime = DateTime.parse(json['created_at']);
-    date = '${DateFormat('HH:mm').format(dateTime.toLocal())} - ${dateTime.toPersianDate(twoDigits: true)}';
+    couponDiscount = PriceFormat.priceFormat(price: json['coupon_discount'] ?? 0, isFree: false);
+    totalPrice = PriceFormat.priceFormat(price: json['total_price'] ?? 0, isFree: true);
+    finalPrice = PriceFormat.priceFormat(price: json['final_price'] ?? 0, isFree: true);
+    date = DateTimeFormat.dateTimeFormat(date: json['created_at']);
 
     String statusTemp = json['real_status'];
     status = statusTemp == 'پرداخت شده' ? PurchaseStatus.bought : PurchaseStatus.waiting;

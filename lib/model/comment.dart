@@ -2,15 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'package:persian_number_utility/persian_number_utility.dart';
+
+import 'date_time_format.dart';
 class Comment {
   late Topic topic;
   late String text;
   late CommentStatus status;
   late List<String> answers;
   late String sentDate;
-  late DateTime sentDateTime;
   late String lastAnswerDate;
-  late DateTime lastAnswerDateTime;
 
   Comment.fromJson(Map<String, dynamic> json) {
     int findTopic = TopicExtension.topics.values.toList().indexWhere((element) => element == json['title']);
@@ -24,11 +24,9 @@ class Comment {
       answers.add(answer['body']);
     }
 
-    sentDateTime = DateTime.parse(json['created_at']);
-    sentDate = '${DateFormat('HH:mm').format(sentDateTime.toLocal())} - ${sentDateTime.toPersianDate(twoDigits: true)}';
+    sentDate = DateTimeFormat.dateTimeFormat(date: json['created_at']);
 
-    lastAnswerDateTime = DateTime.parse(json['updated_at']);
-    lastAnswerDate = '${DateFormat('HH:mm').format(sentDateTime.toLocal())} - ${sentDateTime.toPersianDate(twoDigits: true)}';
+    lastAnswerDate = DateTimeFormat.dateTimeFormat(date: json['updated_at']);
   }
 }
 

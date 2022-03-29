@@ -4,6 +4,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/main.dart';
 import 'package:takfood_seller/model/book.dart';
 import 'package:takfood_seller/model/book_introduction.dart';
+import 'package:takfood_seller/model/purchase.dart';
 import 'package:takfood_seller/model/user.dart';
 import 'package:takfood_seller/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:takfood_seller/view/view_models/property.dart';
@@ -28,15 +29,15 @@ class _CartPageState extends State<CartPage> {
   late bool _dataIsLoading;
   late List<Book> _cart;
   late bool _issuanceOfPurchaseInvoicePermission;
-  late int _totalPrice;
+  late bool _purchaseInvoiceWasIssued;
+  Purchase? _purchaseInvoice;
 
   @override
   void initState() {
     _dataIsLoading = true;
     _cart = [];
-    _issuanceOfPurchaseInvoicePermission = false;
-
-    _totalPrice = 0;
+    _issuanceOfPurchaseInvoicePermission = true;
+    _purchaseInvoiceWasIssued = false;
 
     super.initState();
   }
@@ -65,6 +66,7 @@ class _CartPageState extends State<CartPage> {
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: const PlayerBottomNavigationBar(),
+      floatingActionButton: cartSlug.isNotEmpty ? _issuanceOfPurchaseInvoiceButton() : null,
     );
   }
 
@@ -84,7 +86,13 @@ class _CartPageState extends State<CartPage> {
             ),
           ),
           onTap: () {
-            Navigator.of(context).pop();
+            setState(() {
+              if(_purchaseInvoiceWasIssued) {
+                cartSlug.clear();
+              }
+
+              Navigator.of(context).pop();
+            });
           },
         ),
       ],
@@ -97,16 +105,18 @@ class _CartPageState extends State<CartPage> {
         child: Text('محصولی در سبد خرید شما وجود ندارد.'),
       );
     } else {
-      return _dataIsLoading ? FutureBuilder(
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          return snapshot.hasData
-              ? _innerBody()
-              : const Center(
-            child: CustomCircularProgressIndicator(),
-          );
-        },
-        future: _initCart(),
-      ) : _innerBody();
+      return _dataIsLoading
+          ? FutureBuilder(
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                return snapshot.hasData
+                    ? _innerBody()
+                    : const Center(
+                        child: CustomCircularProgressIndicator(),
+                      );
+              },
+              future: _initCart(),
+            )
+          : _innerBody();
     }
   }
 
@@ -121,78 +131,11 @@ class _CartPageState extends State<CartPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             _books(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Container(
-                padding: const EdgeInsets.all(18.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).primaryColor),
-                  borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Property(
-                      property: 'قیمت کتاب ها',
-                      value: '$_totalPrice تومان',
-                      valueInTheEnd: true,
-                      lastProperty: false,
-                    ),
-                    Property(
-                      property: 'تخفیف',
-                      value: '$_totalPrice تومان',
-                      valueInTheEnd: true,
-                      lastProperty: true,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Container(
-                padding: const EdgeInsets.all(18.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).primaryColor),
-                  borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                ),
-                child: Property(
-                  property: 'مبلغ قابل پرداخت',
-                  value: '$_totalPrice تومان',
-                  valueInTheEnd: true,
-                  lastProperty: true,
-                ),
-              ),
-            ),
-            _issuanceOfPurchaseInvoiceButton(),
+            _prices(),
           ],
         ),
       ),
     );
-  }
-
-  SizedBox _issuanceOfPurchaseInvoiceButton() {
-    return SizedBox(
-      width: 100.0.w - (2 * 5.0.w),
-      child: ElevatedButton.icon(
-        onPressed: () {},
-        label: const Text('خرید با پرداخت اینترنتی'),
-        icon: const Icon(Ionicons.card_outline),
-      ),
-    );
-  }
-
-  void _issuanceOfPurchaseInvoice() async {
-    _customDio = await CustomDio.dio.post('dashboard/invoices/create', data: {'id': List<String>.generate(_cart.length, (index) => '${_cart[index].id}')},);
-
-    if(_customDio.statusCode == 200) {
-      _customDio = await CustomDio.dio.post('dashboard/invoices');
-
-      if(_customDio.statusCode == 200) {
-
-      }
-    }
-
   }
 
   Padding _books() {
@@ -249,7 +192,7 @@ class _CartPageState extends State<CartPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: InkWell(
-        onTap: () {
+        onTap: (!_purchaseInvoiceWasIssued) ? () {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
@@ -260,7 +203,7 @@ class _CartPageState extends State<CartPage> {
                     name: _cart[index].name,
                     author: _cart[index].author,
                     publisherOfPrintedVersion:
-                        _cart[index].publisherOfPrintedVersion,
+                    _cart[index].publisherOfPrintedVersion,
                     duration: _cart[index].duration,
                     price: _cart[index].price,
                     numberOfVotes: _cart[index].numberOfVotes,
@@ -271,7 +214,7 @@ class _CartPageState extends State<CartPage> {
               },
             ),
           );
-        },
+        } : null,
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -316,30 +259,33 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  OutlinedButton _bookRemoveButton(int index) {
-    return OutlinedButton(
-      onPressed: () {
-        _bookRemove(index);
-      },
-      child: const Text(
-        'حذف',
-        style: TextStyle(color: Colors.redAccent),
-        overflow: TextOverflow.ellipsis,
-      ),
-      style: ButtonStyle(
-        shape: MaterialStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              30.0,
-            ),
-            side: const BorderSide(
-              color: Colors.redAccent,
+  Visibility _bookRemoveButton(int index) {
+    return Visibility(
+      visible: !_purchaseInvoiceWasIssued,
+      child: OutlinedButton(
+        onPressed: () {
+          _bookRemove(index);
+        },
+        child: const Text(
+          'حذف',
+          style: TextStyle(color: Colors.redAccent),
+          overflow: TextOverflow.ellipsis,
+        ),
+        style: ButtonStyle(
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(
+                30.0,
+              ),
+              side: const BorderSide(
+                color: Colors.redAccent,
+              ),
             ),
           ),
-        ),
-        side: MaterialStateProperty.all(
-          const BorderSide(
-            color: Colors.redAccent,
+          side: MaterialStateProperty.all(
+            const BorderSide(
+              color: Colors.redAccent,
+            ),
           ),
         ),
       ),
@@ -354,5 +300,99 @@ class _CartPageState extends State<CartPage> {
     });
 
     await sharedPreferences.setStringList('cartSlug', cartSlug);
+  }
+
+  Widget _prices() {
+    return _purchaseInvoice == null ? Container() : Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Container(
+            padding: const EdgeInsets.all(18.0),
+            decoration: BoxDecoration(
+              border: Border.all(color: Theme.of(context).primaryColor),
+              borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Property(
+                  property: 'قیمت کتاب ها',
+                  value: _purchaseInvoice!.totalPrice,
+                  valueInTheEnd: true,
+                  lastProperty: false,
+                ),
+                Property(
+                  property: 'تخفیف',
+                  value: _purchaseInvoice!.couponDiscount,
+                  valueInTheEnd: true,
+                  lastProperty: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Container(
+            padding: const EdgeInsets.all(18.0),
+            decoration: BoxDecoration(
+              border: Border.all(color: Theme.of(context).primaryColor),
+              borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+            ),
+            child: Property(
+              property: 'مبلغ قابل پرداخت',
+              value: _purchaseInvoice!.finalPrice,
+              valueInTheEnd: true,
+              lastProperty: true,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  SizedBox _issuanceOfPurchaseInvoiceButton() {
+    return SizedBox(
+      width: 100.0.w - (2 * 5.0.w),
+      child: ElevatedButton.icon(
+        onPressed: () {
+          if(!_dataIsLoading) {
+            if(_purchaseInvoiceWasIssued) {
+
+            } else {
+              _issuanceOfPurchaseInvoice();
+            }
+          }
+        },
+        label: Text(!_purchaseInvoiceWasIssued
+            ? 'صدور فاکتور خرید'
+            : 'ادامه خرید'),
+        icon: Icon(!_purchaseInvoiceWasIssued ? Ionicons.bag_check_outline : Ionicons.card_outline),
+      ),
+    );
+  }
+
+  void _issuanceOfPurchaseInvoice() async {
+    List<String> booksId = List<String>.generate(_cart.length, (index) => _cart[index].id.toString());
+
+    _customDio = await CustomDio.dio.post(
+      'dashboard/invoices/create',
+      data: {
+        'id': booksId.toString(),
+      },
+    );
+
+    if (_customDio.statusCode == 200) {
+      _customResponse = CustomResponse.fromJson(_customDio.data);
+
+      setState(() {
+        _purchaseInvoice = Purchase.fromJson(_customResponse.data);
+
+        _purchaseInvoiceWasIssued = true;
+      });
+
+      await sharedPreferences.setStringList('cartSlug', []);
+    }
   }
 }

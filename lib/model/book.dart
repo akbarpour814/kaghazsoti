@@ -1,6 +1,7 @@
 import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:takfood_seller/main.dart';
 import 'package:takfood_seller/model/book_introduction.dart';
+import 'package:takfood_seller/model/price_format.dart';
 
 class Book {
   late int id;
@@ -25,12 +26,12 @@ class Book {
   late String aboutBook;
   late String partOfTheBook;
   late List<Review> reviews;
+  late bool reviewed;
   late List<Part> parts;
   late String demo;
   late String bookCoverPath;
   late List<BookIntroduction> otherBooksByThePublisher;
   late List<BookIntroduction> relatedBooks;
-  late List<int> users;
 
   Book.fromJson(Map<String, dynamic> json) {
     Map<String, dynamic> product = json['product'];
@@ -58,9 +59,7 @@ class Book {
     duration = product['duration'] ?? '';
     //////////////////////
 
-
-    price = product['price'] ?? '0';
-    price = price == '0' ? 'رایگان' : '${price.seRagham()} تومان';
+    price = PriceFormat.priceFormat(price: int.parse(product['price'] ?? '0'), isFree: true);
 
     //////////////////////////
     marked = markedBooksId.contains(product['id']);
@@ -72,10 +71,13 @@ class Book {
 
 
     reviews = [];
+    reviewed = false;
     setReviews(json['reviews'] ?? []);
     int myReviewIndex = reviews.indexWhere((element) => element.id == userId);
 
     if(myReviewIndex >= 0) {
+      reviewed = true;
+
       Review myReview = reviews[myReviewIndex];
 
       reviews.removeAt(myReviewIndex);
@@ -93,11 +95,6 @@ class Book {
 
     relatedBooks = [];
     setRelatedBooks(json['similar'] ?? []);
-
-    users = [];
-    for(Map<String, dynamic> user in json['users']) {
-      users.add(user['id']);
-    }
   }
 
   void _toString() {
@@ -151,13 +148,13 @@ class Book {
 
 class Review {
   late int id;
-  late int name;
+  late String name;
   late String review;
   late int numberOfStars;
 
   Review.fromJson(Map<String, dynamic> json) {
-    id = json['user_id'];
-    name = json['user_id'];
+    id = (json['User'])['id'];
+    name = (json['User'])['name'];
     review = json['review'];
     numberOfStars = json['rating'];
   }
