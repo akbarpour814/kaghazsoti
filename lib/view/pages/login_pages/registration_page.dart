@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:sizer/sizer.dart';
+import 'package:takfood_seller/view/pages/login_pages/splash_page.dart';
 import '../../../controller/custom_response.dart';
 import '../../../controller/database.dart';
 import '../../../controller/custom_dio.dart';
 import '../../view_models/custom_snack_bar.dart';
+import '../../view_models/persistent_bottom_navigation_bar.dart';
 import '/controller/functions_for_checking_user_information_format.dart';
 
 import '../../../main.dart';
@@ -273,8 +275,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
     _repeatPasswordError = UserInformationFormatCheck.checkPasswordFormat(_repeatPasswordController, 'لطفاً رمز عبور را تکرار کنید.',);
 
     if(_firstAndLastNameError == null && _emailError == null && _phoneNumberError == null && _passwordError == null && _repeatPasswordError == null) {
-      Response<dynamic> httpsResponse = await CustomDio.dio.post(
-        'register',
+      Response<dynamic> _customDio = await Dio().post(
+        'https://kaghazsoti.uage.ir/api/register',
         data: {
           'name': _firstAndLastNameController.text,
           'email': _emailController.text,
@@ -283,23 +285,54 @@ class _RegistrationPageState extends State<RegistrationPage> {
         },
       );
 
-      CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);
+      if(_customDio.statusCode == 200) {
+        _customDio = await Dio().post('https://kaghazsoti.uage.ir/api/login', data: {'email' : _emailController.text, 'password' : _passwordController.text},);
 
-      setState(() {
-        _registeredInformation = customResponse.success;
+        if(_customDio.statusCode == 200) {
+          CustomResponse _customResponse = CustomResponse.fromJson(_customDio.data);
 
-        if (_registeredInformation) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            customSnackBar(context, Ionicons.checkmark_done_outline, 'خوش آمدید.', 2,),
-          );
+
+
+          tokenLogin.$ = _customResponse.data['token'];
+          await sharedPreferences.setString('tokenLogin', _customResponse.data['token']);
+          await sharedPreferences.setBool('firstLogin', false);
+
+          headers = {
+            'Authorization' : 'Bearer ${tokenLogin.of(context)}',
+            'Accept': 'application/json',
+            'client': 'api'};
+
+          preparation();
+          setState(() {
+
+            _registeredInformation = _customResponse.success;
+
+            if (_registeredInformation) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                customSnackBar(context, Ionicons.checkmark_done_outline, 'خوش آمدید.', 2,),
+              );
+            }
+
+            Future.delayed(const Duration(seconds: 3), () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersistentBottomNavigationBar(),
+                ),
+              );
+            });
+
+            _firstAndLastNameController = TextEditingController();
+            _emailController = TextEditingController();
+            _phoneNumberController = TextEditingController();
+            _passwordController = TextEditingController();
+            _repeatPasswordController = TextEditingController();
+          });
         }
 
-        _firstAndLastNameController = TextEditingController();
-        _emailController = TextEditingController();
-        _phoneNumberController = TextEditingController();
-        _passwordController = TextEditingController();
-        _repeatPasswordController = TextEditingController();
-      });
+
+
+      }
     }
   }
 }
