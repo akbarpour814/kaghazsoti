@@ -268,7 +268,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   void _informationRegistration() async {
     _firstAndLastNameError = UserInformationFormatCheck.checkFirstAndLastNameFormat(_firstAndLastNameController, 'لطفاً نام و نام خوانوادگی خود را وارد کنید.',);
     _emailError = UserInformationFormatCheck.checkEmailFormat(_emailController, 'لطفاً ایمیل خود را وارد کنید.',);
-    _phoneNumberError= UserInformationFormatCheck.checkPhoneNumberFormat(_phoneNumberController, 'لطفاً تلفن همراه خود را تکرار کنید.',);
+    _phoneNumberError= UserInformationFormatCheck.checkPhoneNumberFormat(_phoneNumberController, 'لطفاً شماره تلفن همراه خود را وارد کنید.',);
     _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, 'لطفاً رمز عبور را وارد کنید.',);
     _repeatPasswordError = UserInformationFormatCheck.checkPasswordFormat(_repeatPasswordController, 'لطفاً رمز عبور را تکرار کنید.',);
 

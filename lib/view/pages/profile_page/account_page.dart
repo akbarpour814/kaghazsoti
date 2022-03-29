@@ -276,7 +276,7 @@ class _AccountPageState extends State<AccountPage> {
     );
     _phoneNumberError = UserInformationFormatCheck.checkPhoneNumberFormat(
       _phoneNumberController,
-      'لطفاً تلفن همراه خود را تکرار کنید.',
+      'لطفاً شماره تلفن همراه خود را وارد کنید.',
     );
 
     if (_firstAndLastNameError == null &&

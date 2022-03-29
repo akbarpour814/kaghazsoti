@@ -112,7 +112,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           helperText: _emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه',
-                          hintText: 'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه'} خود را وارد کنید.',
+                          hintText: 'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
                           errorText: false ? '' : null,
                           suffixIcon: Icon(
                               _emailOrPhoneNumber ? Ionicons.mail_outline : Ionicons.phone_portrait_outline,

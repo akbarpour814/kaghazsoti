@@ -39,7 +39,7 @@ class UserInformationFormatCheck {
     } else if((textEditingController.text.isEmpty) || (textEditingController.text.isValidIranianMobileNumber())) {
       _errorText  = null;
     } else if (!textEditingController.text.isValidIranianMobileNumber()) {
-      _errorText = 'لطفاً تلفن همراه معتبر وارد کنید.';
+      _errorText = 'لطفاً شماره تلفن همراه معتبر وارد کنید.';
     }
 
     return _errorText;

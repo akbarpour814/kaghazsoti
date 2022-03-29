@@ -155,7 +155,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           helperText: _emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه',
-          hintText: 'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه'} خود را وارد کنید.',
+          hintText: 'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
           errorText: _emailOrPhoneNumberError ? _emailOrPhoneNumber ? '' : '' : null,
           suffixIcon: Icon(
             _emailOrPhoneNumber
@@ -192,9 +192,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       child: ElevatedButton.icon(
         onPressed: () {
           setState(() {
-            _informationConfirm(email: _emailOrPhoneNumberController.text, password: _passwordController.text);
-
-            _loginPermission = _loginPermission ? false : true;
+            _informationConfirm();
           });
         },
         label: Text(_loginPermission ? _informationConfirmResponse.success ? 'خوش آمدید' : '' : 'بررسی اطلاعات برای ورود'),
@@ -205,8 +203,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  void _informationConfirm({required String email, required String password}) async {
-    Response<dynamic> response = await CustomDio.dio.post('login', data: {'email' : email, 'password' : password},);
+  void _informationConfirm() async {
+    Response<dynamic> response = await CustomDio.dio.post('login', data: {'email' : _emailOrPhoneNumberController.text, 'password' : _passwordController.text},);
     
     _informationConfirmResponse = CustomResponse.fromJson(response.data);
   }

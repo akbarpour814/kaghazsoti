@@ -130,7 +130,8 @@ class MyApp extends StatelessWidget {
   ThemeData _theme(BuildContext context) {
     return ThemeData(
       fontFamily: fontFamily,
-      primarySwatch: generateMaterialColor(color: _primaryColor),
+      //primarySwatch: generateMaterialColor(color: _primaryColor),
+      primarySwatch: Colors.red,
       primaryColor: _primaryColor,
       scaffoldBackgroundColor: Colors.white,
       dividerColor: _primaryColor,

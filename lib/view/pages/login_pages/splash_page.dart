@@ -81,7 +81,7 @@ class _SplashPageState extends State<SplashPage> {
     ///////////////////////////////////////////////////////////////////////////////////////////
     cartSlug = sharedPreferences.getStringList('cartSlug') ?? [];
 
-    _firstLogin = sharedPreferences.getBool('firstLogin') ?? false;
+    _firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
 
     Future.delayed(const Duration(seconds: 6), () {
       Navigator.pushReplacement(
