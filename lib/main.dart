@@ -36,6 +36,8 @@ SharedValue<bool> audioIsPlaying = SharedValue(value: false);
 SharedValue<bool> demoIsPlaying = SharedValue(value: false);
 SharedValue<bool> playing = SharedValue(value: false);
 
+//Map<String, String> headers = {'Authorization' : 'Bearer $tokenLogin', 'Accept': 'application/json', 'client': 'api'};
+
 AudioPlayer audioPlayer = AudioPlayer();
 AudioPlayer demoPlayer = AudioPlayer();
 AudioPlayer player = AudioPlayer();
@@ -54,7 +56,11 @@ late List<int> libraryId = [];
 late List<String> cartSlug = [];
 late int userId;
 
-void main() {
+Future<void> main() async {
+
+
+
+
   runApp(
     SharedValue.wrapApp(
       const MyApp(),
@@ -119,7 +125,7 @@ class MyApp extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 child: XXXX(child!),
               ),
-              home: const SplashPage(),
+              home: const LoginPage(),
             );
           },
         );
@@ -259,6 +265,8 @@ class XXXX extends StatefulWidget {
 class _XXXXState extends State<XXXX> {
   @override
   void initState() {
+
+
     InternetConnectionChecker().onStatusChange.listen(
       (InternetConnectionStatus status) {
         switch (status) {

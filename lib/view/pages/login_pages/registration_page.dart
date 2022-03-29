@@ -281,7 +281,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
           'password': _passwordController.text,
           'confirm_password': _repeatPasswordController.text
         },
-        options: Options(headers: headers),
       );
 
       CustomResponse customResponse = CustomResponse.fromJson(httpsResponse.data);

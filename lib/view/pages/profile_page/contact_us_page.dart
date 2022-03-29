@@ -230,7 +230,11 @@ class _ContactUsPageState extends State<ContactUsPage> {
         cursorWidth: 1.0,
         onChanged: (String text) {
           setState(() {
-            _errorText = null;
+            if (_textEditingController.text.length < 3) {
+              _errorText = 'نظر شما باید بیش از حرف داشته باشد.';
+            } else {
+              _errorText = null;
+            }
           });
         },
       ),

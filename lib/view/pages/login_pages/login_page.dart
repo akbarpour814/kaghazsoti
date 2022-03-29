@@ -5,6 +5,7 @@ import 'package:takfood_seller/controller/custom_dio.dart';
 import 'package:takfood_seller/controller/custom_response.dart';
 import 'package:takfood_seller/view/pages/login_pages/password_recovery_page.dart';
 import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
+import 'package:takfood_seller/view/pages/login_pages/splash_page.dart';
 import 'package:takfood_seller/view/view_models/custom_text_field.dart';
 import 'package:sizer/sizer.dart';
 
@@ -31,6 +32,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   late bool _loginPermission;
   late bool _emailOrPhoneNumber;
+  late bool _obscureText;
 
   late CustomResponse _informationConfirmResponse;
 
@@ -38,6 +40,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void initState() {
     _loginPermission = false;
     _emailOrPhoneNumber = true;
+    _obscureText = true;
 
     super.initState();
   }
@@ -171,7 +174,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         ),
         onChanged: (String text) {
           setState(() {
-            _emailOrPhoneNumberError = null;
+            _emailOrPhoneNumberError = UserInformationFormatCheck.checkEmailFormat(
+              _emailOrPhoneNumberController,
+              null,
+            );;
           });
         },
       ),
@@ -183,17 +189,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
         readOnly: _loginPermission,
+        obscureText: _obscureText,
         controller: _passwordController,
         keyboardType: TextInputType.visiblePassword,
         decoration: InputDecoration(
           helperText: 'رمز عبور',
           hintText: 'لطفاً رمز عبور را وارد کنید.',
           errorText: _passwordError,
-          suffixIcon: const Icon(Ionicons.key_outline),
+          suffixIcon: InkWell(onTap: () {
+            setState(() {
+              _obscureText = _obscureText ? false : true;
+            });
+          }, child: Icon(_obscureText ? Ionicons.eye_off_outline : Ionicons.eye_outline),),
         ),
         onChanged: (String text) {
           setState(() {
-            _passwordError = null;
+            _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, null,);
           });
         },
       ),
@@ -226,10 +237,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, 'لطفاً رمز عبور را وارد کنید.',);
 
     if((_emailOrPhoneNumberError == null) && (_passwordError == null)) {
-      _customDio = await CustomDio.dio.post('login', data: {'email' : _emailOrPhoneNumberController.text, 'password' : _passwordController.text},);
+      _customDio = await Dio().post('https://kaghazsoti.uage.ir/api/login', data: {'email' : _emailOrPhoneNumberController.text, 'password' : _passwordController.text},);
 
       if(_customDio.statusCode == 200) {
         _customResponse = CustomResponse.fromJson(_customDio.data);
+
+
+
 
         _loginPermission = true;
 
@@ -237,9 +251,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           _emailOrPhoneNumberError = null;
           _passwordError = null;
 
-          tokenLogin = _customResponse.data['token'];
+          tokenLogin.$ = _customResponse.data['token'];
           await sharedPreferences.setString('tokenLogin', _customResponse.data['token']);
           await sharedPreferences.setBool('firstLogin', false);
+
+          headers = {
+            'Authorization' : 'Bearer ${tokenLogin.of(context)}',
+            'Accept': 'application/json',
+            'client': 'api'};
+
+          preparation();
 
           ScaffoldMessenger.of(context).showSnackBar(
             customSnackBar(
@@ -273,50 +294,56 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
   }
 
-  TextButton _forgotPasswordButton() {
-    return TextButton(
-      onPressed: () {
-        if (!_loginPermission) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return const PasswordRecoveryPage();
-              },
-            ),
-          );
-        }
-      },
-      child: Text(
-        'رمز عبورم را فراموش کرده ام.',
-        style: Theme.of(context)
-            .textTheme
-            .caption!
-            .copyWith(color: Theme.of(context).primaryColor),
-        overflow: TextOverflow.ellipsis,
+  SizedBox _forgotPasswordButton() {
+    return SizedBox(
+      width: 50.0.w,
+      child: TextButton(
+        onPressed: () {
+          if (!_loginPermission) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) {
+                  return const PasswordRecoveryPage();
+                },
+              ),
+            );
+          }
+        },
+        child: Text(
+          'رمز عبورم را فراموش کرده ام.',
+          style: Theme.of(context)
+              .textTheme
+              .caption!
+              .copyWith(color: Theme.of(context).primaryColor),
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     );
   }
 
-  TextButton _registrationButton() {
-    return TextButton(
-      onPressed: () {
-        if (!_loginPermission) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return const RegistrationPage();
-              },
-            ),
-          );
-        }
-      },
-      child: Text(
-        'ثبت نام نکرده ام.',
-        style: Theme.of(context)
-            .textTheme
-            .caption!
-            .copyWith(color: Theme.of(context).primaryColor),
-        overflow: TextOverflow.ellipsis,
+  SizedBox _registrationButton() {
+    return SizedBox(
+      width: 50.0.w,
+      child: TextButton(
+        onPressed: () {
+          if (!_loginPermission) {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) {
+                  return const RegistrationPage();
+                },
+              ),
+            );
+          }
+        },
+        child: Text(
+          'ثبت نام نکرده ام.',
+          style: Theme.of(context)
+              .textTheme
+              .caption!
+              .copyWith(color: Theme.of(context).primaryColor),
+          overflow: TextOverflow.ellipsis,
+        ),
       ),
     );
   }

@@ -47,7 +47,7 @@ class _AccountPageState extends State<AccountPage> {
 
   Future _initUserInformation() async {
     _customDio =
-        await CustomDio.dio.get('user', options: Options(headers: headers));
+        await CustomDio.dio.get('user');
 
     if (_customDio.statusCode == 200) {
       _firstAndLastNameController =

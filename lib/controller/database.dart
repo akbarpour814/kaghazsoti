@@ -12,11 +12,7 @@ import '/model/comment.dart';
 import '/model/user.dart';
 
 //late Database database;
-Map<String, String> headers =
-{
-  'Authorization' : 'Bearer 50|IEyWoGaAYripoLugW6mcaVN69n2gpjjNv0vNPYmA',
-  'Accept': 'application/json',
-  'client': 'api'};
+
 
 /*
 class Database {

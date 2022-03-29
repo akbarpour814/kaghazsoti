@@ -16,6 +16,7 @@ import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
 import '../../../model/book_introduction.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
+import '../login_pages/splash_page.dart';
 
 class MyLibraryPage extends StatefulWidget {
   const MyLibraryPage({Key? key}) : super(key: key);
@@ -41,6 +42,8 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   Future _initMyBooks() async {
     _customDio = await CustomDio.dio.get('dashboard/my_books');
 
+
+    print(headers);
     if(_customDio.statusCode == 200) {
       _myBooks.clear();
 
@@ -70,6 +73,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: _appBar(),
       body: _body(),

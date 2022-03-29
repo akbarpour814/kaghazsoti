@@ -238,7 +238,6 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
             'password': _newPasswordController.text,
             'password_confirmation': _repeatNewPasswordController.text
           },
-          options: Options(headers: headers),
         );
 
         CustomResponse customResponse =
