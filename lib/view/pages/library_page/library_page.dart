@@ -45,8 +45,22 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
 
       Map<String, dynamic> data = _customDio.data;
 
+      int lastPage = data['last_page'];
+
       for(Map<String, dynamic> bookIntroduction in data['data']) {
         _myBooks.add(BookIntroduction.fromJson(bookIntroduction));
+      }
+
+      for(int i = 2; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.get('dashboard/my_books', queryParameters: {'page': i},);
+
+        if(_customDio.statusCode == 200) {
+          data = _customDio.data;
+
+          for(Map<String, dynamic> bookIntroduction in data['data']) {
+            _myBooks.add(BookIntroduction.fromJson(bookIntroduction));
+          }
+        }
       }
     }
 
@@ -118,15 +132,20 @@ class _MyBookState extends State<MyBook> {
           audiobookInPlay = widget.book;
 
           audiobookInPlayId = -1;
+          player.stop();
           audioPlayer.stop();
+          demoPlayer.stop();
 
           audioIsPlaying.$ = false;
+          playing.$ = false;
           demoIsPlaying.$ = false;
+
+          player = audioPlayer;
 
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return const AudiobookPlayerPage();
+                return AudiobookPlayerPage();
               },
             ),
           );

@@ -22,23 +22,33 @@ class MarkedPage extends StatefulWidget {
 }
 
 class _MarkedPageState extends State<MarkedPage> {
-
-  @override
-  void initState() {
-
-    super.initState();
-  }
+  late Response<dynamic> _customDio;
+  late CustomResponse _customResponse;
 
   Future _initMarkedBooks() async {
-    Response<dynamic> _customDio = await CustomDio.dio.get('dashboard/users/wish');
+    _customDio = await CustomDio.dio.get('dashboard/users/wish');
 
     if(_customDio.statusCode == 200) {
       markedBooks.clear();
 
-      CustomResponse _customResponse = CustomResponse.fromJson(_customDio.data);
+      _customResponse = CustomResponse.fromJson(_customDio.data);
+
+      int lastPage = _customResponse.data['last_page'];
 
       for(Map<String, dynamic> bookIntroduction in _customResponse.data['data']) {
         markedBooks.add(BookIntroduction.fromJson(bookIntroduction));
+      }
+
+      for(int i = 2; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.get('dashboard/users/wish', queryParameters: {'page': i},);
+
+        if(_customDio.statusCode == 200) {
+          _customResponse = CustomResponse.fromJson(_customDio.data);
+
+          for(Map<String, dynamic> bookIntroduction in _customResponse.data['data']) {
+            markedBooks.add(BookIntroduction.fromJson(bookIntroduction));
+          }
+        }
       }
     }
 

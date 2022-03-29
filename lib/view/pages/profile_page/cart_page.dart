@@ -28,7 +28,6 @@ class _CartPageState extends State<CartPage> {
   late CustomResponse _customResponse;
   late bool _dataIsLoading;
   late List<Book> _cart;
-  late bool _issuanceOfPurchaseInvoicePermission;
   late bool _purchaseInvoiceWasIssued;
   Purchase? _purchaseInvoice;
 
@@ -36,7 +35,6 @@ class _CartPageState extends State<CartPage> {
   void initState() {
     _dataIsLoading = true;
     _cart = [];
-    _issuanceOfPurchaseInvoicePermission = true;
     _purchaseInvoiceWasIssued = false;
 
     super.initState();
@@ -67,6 +65,7 @@ class _CartPageState extends State<CartPage> {
       body: _body(),
       bottomNavigationBar: const PlayerBottomNavigationBar(),
       floatingActionButton: cartSlug.isNotEmpty ? _issuanceOfPurchaseInvoiceButton() : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
@@ -123,9 +122,11 @@ class _CartPageState extends State<CartPage> {
   Widget _innerBody() {
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: 16.0,
-          horizontal: 5.0.w,
+        padding: EdgeInsets.only(
+          left: 5.0.w,
+          top: 16.0,
+          right: 5.0.w,
+          bottom: _purchaseInvoiceWasIssued ? 8.0.h : 16.0,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -140,7 +141,7 @@ class _CartPageState extends State<CartPage> {
 
   Padding _books() {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: EdgeInsets.only(bottom: _purchaseInvoiceWasIssued ? 8.0 : 8.0.h),
       child: Container(
         padding: const EdgeInsets.all(18.0),
         decoration: BoxDecoration(

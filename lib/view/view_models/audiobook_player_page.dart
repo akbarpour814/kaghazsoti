@@ -77,6 +77,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
         onTap: () {
           setState(() {
             audioIsPlaying.$ = true;
+            playing.$ = true;
 
             Navigator.of(context).pop();
           });
@@ -90,8 +91,6 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
           onTap: () {
             setState(() {
               audioPlayer.stop();
-
-              audioPlayer = AudioPlayer();
 
               audioIsPlaying.$ = false;
               demoIsPlaying.$ = false;
@@ -259,6 +258,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
   Flexible _playOrPauseButton() {
     return Flexible(
       child: PlayOrPauseController(
+        audioPlayer: audioPlayer,
         playerBottomNavigationBar: false,
         demoIsPlaying: false,
       ),
@@ -286,6 +286,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: CustomProgressBar(
+        audioPlayer: audioPlayer,
         timeLabelLocation: TimeLabelLocation.below,
         baseBarColor: const Color(0xFFC6DADE).withOpacity(0.4),
         progressBarColor: const Color(0xFF005C6B),

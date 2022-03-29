@@ -4,10 +4,11 @@ import 'package:just_audio/just_audio.dart';
 import 'package:takfood_seller/main.dart';
 
 class PlayOrPauseController extends StatefulWidget {
+  late AudioPlayer audioPlayer;
   late bool playerBottomNavigationBar;
   late bool demoIsPlaying;
 
-  PlayOrPauseController({Key? key, required this.playerBottomNavigationBar, required this.demoIsPlaying,}) : super(key: key);
+  PlayOrPauseController({Key? key, required this.audioPlayer, required this.playerBottomNavigationBar, required this.demoIsPlaying,}) : super(key: key);
 
   @override
   _PlayOrPauseControllerState createState() => _PlayOrPauseControllerState();
@@ -20,7 +21,7 @@ class _PlayOrPauseControllerState extends State<PlayOrPauseController> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<PlayerState>(
-      stream: audioPlayer.playerStateStream,
+      stream: widget.audioPlayer.playerStateStream,
       builder: (context, snapshot) {
         final playerState = snapshot.data;
         final processingState = playerState?.processingState;
@@ -31,15 +32,15 @@ class _PlayOrPauseControllerState extends State<PlayOrPauseController> {
           playOrPauseFunction = null;
         } else if (playing != true) {
           playOrPauseIcon = const Icon(Ionicons.play_outline, color: Colors.white,);
-          playOrPauseFunction = audioPlayer.play;
+          playOrPauseFunction = widget.audioPlayer.play;
         } else if (processingState != ProcessingState.completed) {
           audioIsPlaying.$ = true;
           
           playOrPauseIcon = const Icon(Ionicons.pause_outline, color: Colors.white,);
-          playOrPauseFunction = audioPlayer.pause;
+          playOrPauseFunction = widget.audioPlayer.pause;
         } else {
           playOrPauseIcon = const Icon(Ionicons.refresh_outline, color: Colors.white,);
-          playOrPauseFunction = () => audioPlayer.seek(Duration.zero, index: audioPlayer.effectiveIndices!.first);
+          playOrPauseFunction = () => widget.audioPlayer.seek(Duration.zero, index: widget.audioPlayer.effectiveIndices!.first);
         }
 
         if(widget.playerBottomNavigationBar) {

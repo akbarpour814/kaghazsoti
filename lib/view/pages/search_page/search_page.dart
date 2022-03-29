@@ -51,9 +51,15 @@ class _SearchPageState extends State<SearchPage> {
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
       int lastPage = _customResponse.data['last_page'];
-      //lastPage = 1;
 
-      for (int i = 1; i <= lastPage; ++i) {
+      for (Map<String, dynamic> book in _customResponse.data['data']) {
+        BookIntroduction _book = BookIntroduction.fromJson(book);
+
+        _booksTemp.add(_book);
+        _books.add(_book);
+      }
+
+      for (int i = 2; i <= lastPage; ++i) {
         _customDio = await CustomDio.dio.post(
           'books',
           queryParameters: {'page': i},

@@ -51,15 +51,30 @@ class _SplashPageState extends State<SplashPage> {
     _customDio = await CustomDio.dio.get('dashboard/my_books');
 
     if(_customDio.statusCode == 200) {
+
       Map<String, dynamic> data = _customDio.data;
 
+      int lastPage = data['last_page'];
+
       for(Map<String, dynamic> bookIntroduction in data['data']) {
-        libraryId.add(bookIntroduction['id']);
+        markedBooksId.add(bookIntroduction['id']);
+      }
+
+      for(int i = 2; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.get('dashboard/my_books', queryParameters: {'page': i},);
+
+        if(_customDio.statusCode == 200) {
+          data = _customDio.data;
+
+          for(Map<String, dynamic> bookIntroduction in data['data']) {
+            markedBooksId.add(bookIntroduction['id']);
+          }
+        }
       }
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
-    _customDio = await CustomDio.dio.get('user', options: Options(headers: headers));
+    _customDio = await CustomDio.dio.get('user');
     if(_customDio.statusCode == 200) {
       userId = _customDio.data['id'];
     }

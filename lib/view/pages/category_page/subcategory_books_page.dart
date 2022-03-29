@@ -31,8 +31,22 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
 
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
+      int lastPage = _customResponse.data['last_page'];
+
       for(Map<String, dynamic> bookIntroduction in _customResponse.data['data']) {
         widget.subcategory.books.add(BookIntroduction.fromJson(bookIntroduction));
+      }
+
+      for(int i = 2; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.post('categories/${widget.subcategory.slug}', queryParameters: {'page': i},);
+
+        if(_customDio.statusCode == 200) {
+          _customResponse = CustomResponse.fromJson(_customDio.data);
+
+          for(Map<String, dynamic> bookIntroduction in _customResponse.data['data']) {
+            widget.subcategory.books.add(BookIntroduction.fromJson(bookIntroduction));
+          }
+        }
       }
     }
 

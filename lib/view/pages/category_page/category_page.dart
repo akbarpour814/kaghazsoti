@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:ionicons/ionicons.dart';
 //import '/controller/database.dart';
 import '../../../controller/custom_dio.dart';
@@ -18,6 +19,7 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
+  late  bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late List<Category> _categories;
@@ -30,23 +32,27 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Future _initCategories() async {
-    _customDio = await CustomDio.dio.post('categories');
+    _internetConnectionChecker = await InternetConnectionChecker().hasConnection;
 
-    if(_customDio.statusCode == 200) {
-      _categories.clear();
+    if(_internetConnectionChecker) {
+      _customDio = await CustomDio.dio.post('categories');
 
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+      if(_customDio.statusCode == 200) {
+        _categories.clear();
 
-      Map<String, IconData> categoriesIcon = {
-        'کتاب صوتی': Ionicons.musical_notes_outline,
-        'نامه صوتی': Ionicons.mail_open_outline,
-        'کتاب الکترونیکی': Ionicons.laptop_outline,
-        'پادکست': Ionicons.volume_medium_outline,
-        'کتاب کودک و نوجوان': Ionicons.happy_outline,
-      };
+        _customResponse = CustomResponse.fromJson(_customDio.data);
 
-      for(Map<String, dynamic> category in _customResponse.data) {
-        _categories.add(Category.fromJson(categoriesIcon[category['name']] ?? Ionicons.albums_outline, category));
+        Map<String, IconData> categoriesIcon = {
+          'کتاب صوتی': Ionicons.musical_notes_outline,
+          'نامه صوتی': Ionicons.mail_open_outline,
+          'کتاب الکترونیکی': Ionicons.laptop_outline,
+          'پادکست': Ionicons.volume_medium_outline,
+          'کتاب کودک و نوجوان': Ionicons.happy_outline,
+        };
+
+        for(Map<String, dynamic> category in _customResponse.data) {
+          _categories.add(Category.fromJson(categoriesIcon[category['name']] ?? Ionicons.albums_outline, category));
+        }
       }
     }
 

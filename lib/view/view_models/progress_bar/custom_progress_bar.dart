@@ -17,6 +17,7 @@ class CustomProgressBar extends StatefulWidget {
 
   CustomProgressBar({
     Key? key,
+    required this.audioPlayer,
     required this.timeLabelLocation,
     required this.baseBarColor,
     required this.progressBarColor,
@@ -33,11 +34,11 @@ class _CustomProgressBarState extends State<CustomProgressBar> {
   final ProgressNotifier _progressNotifier = ProgressNotifier();
 
   void seek(Duration position) {
-    audioPlayer.seek(position);
+    widget.audioPlayer.seek(position);
   }
 
   void _listenForChangesInPlayerPosition() {
-    audioPlayer.positionStream.listen((position) {
+    widget.audioPlayer.positionStream.listen((position) {
       final ProgressBarState oldState = _progressNotifier.value;
       _progressNotifier.value = ProgressBarState(
         current: position,
@@ -48,7 +49,7 @@ class _CustomProgressBarState extends State<CustomProgressBar> {
   }
 
   void _listenForChangesInBufferedPosition() {
-    audioPlayer.bufferedPositionStream.listen((bufferedPosition) {
+    widget.audioPlayer.bufferedPositionStream.listen((bufferedPosition) {
       final ProgressBarState oldState = _progressNotifier.value;
       _progressNotifier.value = ProgressBarState(
         current: oldState.current,
@@ -59,7 +60,7 @@ class _CustomProgressBarState extends State<CustomProgressBar> {
   }
 
   void _listenForChangesInTotalDuration() {
-    audioPlayer.durationStream.listen((totalDuration) {
+    widget.audioPlayer.durationStream.listen((totalDuration) {
       final ProgressBarState oldState = _progressNotifier.value;
       _progressNotifier.value = ProgressBarState(
         current: oldState.current,

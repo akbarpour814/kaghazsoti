@@ -44,8 +44,22 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
 
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
+      int lastPage = _customResponse.data['last_page'];
+
       for (Map<String, dynamic> purchase in _customResponse.data['data']) {
         _purchaseHistory.add(Purchase.fromJson(purchase));
+      }
+
+      for(int i = 2; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.post('dashboard/invoices', queryParameters: {'page': i},);
+
+        if(_customDio.statusCode == 200) {
+          _customResponse = CustomResponse.fromJson(_customDio.data);
+
+          for (Map<String, dynamic> purchase in _customResponse.data['data']) {
+            _purchaseHistory.add(Purchase.fromJson(purchase));
+          }
+        }
       }
 
       List<Purchase> _purchaseHistoryTemp = [];

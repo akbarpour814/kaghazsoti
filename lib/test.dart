@@ -1,104 +1,36 @@
-import 'dart:async';
+import 'package:zarinpal/zarinpal.dart';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+main() {
 
-void main() => runApp(new MyApp());
+// Initialize payment request
+  PaymentRequest _paymentRequest = PaymentRequest()
+    ..setIsSandBox(true) // if your application is in developer mode, then set the sandBox as True otherwise set sandBox as false
+    ..setMerchantID("31ef66ef-99ab-4a2e-b599-9b95a25d69e8")
+    ..setCallbackURL("Verfication Url callbacl"); //The callback can be an android scheme or a website URL, you and can pass any data with The callback for both scheme and  URL
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Flutter Demo',
-      theme: new ThemeData(
-        primarySwatch: Colors.purple,
-      ),
-      home: new MyHomePage(),
-    );
-  }
-}
 
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => new _MyHomePageState();
-}
+  String? _paymentUrl = null;
 
-class _MyHomePageState extends State<MyHomePage> {
-  List<String> items = ["1", "2", "3", "4", "5", "6", "7", "8"];
-  RefreshController _refreshController =
-  RefreshController(initialRefresh: false);
+  _paymentRequest.setAmount(10000);
+  _paymentRequest.setDescription("Payment Description");
+// Call Start payment
+  ZarinPal().startPayment(_paymentRequest, (int? status, String? paymentGatewayUri){
+    if(status == 100)
+      _paymentUrl  = paymentGatewayUri;  // launch URL in browser
+  });
 
-  void _onRefresh() async{
-    // monitor network fetch
-    await Future.delayed(Duration(milliseconds: 1000));
-    // if failed,use refreshFailed()
-    _refreshController.refreshCompleted();
-  }
 
-  void _onLoading() async{
-    // monitor network fetch
-    await Future.delayed(Duration(milliseconds: 1000));
-    // if failed,use loadFailed(),if no data return,use LoadNodata()
-    items.add((items.length+1).toString());
-    if(mounted)
-      setState(() {
 
-      });
-    _refreshController.loadComplete();
-  }
+  ZarinPal().verificationPayment("Status", "Authority Call back", _paymentRequest, (isPaymentSuccess,refID, paymentRequest){
+    if(isPaymentSuccess){
+      // Payment Is Success
+      print('moafagh');
+    }else{
+      // Error Print Status
+      print('na moafagh');
+    }
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: true,
-        header: const 	MaterialClassicHeader(),
 
-        footer: CustomFooter(
-          builder: (BuildContext? context,LoadStatus? mode){
-            Widget body ;
-            if(mode==LoadStatus.idle){
-              body =  Text("pull up load");
-            }
-            else if(mode==LoadStatus.loading){
-              body =  CupertinoActivityIndicator();
-            }
-            else if(mode == LoadStatus.failed){
-              body = Text("Load Failed!Click retry!");
-            }
-            else if(mode == LoadStatus.canLoading){
-              body = Text("سلام");
-            }
-            else{
-              body = Text("No more Data");
-            }
-            return Container(
-              height: 55.0,
-              child: Center(child:body),
-            );
-          },
-        ),
-        controller: _refreshController,
-        onRefresh: _onRefresh,
-        onLoading: _onLoading,
 
-        child: ListView.builder(
-          itemBuilder: (c, i) => Card(child: Center(child: Text(items[i]))),
-          itemExtent: 100.0,
-          itemCount: items.length,
-        ),
-      ),
-    );
-  }
-
-// from 1.5.0, it is not necessary to add this line
-//@override
-// void dispose() {
-// TODO: implement dispose
-//  _refreshController.dispose();
-//  super.dispose();
-// }
 }

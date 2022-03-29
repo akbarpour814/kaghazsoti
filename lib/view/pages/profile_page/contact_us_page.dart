@@ -55,8 +55,22 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
+      int lastPage = _customResponse.data['last_page'];
+
       for (Map<String, dynamic> comment in _customResponse.data['data']) {
         _comments.add(Comment.fromJson(comment));
+      }
+
+      for(int i = 2; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.get('dashboard/tickets', queryParameters: {'page': i},);
+
+        if(_customDio.statusCode == 200) {
+          _customResponse = CustomResponse.fromJson(_customDio.data);
+
+          for (Map<String, dynamic> comment in _customResponse.data['data']) {
+            _comments.add(Comment.fromJson(comment));
+          }
+        }
       }
 
       _displayOfDetails = List<bool>.generate(_comments.length, (index) => false);

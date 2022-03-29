@@ -37,7 +37,8 @@ class BookIntroductionPage extends StatefulWidget {
   _BookIntroductionPageState createState() => _BookIntroductionPageState();
 }
 
-class _BookIntroductionPageState extends State<BookIntroductionPage> with TickerProviderStateMixin {
+class _BookIntroductionPageState extends State<BookIntroductionPage>
+    with TickerProviderStateMixin {
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late bool _dataIsLoading;
@@ -46,13 +47,11 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
   String? _commentError;
   late TabController _tabController;
   late int _tabIndex;
-  late bool _commentPosted;
   late List<bool> _displayOfDetails;
   late int _previousIndex;
   late int _numberOfStars;
   late List<bool> _stars;
   late bool _availableInCart;
-
 
   @override
   void initState() {
@@ -63,7 +62,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
       vsync: this,
     );
     _tabIndex = 0;
-    _commentPosted = false;
 
     _previousIndex = -1;
     _numberOfStars = 0;
@@ -73,14 +71,16 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
   }
 
   Future _initBook() async {
-    _customDio = await CustomDio.dio.post('books/${widget.bookIntroduction.slug}');
+    _customDio =
+        await CustomDio.dio.post('books/${widget.bookIntroduction.slug}');
 
-    if(_customDio.statusCode == 200) {
+    if (_customDio.statusCode == 200) {
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
       _book = Book.fromJson(_customResponse.data);
 
-      _displayOfDetails = List<bool>.generate(_book.reviews.length, (index) => false);
+      _displayOfDetails =
+          List<bool>.generate(_book.reviews.length, (index) => false);
 
       _availableInCart = cartSlug.contains(_book.slug);
 
@@ -105,13 +105,15 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
       leading: InkWell(
         child: Icon(
           Ionicons.bookmark_outline,
-          color: markedBooksId.contains(widget.bookIntroduction.id) ? Colors.pinkAccent : Colors.white,
+          color: markedBooksId.contains(widget.bookIntroduction.id)
+              ? Colors.pinkAccent
+              : Colors.white,
         ),
         onTap: () {
           setState(() {
             _setMarkedBooks();
 
-            if(markedBooksId.contains(widget.bookIntroduction.id)) {
+            if (markedBooksId.contains(widget.bookIntroduction.id)) {
               markedBooksId.remove(widget.bookIntroduction.id);
             } else {
               markedBooksId.add(widget.bookIntroduction.id);
@@ -136,20 +138,20 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
   }
 
   void _setMarkedBooks() async {
-    await CustomDio.dio.post('dashboard/users/wish', data: {'book_id': _book.id});
+    await CustomDio.dio
+        .post('dashboard/users/wish', data: {'book_id': _book.id});
   }
 
   Widget _body() {
     return _dataIsLoading
         ? FutureBuilder(
-      builder:
-          (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? _innerBody()
-            : const Center(child: CustomCircularProgressIndicator());
-      },
-      future: _initBook(),
-    )
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              return snapshot.hasData
+                  ? _innerBody()
+                  : const Center(child: CustomCircularProgressIndicator());
+            },
+            future: _initBook(),
+          )
         : _innerBody();
   }
 
@@ -159,7 +161,10 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w,),
+            padding: EdgeInsets.symmetric(
+              vertical: 16.0,
+              horizontal: 5.0.w,
+            ),
             child: Column(
               children: [
                 _bookCover(),
@@ -206,49 +211,41 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
         Positioned(
           left: 2.5.w,
           bottom: 2.5.w,
-          /*child: FloatingActionButton(
-            onPressed: () {
-              setState(() {
-                audioIsPlaying.$ = true;
-                demoIsPlaying.$ = true;
+          child: (playing.of(context)) && (audiobookInPlayId == _book.id)
+              ? PlayOrPauseController(
+                  audioPlayer: demoPlayer,
+                  playerBottomNavigationBar: false,
+                  demoIsPlaying: true,
+                )
+              : FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      parts.clear();
 
-                audioPlayer.setUrl(widget.book.demo);
+                      player.stop();
+                      audioPlayer.stop();
+                      demoPlayer.stop();
 
-                audioPlayer.play();
-              });
-            },
-            child: const Icon(
-              Ionicons.play_outline,
-              color: Colors.white,
-            ),
-          ),*/
-          child: (audioIsPlaying.of(context)) && (audiobookInPlayId == _book.id) ? PlayOrPauseController(playerBottomNavigationBar: false, demoIsPlaying: true,) : FloatingActionButton(
-            onPressed: () {
-              setState(() {
+                      audiobookInPlayId = _book.id;
 
-                parts.clear();
+                      demoPlayer.setUrl(_book.demo);
 
+                      player = demoPlayer;
 
+                      demoIsPlaying.$ = true;
 
-                audiobookInPlayId = _book.id;
-
-                audioPlayer.setUrl(_book.demo);
-
-                demoIsPlaying.$ = true;
-
-                audioIsPlaying.$ = true;
-              });
-            },
-            child: const Icon(
-              Ionicons.play_outline,
-              color: Colors.white,
-            ),
-          ),
+                      playing.$ = true;
+                    });
+                  },
+                  child: const Icon(
+                    Ionicons.play_outline,
+                    color: Colors.white,
+                  ),
+                ),
         ),
       ],
     );
   }
-
 
   Padding _bookPricesAndVotes() {
     return Padding(
@@ -261,22 +258,18 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ShowStars(numberOfStars: _book.numberOfStars,),
+                ShowStars(
+                  numberOfStars: _book.numberOfStars,
+                ),
                 Text(
                   '${_book.numberOfVotes.toString()} رای',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .caption,
+                  style: Theme.of(context).textTheme.caption,
                 )
               ],
             ),
             Text(
               libraryId.contains(_book.id) ? 'موجود در کتابخانه' : _book.price,
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .headline5,
+              style: Theme.of(context).textTheme.headline5,
             ),
           ],
         ),
@@ -293,11 +286,12 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
           onPressed: () {
             _setCart();
           },
-          label: Text(_availableInCart ? 'حذف از سبد خرید' : 'افزودن به سبد خرید'),
+          label:
+              Text(_availableInCart ? 'حذف از سبد خرید' : 'افزودن به سبد خرید'),
           icon: Icon(
-            _availableInCart ?
-              Ionicons.bag_remove_outline :
-              Ionicons.bag_add_outline,
+            _availableInCart
+                ? Ionicons.bag_remove_outline
+                : Ionicons.bag_add_outline,
           ),
         ),
       ),
@@ -306,7 +300,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
 
   void _setCart() async {
     setState(() {
-      if(_availableInCart) {
+      if (_availableInCart) {
         cartSlug.remove(_book.slug);
       } else {
         cartSlug.add(_book.slug);
@@ -322,9 +316,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Material(
-        color: Theme
-            .of(context)
-            .primaryColor,
+        color: Theme.of(context).primaryColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(5.0)),
         child: DefaultTabController(
           length: 3,
@@ -356,9 +348,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
   Widget _tab(int index) {
     OutlineInputBorder _outlineInputBorder = OutlineInputBorder(
       borderSide: BorderSide(
-        color: Theme
-            .of(context)
-            .primaryColor,
+        color: Theme.of(context).primaryColor,
       ),
       borderRadius: BorderRadius.circular(5.0),
     );
@@ -366,9 +356,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
     Container _bookSpecifications = Container(
       padding: const EdgeInsets.all(18.0),
       decoration: BoxDecoration(
-        border: Border.all(color: Theme
-            .of(context)
-            .primaryColor),
+        border: Border.all(color: Theme.of(context).primaryColor),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(5.0)),
       ),
       child: Column(
@@ -383,7 +371,8 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
             ),
           ),
           Visibility(
-            visible: (_book.category.isNotEmpty) && (_book.subcategory.isNotEmpty),
+            visible:
+                (_book.category.isNotEmpty) && (_book.subcategory.isNotEmpty),
             child: Property(
               property: 'دسته',
               value: '${_book.category} - ${_book.subcategory}',
@@ -496,9 +485,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
     Container _aboutBook = Container(
       padding: const EdgeInsets.all(18.0),
       decoration: BoxDecoration(
-        border: Border.all(color: Theme
-            .of(context)
-            .primaryColor),
+        border: Border.all(color: Theme.of(context).primaryColor),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(5.0)),
       ),
       child: Column(
@@ -517,14 +504,9 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
           Center(
             child: Text(
               'قسمتی از کتاب ${_book.name}',
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .headline5!
-                  .copyWith(color: Theme
-                  .of(context)
-                  .primaryColor,
-              ),
+              style: Theme.of(context).textTheme.headline5!.copyWith(
+                    color: Theme.of(context).primaryColor,
+                  ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -538,29 +520,32 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
         ],
       ),
     );
-    Visibility _comments = Visibility(visible: !_book.reviewed, child: Container(
-      padding: const EdgeInsets.all(18.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme
-            .of(context)
-            .primaryColor),
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(5.0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('نظر شما:', style: TextStyle(color: Theme.of(context).primaryColor),),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 18.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List<InkWell>.generate(
-                5,
-                    (index) =>
-                    InkWell(
+    Visibility _comments = Visibility(
+        visible: !_book.reviewed,
+        child: Container(
+          padding: const EdgeInsets.all(18.0),
+          decoration: BoxDecoration(
+            border: Border.all(color: Theme.of(context).primaryColor),
+            borderRadius:
+                const BorderRadius.vertical(bottom: Radius.circular(5.0)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'نظر شما:',
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 18.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List<InkWell>.generate(
+                    5,
+                    (index) => InkWell(
                       onTap: () {
                         setState(() {
-                          if(_stars[index]) {
+                          if (_stars[index]) {
                             _stars[index] = false;
 
                             _numberOfStars--;
@@ -574,65 +559,70 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                       child: Icon(
                         Icons.star,
                         size: 25.0.sp,
-                        color: _stars[index] ? Colors.amber : Colors.amber.withOpacity(0.4),
+                        color: _stars[index]
+                            ? Colors.amber
+                            : Colors.amber.withOpacity(0.4),
                       ),
                     ),
+                  ),
+                ),
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 18.0),
-            child: TextField(
-              controller: _commentController,
-              decoration: InputDecoration(
-                errorText: _commentError,
-                hintText: 'لطفاً نظر خود را بنویسید.',
-                border: _outlineInputBorder,
-                focusedBorder: _outlineInputBorder,
-                disabledBorder: _outlineInputBorder,
-                enabledBorder: _outlineInputBorder,
-                errorBorder: _outlineInputBorder,
-                focusedErrorBorder: _outlineInputBorder,
-              ),
-              maxLines: 8,
-              cursorColor: Theme.of(context).dividerColor.withOpacity(0.6),
-              cursorWidth: 1.0,
-              onChanged: (String text) {
-                setState(() {
-                  if(_commentController.text.length < 3) {
-                    _commentError = 'نظر شما باید بیش از حرف داشته باشد.';
-                  } else {
-                    _commentError = null;
-                  }
-                });
-              },
-            ),
-          ),
-          Center(
-            child: Center(
-              child: SizedBox(
-                width: 100.0.w - (2 * 18.0) - (2 * 5.0.w),
-                child: ElevatedButton.icon(
-                  onPressed: () {
+              Padding(
+                padding: const EdgeInsets.only(bottom: 18.0),
+                child: TextField(
+                  controller: _commentController,
+                  decoration: InputDecoration(
+                    errorText: _commentError,
+                    hintText: 'لطفاً نظر خود را بنویسید.',
+                    border: _outlineInputBorder,
+                    focusedBorder: _outlineInputBorder,
+                    disabledBorder: _outlineInputBorder,
+                    enabledBorder: _outlineInputBorder,
+                    errorBorder: _outlineInputBorder,
+                    focusedErrorBorder: _outlineInputBorder,
+                  ),
+                  maxLines: 8,
+                  cursorColor: Theme.of(context).dividerColor.withOpacity(0.6),
+                  cursorWidth: 1.0,
+                  onChanged: (String text) {
                     setState(() {
-                      if(_commentController.text.isEmpty) {
-                        _commentError = 'لطفاً نظر خود را بنویسید.';
-                      } else if(_commentController.text.length < 3) {
+                      if (_commentController.text.length < 3) {
                         _commentError = 'نظر شما باید بیش از حرف داشته باشد.';
                       } else {
-                        _commentRegistration();
+                        _commentError = null;
                       }
                     });
                   },
-                  label: const Text('ثبت نظر',),
-                  icon: const Icon(Ionicons.checkmark_outline),
                 ),
               ),
-            ),
+              Center(
+                child: Center(
+                  child: SizedBox(
+                    width: 100.0.w - (2 * 18.0) - (2 * 5.0.w),
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          if (_commentController.text.isEmpty) {
+                            _commentError = 'لطفاً نظر خود را بنویسید.';
+                          } else if (_commentController.text.length < 3) {
+                            _commentError =
+                                'نظر شما باید بیش از حرف داشته باشد.';
+                          } else {
+                            _commentRegistration();
+                          }
+                        });
+                      },
+                      label: const Text(
+                        'ثبت نظر',
+                      ),
+                      icon: const Icon(Ionicons.checkmark_outline),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-    ));
+        ));
 
     late final List<Widget> _tabs = [
       _bookSpecifications,
@@ -716,9 +706,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                     Text(
                       title,
                       style: TextStyle(
-                        color: Theme
-                            .of(context)
-                            .primaryColor,
+                        color: Theme.of(context).primaryColor,
                       ),
                     ),
                     OutlinedButton(
@@ -728,8 +716,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                           MaterialPageRoute(
                             builder: (context) {
                               return BooksPage(
-                                title:
-                                '$title با کتاب ${_book.name}',
+                                title: '$title با کتاب ${_book.name}',
                                 books: books,
                               );
                             },
@@ -778,16 +765,19 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
     return Visibility(
       visible: (_book.reviews.isNotEmpty) && (_tabIndex == 2),
       child: Padding(
-        padding: EdgeInsets.only(left: 5.0.w, top: 0.0, right: 5.0.w, bottom: 16.0,),
+        padding: EdgeInsets.only(
+          left: 5.0.w,
+          top: 0.0,
+          right: 5.0.w,
+          bottom: 16.0,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'نظرات کاربران',
               style: TextStyle(
-                color: Theme
-                    .of(context)
-                    .primaryColor,
+                color: Theme.of(context).primaryColor,
               ),
             ),
             Divider(
@@ -797,7 +787,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
             Column(
               children: List.generate(
                 _book.reviews.length,
-                    (index) => Padding(
+                (index) => Padding(
                   padding: EdgeInsets.only(
                     top: 0.0,
                     bottom: index == _book.reviews.length - 1 ? 0.0 : 8.0,
@@ -812,15 +802,18 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                     decoration: BoxDecoration(
                       border: Border.all(color: Theme.of(context).primaryColor),
                       borderRadius:
-                      const BorderRadius.all(Radius.circular(5.0)),
+                          const BorderRadius.all(Radius.circular(5.0)),
                     ),
                     child: Column(
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('${_book.reviews[index].id == userId ? 'نظر شما' : _book.reviews[index].name}'),
-                            ShowStars(numberOfStars: _book.reviews[index].numberOfStars,),
+                            Text(
+                                '${_book.reviews[index].id == userId ? 'نظر شما' : _book.reviews[index].name}'),
+                            ShowStars(
+                              numberOfStars: _book.reviews[index].numberOfStars,
+                            ),
                           ],
                         ),
                         Visibility(

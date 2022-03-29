@@ -10,7 +10,7 @@ import 'package:sizer/sizer.dart';
 import 'audiobook_player_page.dart';
 
 class PlayerBottomNavigationBar extends StatefulWidget {
-  const PlayerBottomNavigationBar({Key? key}) : super(key: key);
+  const PlayerBottomNavigationBar({Key? key,}) : super(key: key);
 
   @override
   _PlayerBottomNavigationBarState createState() =>
@@ -18,9 +18,10 @@ class PlayerBottomNavigationBar extends StatefulWidget {
 }
 
 class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
+
   @override
   Widget build(BuildContext context) {
-    if (audioIsPlaying.of(context)) {
+    if (playing.of(context)) {
       return Container(
         padding: const EdgeInsets.all(8.0),
         color: const Color(0xFF005C6B),
@@ -48,11 +49,9 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
       child: InkWell(
         onTap: () {
           setState(() {
-            audioPlayer.stop();
+            player.stop();
 
-            audioPlayer = AudioPlayer();
-
-            audioIsPlaying.$ = false;
+            playing.$ = false;
             demoIsPlaying.$ = false;
 
             audiobookInPlayId = -1;
@@ -90,6 +89,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
     return SizedBox(
       width: 75.0.w,
       child: CustomProgressBar(
+        audioPlayer: player,
         timeLabelLocation: TimeLabelLocation.none,
         baseBarColor: Colors.white,
         progressBarColor: const Color(0xFF55929C),
@@ -102,7 +102,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
 
   Flexible _playOrPauseButton() {
     return Flexible(
-      child: PlayOrPauseController(playerBottomNavigationBar: true, demoIsPlaying: false,),
+      child: PlayOrPauseController(audioPlayer: player, playerBottomNavigationBar: true, demoIsPlaying: false,),
     );
   }
 }

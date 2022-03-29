@@ -31,8 +31,11 @@ import 'view/pages/profile_page/profile_page.dart';
 
 SharedValue<bool> audioIsPlaying = SharedValue(value: false);
 SharedValue<bool> demoIsPlaying = SharedValue(value: false);
+SharedValue<bool> playing = SharedValue(value: false);
 
-//AudioPlayer audioPlayer = AudioPlayer();
+AudioPlayer audioPlayer = AudioPlayer();
+AudioPlayer demoPlayer = AudioPlayer();
+AudioPlayer player = AudioPlayer();
 
 BookIntroduction? audiobookInPlay;
 int audiobookInPlayId = -1;
@@ -107,7 +110,6 @@ class MyApp extends StatelessWidget {
               theme: _theme(),
               darkTheme: _darkTheme(),
               themeMode: currentMode,
-              routes: {'/audiobook_player_page' : (BuildContext context) => AudiobookPlayerPage()},
               builder: (context, child) => Directionality(
                 textDirection: TextDirection.rtl,
                 child: XXXX(child!),
