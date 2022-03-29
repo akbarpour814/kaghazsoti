@@ -61,7 +61,7 @@ void main() {
     ),
   );
 }
-
+final String fontFamily = 'Vazir';
 void xxx() {
   InternetConnectionChecker().onStatusChange.listen(
     (InternetConnectionStatus status) {
@@ -98,7 +98,7 @@ class MyApp extends StatelessWidget {
     },
   );
   final Color _primaryColor = const Color(0xFF005C6B);
-  final String _fontFamily = 'Vazir';
+
 
   const MyApp({Key? key}) : super(key: key);
 
@@ -129,15 +129,15 @@ class MyApp extends StatelessWidget {
 
   ThemeData _theme(BuildContext context) {
     return ThemeData(
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       primarySwatch: generateMaterialColor(color: _primaryColor),
       primaryColor: _primaryColor,
       scaffoldBackgroundColor: Colors.white,
       dividerColor: _primaryColor,
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         centerTitle: true,
         titleTextStyle: TextStyle(
-          fontFamily: 'Vazir',
+          fontFamily: fontFamily,
         ),
       ),
       cardTheme: _cardTheme(),
@@ -151,7 +151,7 @@ class MyApp extends StatelessWidget {
   ThemeData _darkTheme(BuildContext context) {
     return ThemeData(
       brightness: Brightness.dark,
-      fontFamily: _fontFamily,
+      fontFamily: fontFamily,
       primarySwatch: generateMaterialColor(color: _primaryColor),
       primaryColor: _primaryColor,
       scaffoldBackgroundColor: Colors.black,
@@ -160,8 +160,8 @@ class MyApp extends StatelessWidget {
       appBarTheme: AppBarTheme(
         backgroundColor: _primaryColor,
         centerTitle: true,
-        titleTextStyle: const TextStyle(
-          fontFamily: 'Vazir',
+        titleTextStyle: TextStyle(
+          fontFamily: fontFamily,
         ),
       ),
       cardTheme: _cardTheme(),
@@ -225,7 +225,7 @@ class MyApp extends StatelessWidget {
         textStyle: MaterialStateProperty.all(Theme.of(context)
             .textTheme
             .caption!
-            .copyWith(fontFamily: _fontFamily)),
+            .copyWith(fontFamily: fontFamily)),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(

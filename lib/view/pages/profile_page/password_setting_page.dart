@@ -118,7 +118,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
               style: TextStyle(
                 color:
                     _obscureText ? Theme.of(context).primaryColor : Colors.grey,
-                fontFamily: 'Vazir',
+                fontFamily: fontFamily,
               ),
             ),
           ),

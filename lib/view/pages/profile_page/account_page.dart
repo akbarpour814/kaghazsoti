@@ -161,7 +161,7 @@ class _AccountPageState extends State<AccountPage> {
                 color: _permissionToEdit
                     ? Theme.of(context).primaryColor
                     : Colors.grey,
-                fontFamily: 'Vazir',
+                fontFamily: fontFamily,
               ),
             ),
           ),

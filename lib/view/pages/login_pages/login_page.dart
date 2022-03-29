@@ -8,6 +8,7 @@ import 'package:takfood_seller/view/pages/login_pages/registration_page.dart';
 import 'package:takfood_seller/view/view_models/custom_text_field.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../main.dart';
 import '../../view_models/custom_snack_bar.dart';
 
 class LoginPage extends StatefulWidget {
@@ -121,7 +122,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               text: 'ایمیل ',
               style: TextStyle(
                 color: Theme.of(context).primaryColor,
-                fontFamily: 'Vazir',
+                fontFamily: fontFamily,
               ),
               children: const <TextSpan>[
                 TextSpan(

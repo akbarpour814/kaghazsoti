@@ -3,6 +3,8 @@ import 'package:ionicons/ionicons.dart';
 import 'package:takfood_seller/view/view_models/custom_text_field.dart';
 import 'package:sizer/sizer.dart';
 
+import '../../../main.dart';
+
 class PasswordRecoveryPage extends StatefulWidget {
   const PasswordRecoveryPage({Key? key}) : super(key: key);
 
@@ -88,7 +90,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
                     child: RichText(
                       text: TextSpan(
                         text: 'ایمیل ',
-                        style: TextStyle(color: Theme.of(context).primaryColor, fontFamily: 'Vazir',),
+                        style: TextStyle(color: Theme.of(context).primaryColor, fontFamily: fontFamily,),
                         children: const <TextSpan>[
                           TextSpan(text: 'یا ', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold,),),
                           TextSpan(text: 'تلفن همراه', style: TextStyle(color: Colors.grey,),),

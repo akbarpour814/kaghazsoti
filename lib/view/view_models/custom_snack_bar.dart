@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../main.dart';
+
 SnackBar customSnackBar(BuildContext context, IconData contentIcon, String contentText) {
   return SnackBar(
     backgroundColor: Theme.of(context).primaryColor,
@@ -18,9 +20,9 @@ SnackBar customSnackBar(BuildContext context, IconData contentIcon, String conte
         ),
         Text(
           contentText,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-            fontFamily: 'Vazir',
+            fontFamily: fontFamily,
           ),
         ),
       ],
