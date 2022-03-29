@@ -110,6 +110,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           helperText: _emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه',
+                          hintText: 'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه'} خود را وارد کنید.',
                           errorText: false ? '' : null,
                           suffixIcon: Icon(
                               _emailOrPhoneNumber ? Ionicons.mail_outline : Ionicons.phone_portrait_outline,
@@ -126,6 +127,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
                         keyboardType: TextInputType.phone,
                         decoration: const InputDecoration(
                           helperText: 'رمز عبور جدید',
+                          hintText: 'لطفاً رمز عبور جدید را وارد کنید.',
                           errorText: false ? '' : null,
                           suffixIcon: Icon(
                             Ionicons.key_outline
@@ -144,6 +146,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage> {
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
                             helperText: 'کد بازیابی',
+                            hintText: 'لطفاً کد بازیابی را وارد کنید.',
                             errorText: false ? '' : null,
                             suffixIcon: Icon(
                                 Ionicons.code_working_outline

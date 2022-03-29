@@ -81,6 +81,7 @@ class _GiftPageState extends State<GiftPage> {
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
                     helperText: 'کد هدیه',
+
                     errorText: false ? '' : null,
                     suffixIcon: Icon(
                         Ionicons.code_working_outline

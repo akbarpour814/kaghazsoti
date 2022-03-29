@@ -137,6 +137,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         keyboardType: TextInputType.visiblePassword,
         decoration: InputDecoration(
           helperText: 'رمز عبور قبلی',
+          hintText: 'لطفاً رمز عبور قبلی را وارد کنید.',
           errorText: _previousPasswordError,
           suffixIcon: const Icon(Ionicons.key_outline),
         ),
@@ -160,6 +161,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         keyboardType: TextInputType.visiblePassword,
         decoration: InputDecoration(
           helperText: 'رمز عبور جدید',
+          hintText: 'لطفاً رمز عبور جدید را وارد کنید.',
           errorText: _newPasswordError,
           suffixIcon: const Icon(Ionicons.key),
         ),
@@ -182,6 +184,7 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         keyboardType: TextInputType.visiblePassword,
         decoration: InputDecoration(
           helperText: 'تکرار رمز عبور جدید',
+          hintText: 'لطفاً رمز عبور جدید را تکرار کنید.',
           errorText: _repeatNewPasswordError,
           suffixIcon: const Icon(Ionicons.refresh_outline),
         ),

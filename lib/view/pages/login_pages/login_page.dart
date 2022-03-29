@@ -154,6 +154,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           helperText: _emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه',
+          hintText: 'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه'} خود را وارد کنید.',
           errorText: _emailOrPhoneNumberError ? _emailOrPhoneNumber ? '' : '' : null,
           suffixIcon: Icon(
             _emailOrPhoneNumber

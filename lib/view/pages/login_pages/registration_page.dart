@@ -140,6 +140,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         keyboardType: TextInputType.name,
         decoration: InputDecoration(
           helperText: 'نام و نام خانوادگی',
+          hintText: 'لطفاً نام و نام خانوادگی خود را وارد کنید.',
           errorText: _firstAndLastNameError,
           suffixIcon: const Icon(Ionicons.person_outline),
         ),
@@ -161,6 +162,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           helperText: 'ایمیل',
+          hintText: 'لطفاً ایمیل خود را وارد کنید.',
           errorText: _emailError,
           suffixIcon: const Icon(Ionicons.mail_outline),
         ),
@@ -182,6 +184,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         keyboardType: TextInputType.phone,
         decoration: InputDecoration(
           helperText: 'تلفن همراه',
+          hintText: 'لطفاً شماره تلفن همراه خود را وارد کنید.',
           errorText: _phoneNumberError,
           suffixIcon: const Icon(Ionicons.phone_portrait_outline),
         ),
@@ -203,7 +206,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         controller: _passwordController,
         keyboardType: TextInputType.visiblePassword,
         decoration: InputDecoration(
-          helperText: 'رمز عبور جدید',
+          helperText: 'رمز عبور',
+          hintText: 'لطفاً رمز عبور را وارد کنید.',
           errorText: _passwordError,
           suffixIcon: const Icon(Ionicons.key),
         ),
@@ -225,7 +229,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         controller: _repeatPasswordController,
         keyboardType: TextInputType.visiblePassword,
         decoration: InputDecoration(
-          helperText: 'تکرار رمز عبور جدید',
+          helperText: 'تکرار رمز عبور',
+          hintText: 'لطفاً رمز عبور را تکرار کنید.',
           errorText: _repeatPasswordError,
           suffixIcon: const Icon(Ionicons.refresh_outline),
         ),

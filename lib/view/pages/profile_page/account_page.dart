@@ -179,6 +179,7 @@ class _AccountPageState extends State<AccountPage> {
         keyboardType: TextInputType.name,
         decoration: InputDecoration(
           helperText: 'نام و نام خانوادگی',
+          hintText: 'لطفاً نام و نام خانوادگی خود را وارد کنید.',
           errorText: _firstAndLastNameError,
           suffixIcon: const Icon(Ionicons.person_outline),
         ),
@@ -202,6 +203,7 @@ class _AccountPageState extends State<AccountPage> {
         keyboardType: TextInputType.emailAddress,
         decoration: InputDecoration(
           helperText: 'ایمیل',
+          hintText: 'لطفاً ایمیل خود را وارد کنید.',
           errorText: _emailError,
           suffixIcon: const Icon(Ionicons.mail_outline),
         ),
@@ -224,6 +226,7 @@ class _AccountPageState extends State<AccountPage> {
         keyboardType: TextInputType.phone,
         decoration: InputDecoration(
           helperText: 'تلفن همراه',
+          hintText: 'لطفاً شماره تلفن همراه خود را وارد کنید.',
           errorText: _phoneNumberError,
           suffixIcon: const Icon(Ionicons.phone_portrait_outline),
         ),
