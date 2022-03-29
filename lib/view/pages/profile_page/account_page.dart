@@ -21,6 +21,7 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
+  late  bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late TextEditingController _firstAndLastNameController;
   late TextEditingController _emailController;

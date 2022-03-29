@@ -20,6 +20,7 @@ class SubcategoryBooksPage extends StatefulWidget {
 }
 
 class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
+  late  bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
 

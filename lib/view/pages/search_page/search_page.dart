@@ -19,6 +19,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  late  bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late bool _dataIsLoading;

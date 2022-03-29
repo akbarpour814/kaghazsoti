@@ -19,6 +19,7 @@ class PurchaseHistoryPage extends StatefulWidget {
 }
 
 class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
+  late  bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late bool _dataIsLoading;

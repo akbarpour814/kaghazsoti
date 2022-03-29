@@ -25,6 +25,7 @@ class AudiobookPlayerPage extends StatefulWidget {
 
 class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
 
+  late  bool _internetConnectionChecker;
   Future _initParts() async {
     Response<dynamic> _customDio = await CustomDio.dio
         .post('dashboard/books/${audiobookInPlay!.slug}/audio');

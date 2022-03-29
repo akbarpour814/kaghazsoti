@@ -22,6 +22,7 @@ class MarkedPage extends StatefulWidget {
 }
 
 class _MarkedPageState extends State<MarkedPage> {
+  late  bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
 

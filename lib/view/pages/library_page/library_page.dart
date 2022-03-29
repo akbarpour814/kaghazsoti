@@ -25,6 +25,7 @@ class MyLibraryPage extends StatefulWidget {
 }
 
 class _MyLibraryPageState extends State<MyLibraryPage> {
+  late  bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse customResponse;
 
