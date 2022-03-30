@@ -170,6 +170,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                 _bookCover(),
                 _bookPricesAndVotes(),
                 _cartButton(),
+                _addToLibraryButton(),
                 _tabsTopic(),
                 _tab(_tabIndex),
               ],
@@ -278,7 +279,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
   Visibility _cartButton() {
     return Visibility(
-      visible: !libraryId.contains(_book.id),
+      visible: (!libraryId.contains(_book.id)) && (!_book.price.contains('رایگان')),
       child: SizedBox(
         width: 100.0.w - (2 * 5.0.w),
         child: ElevatedButton.icon(
@@ -292,6 +293,28 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                 ? Ionicons.bag_remove_outline
                 : Ionicons.bag_add_outline,
           ),
+          style: ButtonStyle(shape: MaterialStateProperty.all(
+            const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+            ),
+          ),),
+        ),
+      ),
+    );
+  }
+
+  Visibility _addToLibraryButton() {
+    return Visibility(
+      visible: (!libraryId.contains(_book.id)) && (_book.price.contains('رایگان')),
+      child: SizedBox(
+        width: 100.0.w - (2 * 5.0.w),
+        child: ElevatedButton.icon(
+          onPressed: () {
+
+          },
+          label:
+          const Text('افزودن به کتابخانه'),
+          icon: const Icon(Ionicons.library_outline),
           style: ButtonStyle(shape: MaterialStateProperty.all(
             const RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),

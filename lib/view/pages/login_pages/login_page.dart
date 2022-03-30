@@ -34,7 +34,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   late bool _emailOrPhoneNumber;
   late bool _obscureText;
 
-  late CustomResponse _informationConfirmResponse;
 
   @override
   void initState() {
@@ -220,10 +219,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             _informationConfirm();
           });
         },
-        label: Text(_loginPermission ? _informationConfirmResponse.success ? 'خوش آمدید' : '' : 'بررسی اطلاعات برای ورود'),
-        icon: Icon(_loginPermission
-            ? Ionicons.checkmark_done_outline
-            : Ionicons.checkmark_outline),
+        label: const Text('بررسی اطلاعات برای ورود'),
+        icon: const Icon(Ionicons.checkmark_outline),
       ),
     );
   }
@@ -237,56 +234,68 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, 'لطفاً رمز عبور را وارد کنید.',);
 
     if((_emailOrPhoneNumberError == null) && (_passwordError == null)) {
-      _customDio = await Dio().post('https://kaghazsoti.uage.ir/api/login', data: {'email' : _emailOrPhoneNumberController.text, 'password' : _passwordController.text},);
+     try {
+       _customDio = await Dio().post('https://kaghazsoti.uage.ir/api/login', data: {'email' : _emailOrPhoneNumberController.text, 'password' : _passwordController.text},);
 
-      if(_customDio.statusCode == 200) {
-        _customResponse = CustomResponse.fromJson(_customDio.data);
+       if(_customDio.statusCode == 200) {
+         _customResponse = CustomResponse.fromJson(_customDio.data);
+
+         _loginPermission = true;
+
+         if(_customResponse.success) {
+           _emailOrPhoneNumberError = null;
+           _passwordError = null;
 
 
+           await sharedPreferences.setString('tokenLogin', _customResponse.data['token']);
+           await sharedPreferences.setBool('firstLogin', false);
+           setState(() {
 
+             tokenLogin.$ = _customResponse.data['token'];
 
-        _loginPermission = true;
+             headers = {
+               'Authorization' : 'Bearer ${tokenLogin.of(context)}',
+               'Accept': 'application/json',
+               'client': 'api'};
+           });
 
-        if(_customResponse.success) {
-          _emailOrPhoneNumberError = null;
-          _passwordError = null;
+           preparation();
 
-          tokenLogin.$ = _customResponse.data['token'];
-          await sharedPreferences.setString('tokenLogin', _customResponse.data['token']);
-          await sharedPreferences.setBool('firstLogin', false);
+           ScaffoldMessenger.of(context).showSnackBar(
+             customSnackBar(
+               context,
+               Ionicons.checkmark_done_outline,
+               'به کاغذ صوتی خوش آمدید.',
+               2,
+             ),
+           );
 
-          headers = {
-            'Authorization' : 'Bearer ${tokenLogin.of(context)}',
-            'Accept': 'application/json',
-            'client': 'api'};
+           Future.delayed(const Duration(seconds: 3), () {
+             Navigator.pushReplacement(
+               context,
+               MaterialPageRoute(
+                 builder: (context) => const PersistentBottomNavigationBar(),
+               ),
+             );
+           });
 
-          preparation();
+         } else {
+           setState(() {
+             _emailOrPhoneNumberError = 'کاربری با ایمیل وارد شده یافت نشد.';
+             _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            customSnackBar(
-              context,
-              Ionicons.checkmark_done_outline,
-              'به کاغذ صوتی خوش آمدید.',
-              2,
-            ),
-          );
+             _loginPermission = false;
+           });
+         }
+       }
+     } catch(e) {
+       setState(() {
+         _emailOrPhoneNumberError = 'کاربری با ایمیل وارد شده یافت نشد.';
+         _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
-          Future.delayed(const Duration(seconds: 3), () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PersistentBottomNavigationBar(),
-              ),
-            );
-          });
-
-        } else {
-          _emailOrPhoneNumberError = 'کاربری با ایمیل وارد شده یافت نشد.';
-          _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
-
-          _loginPermission = false;
-        }
-      }
+         _loginPermission = false;
+       });
+     }
     }
 
 

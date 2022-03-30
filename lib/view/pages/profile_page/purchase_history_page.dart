@@ -309,7 +309,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
               width: 100.0.w - (2 * 18.0) - (2 * 5.0.w),
               child: ElevatedButton.icon(
                 onPressed: () {},
-                label: const Text('خرید با پرداخت اینترنتی'),
+                label: const Text('خرید'),
                 icon: const Icon(Ionicons.card_outline),
               ),
             ),
