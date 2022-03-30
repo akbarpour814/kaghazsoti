@@ -186,8 +186,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   InkWell _logOut() {
     return InkWell(
-      onTap: () async {
-        await sharedPreferences.setBool('firstLogin', true);
+      onTap: () {
+        xxx();
 
         Restart.restartApp();
       },
@@ -205,5 +205,11 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  void xxx() async {
+    await sharedPreferences.setBool('firstLogin', true);
+
+    await sharedPreferences.setStringList('cartSlug', []);
   }
 }

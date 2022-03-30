@@ -1,7 +1,10 @@
+import 'package:html/dom.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:takfood_seller/main.dart';
 import 'package:takfood_seller/model/book_introduction.dart';
 import 'package:takfood_seller/model/price_format.dart';
+import 'package:html/parser.dart';
+
 
 class Book {
   late int id;
@@ -65,8 +68,18 @@ class Book {
     marked = markedBooksId.contains(product['id']);
     numberOfVotes = product['vote'] ?? 0;
     numberOfStars = double.parse(product['rating'] ?? 0.0).toInt();
-    aboutBook = 'aboutBook';
-    partOfTheBook = 'partOfTheBook';
+
+    aboutBook = product['description'] ?? '';
+    Document document = parse(aboutBook);
+
+    aboutBook = parse(document.body!.text).documentElement!.text;
+    aboutBook = aboutBook.replaceAll('  ', '');
+
+    partOfTheBook = product['summery'] ?? '';
+    document = parse(partOfTheBook);
+
+    partOfTheBook = parse(document.body!.text).documentElement!.text;
+    partOfTheBook = partOfTheBook.replaceAll('  ', '');
     /////////////////////////
 
 
