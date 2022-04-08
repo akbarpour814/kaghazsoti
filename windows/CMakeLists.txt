@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(takfood_seller LANGUAGES CXX)
+project(kaghaze_souti LANGUAGES CXX)
 
-set(BINARY_NAME "takfood_seller")
+set(BINARY_NAME "kaghaze_souti")
 
 cmake_policy(SET CMP0063 NEW)
 
