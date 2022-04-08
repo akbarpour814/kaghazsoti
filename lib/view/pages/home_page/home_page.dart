@@ -116,16 +116,20 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  SingleChildScrollView _innerBody() {
-    return SingleChildScrollView(
-      child: Column(
-        children: List<HomePageCategoryView>.generate(
-          _homePageCategoriesData.length,
-          (index) => HomePageCategoryView(
-            homePageCategoryData: _homePageCategoriesData[index],
-          ),
-        ),
-      ),
+  RefreshIndicator _innerBody() {
+    return RefreshIndicator(
+      onRefresh: () { return _initHomePageCategoriesData(); },
+      child: ListView.builder(itemBuilder: (BuildContext context, int index) { return HomePageCategoryView(
+        homePageCategoryData: _homePageCategoriesData[index],
+      );}, itemCount: _homePageCategoriesData.length,),
+      // child: Column(
+      //   children: List<HomePageCategoryView>.generate(
+      //     _homePageCategoriesData.length,
+      //     (index) => HomePageCategoryView(
+      //       homePageCategoryData: _homePageCategoriesData[index],
+      //     ),
+      //   ),
+      // ),
     );
   }
 }
