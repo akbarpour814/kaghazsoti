@@ -16,16 +16,18 @@ class BooksListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int numberOfChildren = (100.0.w / 170.0).ceil();
+
     return SizedBox(
       height: 22.0.h,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: List.generate(
-          books.length >= 5 ? 5 : books.length,
+          books.length >= numberOfChildren + 4 ? numberOfChildren + 4 : books.length,
           (index) => Padding(
             padding: EdgeInsets.only(
-              left: 5.0.w,
-              right: index == 0 ? 5.0.w : 0.0,
+              left: 20.0,
+              right: index == 0 ? 20.0 : 0.0,
             ),
             child: InkWell(
               onTap: () {
@@ -42,7 +44,7 @@ class BooksListView extends StatelessWidget {
                   border: Border.all(color: Theme.of(context).primaryColor),
                   borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                 ),
-                width: 35.0.w,
+                width: 150.0,
                 height: 22.0.h,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -66,7 +68,7 @@ class BooksListView extends StatelessWidget {
   Container _bookCover(int index) {
     return Container(
       //color: Colors.white,
-      width: 35.0.w,
+      width: 150.0,
       height: 18.0.h,
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(
