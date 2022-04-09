@@ -99,7 +99,7 @@ class _AccountPageState extends State<AccountPage> {
               (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             return snapshot.hasData
                 ? _innerBody()
-                : const CustomCircularProgressIndicator();
+                : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
           },
           future: _initUserInformation(),
         )

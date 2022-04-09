@@ -94,7 +94,7 @@ class _MarkedPageState extends State<MarkedPage> {
           (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         return snapshot.hasData
             ? _innerBody()
-            : const Center(child: CustomCircularProgressIndicator());
+            : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
       },
       future: _initMarkedBooks(),
     );

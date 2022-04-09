@@ -92,7 +92,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   }
 
   FutureBuilder _body() {
-    return FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _innerBody() : const Center(child: CustomCircularProgressIndicator());}, future: _initMyBooks(),);
+    return FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _innerBody() : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));}, future: _initMyBooks(),);
   }
 
   Widget _innerBody() {

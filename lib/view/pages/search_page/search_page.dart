@@ -48,11 +48,11 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
   }
 
-  Future _initBooks(int currentPage) async {
+  Future _initBooks() async {
 
     _customDio = await CustomDio.dio.post(
       'books',
-      queryParameters: {'page': currentPage},
+      queryParameters: {'page': _currentPage},
     );
 
     if (_customDio.statusCode == 200) {
@@ -61,6 +61,12 @@ class _SearchPageState extends State<SearchPage> {
 
       _lastPage = _customResponse.data['last_page'];
 
+      if(_currentPage == 1) {
+
+        _books.clear();
+        _booksTemp.clear();
+
+      }
 
       for (Map<String, dynamic> book in _customResponse.data['data']) {
         BookIntroduction _book = BookIntroduction.fromJson(book);
@@ -103,9 +109,9 @@ class _SearchPageState extends State<SearchPage> {
           (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         return snapshot.hasData
             ? _innerBody()
-            : const Center(child: CustomCircularProgressIndicator());
+            : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
       },
-      future: _initBooks(_currentPage),
+      future: _initBooks(),
     )
         : _innerBody();
   }
@@ -225,7 +231,7 @@ class _SearchPageState extends State<SearchPage> {
                 body =  Text("pull up load");
               }
               else if(mode==LoadStatus.loading){
-                body =  Center(child: CustomCircularProgressIndicator());
+                body =  Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
               }
               else if(mode == LoadStatus.failed){
                 body = Text("Load Failed!Click retry!");
@@ -286,10 +292,10 @@ class _SearchPageState extends State<SearchPage> {
     try {
       // monitor network fetch
       setState(() {
-        _books.clear();
-        _currentPage = 0;
+        _currentPage = 1;
 
-        _initBooks(_currentPage);
+        _initBooks();
+
       });
       await Future.delayed(Duration(milliseconds: 1000));
       // if failed,use refreshFailed()
@@ -306,7 +312,7 @@ class _SearchPageState extends State<SearchPage> {
         setState(() {
           _currentPage++;
 
-          _initBooks(_currentPage);
+          _initBooks();
         });
       }
       await Future.delayed(Duration(milliseconds: 1000));

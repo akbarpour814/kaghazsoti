@@ -89,7 +89,7 @@ class _CategoryPageState extends State<CategoryPage> {
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         return snapshot.hasData
             ? _innerBody()
-            : const Center(child: CustomCircularProgressIndicator());
+            : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
       },
       future: _initCategories(),
     );

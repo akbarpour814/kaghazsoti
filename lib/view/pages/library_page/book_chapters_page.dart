@@ -87,7 +87,7 @@ class _BookChaptersPageState extends State<BookChaptersPage> {
           ),
               ),),
         ),
-      ): const Center(child: CustomCircularProgressIndicator()); }, future: _initMediaItems(),),
+      ): Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.')); }, future: _initMediaItems(),),
     );
   }
 }
