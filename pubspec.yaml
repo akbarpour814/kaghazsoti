@@ -52,6 +52,8 @@ dependencies:
 
   pull_to_refresh: ^2.0.0
 
+  new_version: ^0.3.0
+
 
 
   zarinpal: ^1.0.4+1
