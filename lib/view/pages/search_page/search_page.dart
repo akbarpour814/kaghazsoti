@@ -64,18 +64,25 @@ class _SearchPageState extends State<SearchPage> {
       if(_currentPage == 1) {
 
         _books.clear();
-        _booksTemp.clear();
 
       }
 
       for (Map<String, dynamic> book in _customResponse.data['data']) {
         BookIntroduction _book = BookIntroduction.fromJson(book);
-
-        _booksTemp.add(_book);
         _books.add(_book);
       }
 
+      _booksTemp.clear();
+      _booksTemp.addAll(_books);
+
+
+
       _dataIsLoading = false;
+
+      setState(() {
+        refresh = false;
+        load = false;
+      });
     }
 
     return _customDio;
@@ -109,7 +116,7 @@ class _SearchPageState extends State<SearchPage> {
           (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         return snapshot.hasData
             ? _innerBody()
-            : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+            :  Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
       },
       future: _initBooks(),
     )
@@ -227,20 +234,33 @@ class _SearchPageState extends State<SearchPage> {
           footer: CustomFooter(
             builder: (BuildContext? context,LoadStatus? mode){
               Widget body ;
-              if(mode==LoadStatus.idle){
-                body =  Text("pull up load");
+              if(mode==LoadStatus.idle && _currentPage == _lastPage) {
+                body = Text(
+                  'کتاب دیگری یافت نشد.',
+                  style: TextStyle(
+                    color: Theme.of(context!).primaryColor,
+                  ),
+                );
+              }
+              else if(mode==LoadStatus.idle){
+                body =  Center(child: CustomCircularProgressIndicator(message: 'لطفاً صفحه را بالا بکشید.'));
               }
               else if(mode==LoadStatus.loading){
-                body =  Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+                body =   Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
               }
               else if(mode == LoadStatus.failed){
-                body = Text("Load Failed!Click retry!");
+                body = Center(child: CustomCircularProgressIndicator(message: 'لطفاً دوباره امتحان کنید.'));
               }
               else if(mode == LoadStatus.canLoading){
-                body = Text("release to load more");
+                body = Center(child: CustomCircularProgressIndicator(message: 'لطفاً صفحه را پایین بکشید.'));
               }
               else{
-                body = Text("No more Data");
+                body = Text(
+                  'کتاب دیگری یافت نشد.',
+                  style: TextStyle(
+                    color: Theme.of(context!).primaryColor,
+                  ),
+                );
               }
               return Container(
                 height: 55.0,
@@ -249,15 +269,15 @@ class _SearchPageState extends State<SearchPage> {
             },
           ),
           controller: _refreshController,
-          onRefresh: _onRefresh,
-          onLoading: _onLoading,
+          onRefresh: load ? null : _onRefresh,
+          onLoading: refresh ? null : _onLoading,
           child: ListView.builder(
             itemBuilder: (BuildContext context, int index) => BookShortIntroduction(
               book: _booksTemp[index],
               searchTopic: _searchTopic,
               searchKey: _searchKey,
             ),
-            itemCount: _books.length,
+            itemCount: _booksTemp.length,
             itemExtent: 15.8.h,
           ),
         ),
@@ -288,13 +308,23 @@ class _SearchPageState extends State<SearchPage> {
     }*/
   }
 
+  bool refresh = false;
+  bool load = false;
   void _onRefresh() async{
     try {
       // monitor network fetch
       setState(() {
-        _currentPage = 1;
+        refresh = load ? false : true;
+        if(refresh) {
+          _currentPage = 1;
 
-        _initBooks();
+          _initBooks();
+
+          print(_currentPage);
+          print('refresh');
+          print(refresh);
+          print(load);
+        }
 
       });
       await Future.delayed(Duration(milliseconds: 1000));
@@ -308,11 +338,23 @@ class _SearchPageState extends State<SearchPage> {
 
   void _onLoading() async{
     try {
-      if(_currentPage+1 <= _lastPage) {
+      print(  '${_currentPage} xxxx');
+      if(_currentPage < _lastPage) {
         setState(() {
-          _currentPage++;
+          load = refresh ? false : true;
+          print(  '$load xxxx');
+          if(load) {
+            _currentPage++;
 
-          _initBooks();
+            print('xxxx');
+            _initBooks();
+
+            print(_currentPage);
+            print('load');
+            print(load);
+            print(refresh);
+          }
+
         });
       }
       await Future.delayed(Duration(milliseconds: 1000));
