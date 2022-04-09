@@ -21,7 +21,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  late  bool _internetConnectionChecker;
+  late bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late bool _dataIsLoading;
@@ -49,22 +49,18 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future _initBooks() async {
-
     _customDio = await CustomDio.dio.post(
       'books',
       queryParameters: {'page': _currentPage},
     );
 
     if (_customDio.statusCode == 200) {
-
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
       _lastPage = _customResponse.data['last_page'];
 
-      if(_currentPage == 1) {
-
+      if (_currentPage == 1) {
         _books.clear();
-
       }
 
       for (Map<String, dynamic> book in _customResponse.data['data']) {
@@ -74,8 +70,6 @@ class _SearchPageState extends State<SearchPage> {
 
       _booksTemp.clear();
       _booksTemp.addAll(_books);
-
-
 
       _dataIsLoading = false;
 
@@ -115,14 +109,15 @@ class _SearchPageState extends State<SearchPage> {
   Widget _body() {
     return _dataIsLoading
         ? FutureBuilder(
-      builder:
-          (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? _innerBody()
-            :  Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
-      },
-      future: _initBooks(),
-    )
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              return snapshot.hasData
+                  ? _innerBody()
+                  : Center(
+                      child: CustomCircularProgressIndicator(
+                          message: 'لطفاً شکیبا باشید.'));
+            },
+            future: _initBooks(),
+          )
         : _innerBody();
   }
 
@@ -136,7 +131,7 @@ class _SearchPageState extends State<SearchPage> {
           ),
           child: Column(
             children: [
-             /* _selectASearchTopic(),
+              /* _selectASearchTopic(),
               const Divider(
                 height: 32.0,
               ),*/
@@ -208,26 +203,25 @@ class _SearchPageState extends State<SearchPage> {
         controller: _textEditingController,
         keyboardType: TextInputType.text,
         decoration: InputDecoration(
-          helperText: '${_searchTopic.title} مورد نظر',
-          hintText: 'لطفاً ${_searchTopic.title} مورد نظر را وارد کنید.',
+          helperText: 'عبارت جست و جو',
+          hintText: 'لطفاً عبارت مورد نظر را بنویسید.',
           errorText: false ? '' : null,
           suffixIcon: const Icon(Ionicons.search_outline),
         ),
         onChanged: (String text) {
-         setState(() {
+          setState(() {
+            if (_textEditingController.text.isEmpty) {
+              _x = null;
 
-
-           if(_textEditingController.text.isEmpty) {
-             _x = null;
-
-             _booksTemp.clear();
-             _booksTemp.addAll(_books);
-             noKetab = false;
-           } else {
-             _x = _textEditingController.text;
-             _initSearch();
-           }
-         });
+              _booksTemp.clear();
+              _booksTemp.addAll(_books);
+              noKetab = false;
+            } else {
+              _x = _textEditingController.text;
+              loadSearch = true;
+              _initSearch();
+            }
+          });
         },
       ),
     );
@@ -236,6 +230,8 @@ class _SearchPageState extends State<SearchPage> {
   String? _x;
 
   List<BookIntroduction> _searchBook = [];
+
+  bool loadSearch = true;
   Future _initSearch() async {
     _customDio = await CustomDio.dio.post(
       'search',
@@ -245,9 +241,8 @@ class _SearchPageState extends State<SearchPage> {
     if (_customDio.statusCode == 200) {
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
-
       setState(() {
-        if(_customResponse.data['books'] == null) {
+        if (_customResponse.data['books'] == null) {
           noKetab = true;
         } else {
           _searchBook.clear();
@@ -258,6 +253,8 @@ class _SearchPageState extends State<SearchPage> {
 
           _booksTemp.clear();
           _booksTemp.addAll(_searchBook);
+
+          loadSearch = false;
         }
       });
     }
@@ -268,30 +265,24 @@ class _SearchPageState extends State<SearchPage> {
   bool noKetab = false;
 
   late RefreshController _refreshController;
-  Widget _searchResults() {
 
-    if(_x == null) {
+  Widget _searchResults() {
+    if (_x == null) {
       return ghablSerch();
     } else {
-      return FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? ((noKetab) && (_x != null)
-            ? Expanded(
-          child: Center(
-            child: Text(
-                'کتابی با ${_searchTopic.title} «$_x» یافت نشد.'),
-          ),
-        )
-            : ghablSerch())
-            : Expanded(
-            child: Center(
-                child: CustomCircularProgressIndicator(
-                    message: 'لطفاً شکیبا باشید.')));
-      }, future: _initSearch(),);
+      return loadSearch ? FutureBuilder(
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          return snapshot.hasData
+              ? ((noKetab) && (_x != null)
+              ? Expanded(child: Center(child: Text('کتابی با عبارت جست و جوی «$_x» یافت نشد.'),),)
+              : badSearch())
+              : Expanded(child: Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.')));
+        },
+        future: _initSearch(),
+      ) : badSearch();
     }
 
-
-    /*if ((_booksTemp.isEmpty) && (_searchKey != '')) {
+   /* if ((_booksTemp.isEmpty) && (_searchKey != '')) {
       return Expanded(
         child: Center(
           child: Text('کتابی با ${_searchTopic.title} «$_searchKey» یافت نشد.'),
@@ -315,6 +306,23 @@ class _SearchPageState extends State<SearchPage> {
     }*/
   }
 
+  Widget badSearch() {
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          children: List.generate(
+            _booksTemp.length,
+                (index) => BookShortIntroduction(
+              book: _booksTemp[index],
+              searchTopic: _searchTopic,
+              searchKey: _searchKey,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget ghablSerch() {
     return Expanded(
       child: SmartRefresher(
@@ -324,8 +332,7 @@ class _SearchPageState extends State<SearchPage> {
         footer: CustomFooter(
           builder: (BuildContext? context, LoadStatus? mode) {
             Widget body;
-            if ((mode == LoadStatus.idle &&
-                _currentPage == _lastPage) ||
+            if ((mode == LoadStatus.idle && _currentPage == _lastPage) ||
                 _textEditingController.text.isNotEmpty) {
               print('mod 1');
 
@@ -338,9 +345,14 @@ class _SearchPageState extends State<SearchPage> {
             } else if (mode == LoadStatus.idle) {
               print('mod 2');
 
-              body = Center(
-                  child: CustomCircularProgressIndicator(
-                      message: 'لطفاً صفحه را بالا بکشید.'));
+
+              body = Text(
+                'لطفاً صفحه را بالا بکشید.',
+                style: TextStyle(
+                  color: Theme.of(context!).primaryColor,
+                ),
+              );
+
             } else if (mode == LoadStatus.loading) {
               print('mod 3');
 
@@ -381,10 +393,10 @@ class _SearchPageState extends State<SearchPage> {
         child: ListView.builder(
           itemBuilder: (BuildContext context, int index) =>
               BookShortIntroduction(
-                book: _booksTemp[index],
-                searchTopic: _searchTopic,
-                searchKey: _searchKey,
-              ),
+            book: _booksTemp[index],
+            searchTopic: _searchTopic,
+            searchKey: _searchKey,
+          ),
           itemCount: _booksTemp.length,
           itemExtent: 15.8.h,
         ),
@@ -394,61 +406,60 @@ class _SearchPageState extends State<SearchPage> {
 
   bool refresh = false;
   bool load = false;
-  void _onRefresh() async{
-   if(_textEditingController.text.isEmpty) {
-     try {
-       // monitor network fetch
-       setState(() {
-         refresh = load ? false : true;
-         if(refresh) {
-           _currentPage = 1;
 
-           _initBooks();
+  void _onRefresh() async {
+    if (_textEditingController.text.isEmpty) {
+      try {
+        // monitor network fetch
+        setState(() {
+          refresh = load ? false : true;
+          if (refresh) {
+            _currentPage = 1;
 
-           print(_currentPage);
-           print('refresh');
-           print(refresh);
-           print(load);
-         }
+            _initBooks();
 
-       });
-       await Future.delayed(Duration(milliseconds: 1000));
-       // if failed,use refreshFailed()
+            print(_currentPage);
+            print('refresh');
+            print(refresh);
+            print(load);
+          }
+        });
+        await Future.delayed(Duration(milliseconds: 1000));
+        // if failed,use refreshFailed()
 
-       _refreshController.refreshCompleted();
-     } catch(e) {
-       _refreshController.refreshFailed();
-     }
-   } else {
-     try {
-       // monitor network fetch
-       setState(() {
-         refresh = load ? false : true;
-         if(refresh) {
-           _initSearch();
-         }
+        _refreshController.refreshCompleted();
+      } catch (e) {
+        _refreshController.refreshFailed();
+      }
+    } else {
+      try {
+        // monitor network fetch
+        setState(() {
+          refresh = load ? false : true;
+          if (refresh) {
+            _initSearch();
+          }
+        });
+        await Future.delayed(Duration(milliseconds: 1000));
+        // if failed,use refreshFailed()
 
-       });
-       await Future.delayed(Duration(milliseconds: 1000));
-       // if failed,use refreshFailed()
-
-       _refreshController.refreshCompleted();
-     } catch(e) {
-       _refreshController.refreshFailed();
-     }
-   }
+        _refreshController.refreshCompleted();
+      } catch (e) {
+        _refreshController.refreshFailed();
+      }
+    }
   }
 
-  void _onLoading() async{
-    if(_textEditingController.text.isEmpty) {
+  void _onLoading() async {
+    if (_textEditingController.text.isEmpty) {
       try {
         print('${_currentPage} xxxx');
 
-        if(_currentPage < _lastPage) {
+        if (_currentPage < _lastPage) {
           setState(() {
             load = refresh ? false : true;
-            print(  '$load xxxx');
-            if(load) {
+            print('$load xxxx');
+            if (load) {
               _currentPage++;
 
               print('xxxx');
@@ -459,7 +470,6 @@ class _SearchPageState extends State<SearchPage> {
               print(load);
               print(refresh);
             }
-
           });
         }
         await Future.delayed(Duration(milliseconds: 1000));
@@ -470,7 +480,7 @@ class _SearchPageState extends State<SearchPage> {
         //
         //   });
         _refreshController.loadComplete();
-      } catch(e) {
+      } catch (e) {
         _refreshController.loadFailed();
       }
     } else {
@@ -478,11 +488,9 @@ class _SearchPageState extends State<SearchPage> {
         setState(() {
           load = refresh ? false : true;
 
-          if(load) {
-
+          if (load) {
             _initSearch();
           }
-
         });
         await Future.delayed(Duration(milliseconds: 1000));
         // if failed,use loadFailed(),if no data return,use LoadNodata()
@@ -492,7 +500,7 @@ class _SearchPageState extends State<SearchPage> {
         //
         //   });
         _refreshController.loadComplete();
-      } catch(e) {
+      } catch (e) {
         _refreshController.loadFailed();
       }
     }
