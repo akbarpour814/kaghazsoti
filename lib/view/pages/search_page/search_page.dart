@@ -82,6 +82,9 @@ class _SearchPageState extends State<SearchPage> {
       setState(() {
         refresh = false;
         load = false;
+
+        print('load $load');
+        print('refresh $refresh');
       });
     }
 
@@ -211,78 +214,82 @@ class _SearchPageState extends State<SearchPage> {
           suffixIcon: const Icon(Ionicons.search_outline),
         ),
         onChanged: (String text) {
-          _booksUpdate();
+         setState(() {
+
+
+           if(_textEditingController.text.isEmpty) {
+             _x = null;
+
+             _booksTemp.clear();
+             _booksTemp.addAll(_books);
+             noKetab = false;
+           } else {
+             _x = _textEditingController.text;
+             _initSearch();
+           }
+         });
         },
       ),
     );
   }
 
-  late RefreshController _refreshController;
-  Expanded _searchResults() {
-    if ((_booksTemp.isEmpty) && (_searchKey != '')) {
-      return Expanded(
-        child: Center(
-          child: Text('کتابی با ${_searchTopic.title} «$_searchKey» یافت نشد.'),
-        ),
-      );
-    } else {
-      return Expanded(
-        child: SmartRefresher(
-          enablePullDown: true,
-          enablePullUp: true,
-          header: MaterialClassicHeader(),
-          footer: CustomFooter(
-            builder: (BuildContext? context,LoadStatus? mode){
-              Widget body ;
-              if(mode==LoadStatus.idle && _currentPage == _lastPage) {
-                body = Text(
-                  'کتاب دیگری یافت نشد.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              }
-              else if(mode==LoadStatus.idle){
-                body =  Center(child: CustomCircularProgressIndicator(message: 'لطفاً صفحه را بالا بکشید.'));
-              }
-              else if(mode==LoadStatus.loading){
-                body =   Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
-              }
-              else if(mode == LoadStatus.failed){
-                body = Center(child: CustomCircularProgressIndicator(message: 'لطفاً دوباره امتحان کنید.'));
-              }
-              else if(mode == LoadStatus.canLoading){
-                body = Center(child: CustomCircularProgressIndicator(message: 'لطفاً صفحه را پایین بکشید.'));
-              }
-              else{
-                body = Text(
-                  'کتاب دیگری یافت نشد.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              }
-              return Container(
-                height: 55.0,
-                child: Center(child:body),
-              );
-            },
-          ),
-          controller: _refreshController,
-          onRefresh: load ? null : _onRefresh,
-          onLoading: refresh ? null : _onLoading,
-          child: ListView.builder(
-            itemBuilder: (BuildContext context, int index) => BookShortIntroduction(
-              book: _booksTemp[index],
-              searchTopic: _searchTopic,
-              searchKey: _searchKey,
-            ),
-            itemCount: _booksTemp.length,
-            itemExtent: 15.8.h,
-          ),
-        ),
-      );
+  String? _x;
+
+  List<BookIntroduction> _searchBook = [];
+  Future _initSearch() async {
+    _customDio = await CustomDio.dio.post(
+      'search',
+      data: {'q': _textEditingController.text},
+    );
+
+    if (_customDio.statusCode == 200) {
+      _customResponse = CustomResponse.fromJson(_customDio.data);
+
+
+      setState(() {
+        if(_customResponse.data['books'] == null) {
+          noKetab = true;
+        } else {
+          _searchBook.clear();
+
+          for (Map<String, dynamic> book in _customResponse.data['books']) {
+            _searchBook.add(BookIntroduction.fromJson(book));
+          }
+
+          _booksTemp.clear();
+          _booksTemp.addAll(_searchBook);
+        }
+      });
     }
+
+    return _customDio;
+  }
+
+  bool noKetab = false;
+
+  late RefreshController _refreshController;
+  Widget _searchResults() {
+
+    if(_x == null) {
+      return ghablSerch();
+    } else {
+      return FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        return snapshot.hasData
+            ? ((noKetab) && (_x != null)
+            ? Expanded(
+          child: Center(
+            child: Text(
+                'کتابی با ${_searchTopic.title} «$_x» یافت نشد.'),
+          ),
+        )
+            : ghablSerch())
+            : Expanded(
+            child: Center(
+                child: CustomCircularProgressIndicator(
+                    message: 'لطفاً شکیبا باشید.')));
+      }, future: _initSearch(),);
+    }
+
 
     /*if ((_booksTemp.isEmpty) && (_searchKey != '')) {
       return Expanded(
@@ -308,65 +315,186 @@ class _SearchPageState extends State<SearchPage> {
     }*/
   }
 
+  Widget ghablSerch() {
+    return Expanded(
+      child: SmartRefresher(
+        enablePullDown: true,
+        enablePullUp: true,
+        header: MaterialClassicHeader(),
+        footer: CustomFooter(
+          builder: (BuildContext? context, LoadStatus? mode) {
+            Widget body;
+            if ((mode == LoadStatus.idle &&
+                _currentPage == _lastPage) ||
+                _textEditingController.text.isNotEmpty) {
+              print('mod 1');
+
+              body = Text(
+                'کتاب دیگری یافت نشد.',
+                style: TextStyle(
+                  color: Theme.of(context!).primaryColor,
+                ),
+              );
+            } else if (mode == LoadStatus.idle) {
+              print('mod 2');
+
+              body = Center(
+                  child: CustomCircularProgressIndicator(
+                      message: 'لطفاً صفحه را بالا بکشید.'));
+            } else if (mode == LoadStatus.loading) {
+              print('mod 3');
+
+              body = Center(
+                  child: CustomCircularProgressIndicator(
+                      message: 'لطفاً شکیبا باشید.'));
+            } else if (mode == LoadStatus.failed) {
+              print('mod 4');
+
+              body = Center(
+                  child: CustomCircularProgressIndicator(
+                      message: 'لطفاً دوباره امتحان کنید.'));
+            } else if (mode == LoadStatus.canLoading) {
+              print('mod 5');
+
+              body = Center(
+                  child: CustomCircularProgressIndicator(
+                      message: 'لطفاً صفحه را پایین بکشید.'));
+            } else {
+              print('mod 6');
+
+              body = Text(
+                'کتاب دیگری یافت نشد.',
+                style: TextStyle(
+                  color: Theme.of(context!).primaryColor,
+                ),
+              );
+            }
+            return Container(
+              height: 55.0,
+              child: Center(child: body),
+            );
+          },
+        ),
+        controller: _refreshController,
+        onRefresh: load ? null : _onRefresh,
+        onLoading: refresh ? null : _onLoading,
+        child: ListView.builder(
+          itemBuilder: (BuildContext context, int index) =>
+              BookShortIntroduction(
+                book: _booksTemp[index],
+                searchTopic: _searchTopic,
+                searchKey: _searchKey,
+              ),
+          itemCount: _booksTemp.length,
+          itemExtent: 15.8.h,
+        ),
+      ),
+    );
+  }
+
   bool refresh = false;
   bool load = false;
   void _onRefresh() async{
-    try {
-      // monitor network fetch
-      setState(() {
-        refresh = load ? false : true;
-        if(refresh) {
-          _currentPage = 1;
+   if(_textEditingController.text.isEmpty) {
+     try {
+       // monitor network fetch
+       setState(() {
+         refresh = load ? false : true;
+         if(refresh) {
+           _currentPage = 1;
 
-          _initBooks();
+           _initBooks();
 
-          print(_currentPage);
-          print('refresh');
-          print(refresh);
-          print(load);
-        }
+           print(_currentPage);
+           print('refresh');
+           print(refresh);
+           print(load);
+         }
 
-      });
-      await Future.delayed(Duration(milliseconds: 1000));
-      // if failed,use refreshFailed()
+       });
+       await Future.delayed(Duration(milliseconds: 1000));
+       // if failed,use refreshFailed()
 
-      _refreshController.refreshCompleted();
-    } catch(e) {
-      _refreshController.refreshFailed();
-    }
+       _refreshController.refreshCompleted();
+     } catch(e) {
+       _refreshController.refreshFailed();
+     }
+   } else {
+     try {
+       // monitor network fetch
+       setState(() {
+         refresh = load ? false : true;
+         if(refresh) {
+           _initSearch();
+         }
+
+       });
+       await Future.delayed(Duration(milliseconds: 1000));
+       // if failed,use refreshFailed()
+
+       _refreshController.refreshCompleted();
+     } catch(e) {
+       _refreshController.refreshFailed();
+     }
+   }
   }
 
   void _onLoading() async{
-    try {
-      print(  '${_currentPage} xxxx');
-      if(_currentPage < _lastPage) {
+    if(_textEditingController.text.isEmpty) {
+      try {
+        print('${_currentPage} xxxx');
+
+        if(_currentPage < _lastPage) {
+          setState(() {
+            load = refresh ? false : true;
+            print(  '$load xxxx');
+            if(load) {
+              _currentPage++;
+
+              print('xxxx');
+              _initBooks();
+
+              print(_currentPage);
+              print('load');
+              print(load);
+              print(refresh);
+            }
+
+          });
+        }
+        await Future.delayed(Duration(milliseconds: 1000));
+        // if failed,use loadFailed(),if no data return,use LoadNodata()
+
+        // if(mounted)
+        //   setState(() {
+        //
+        //   });
+        _refreshController.loadComplete();
+      } catch(e) {
+        _refreshController.loadFailed();
+      }
+    } else {
+      try {
         setState(() {
           load = refresh ? false : true;
-          print(  '$load xxxx');
+
           if(load) {
-            _currentPage++;
 
-            print('xxxx');
-            _initBooks();
-
-            print(_currentPage);
-            print('load');
-            print(load);
-            print(refresh);
+            _initSearch();
           }
 
         });
-      }
-      await Future.delayed(Duration(milliseconds: 1000));
-      // if failed,use loadFailed(),if no data return,use LoadNodata()
+        await Future.delayed(Duration(milliseconds: 1000));
+        // if failed,use loadFailed(),if no data return,use LoadNodata()
 
-      // if(mounted)
-      //   setState(() {
-      //
-      //   });
-      _refreshController.loadComplete();
-    } catch(e) {
-      _refreshController.loadFailed();
+        // if(mounted)
+        //   setState(() {
+        //
+        //   });
+        _refreshController.loadComplete();
+      } catch(e) {
+        _refreshController.loadFailed();
+      }
     }
   }
 
