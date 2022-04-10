@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import '/view/pages/profile_page/marked_page.dart';
@@ -22,6 +25,7 @@ import 'package:sizer/sizer.dart';
 import '/controller/custom_dio.dart';
 import 'custom_circular_progress_indicator.dart';
 import 'custom_snack_bar.dart';
+import 'no_internet_connection.dart';
 import 'player_bottom_navigation_bar.dart';
 import 'progress_bar/playOrPauseController.dart';
 
@@ -53,6 +57,10 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
   late List<bool> _stars;
   late bool _availableInCart;
 
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   @override
   void initState() {
     _dataIsLoading = true;
@@ -68,6 +76,39 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     _stars = List<bool>.generate(5, (index) => false);
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   Future _initBook() async {
@@ -111,15 +152,17 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
               : Colors.white,
         ),
         onTap: () {
-          setState(() {
-            _setMarkedBooks();
+          if((!_dataIsLoading) && (_connectionStatus != ConnectivityResult.none)) {
+            setState(() {
+              _setMarkedBooks();
 
-            if (markedBooksId.contains(widget.bookIntroduction.id)) {
-              markedBooksId.remove(widget.bookIntroduction.id);
-            } else {
-              markedBooksId.add(widget.bookIntroduction.id);
-            }
-          });
+              if (markedBooksId.contains(widget.bookIntroduction.id)) {
+                markedBooksId.remove(widget.bookIntroduction.id);
+              } else {
+                markedBooksId.add(widget.bookIntroduction.id);
+              }
+            });
+          }
         },
       ),
       actions: [
@@ -156,8 +199,10 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         : _innerBody();
   }
 
-  SingleChildScrollView _innerBody() {
-    return SingleChildScrollView(
+  Widget _innerBody() {
+    return (_connectionStatus == ConnectivityResult.none)
+        ? const Center(child: NoInternetConnection(),)
+        : SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
