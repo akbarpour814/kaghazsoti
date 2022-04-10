@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:kaghaze_souti/view/audio_player_models/audio_player_handler.dart';
 import 'package:kaghaze_souti/view/pages/login_pages/login_page.dart';
 import 'package:kaghaze_souti/view/pages/login_pages/password_recovery_page.dart';
+import 'package:kaghaze_souti/view/pages/profile_page/marked_page.dart';
 import 'package:material_color_generator/material_color_generator.dart';
 
 import '/view/view_models/player_bottom_navigation_bar.dart';
@@ -84,22 +84,7 @@ Future<void> main() async {
   );
 }
 const String fontFamily = 'Vazir';
-void xxx() {
-  InternetConnectionChecker().onStatusChange.listen(
-    (InternetConnectionStatus status) {
-      switch (status) {
-        case InternetConnectionStatus.connected:
-          // ignore: avoid_print
-          print('Data connection is available.');
-          break;
-        case InternetConnectionStatus.disconnected:
-          // ignore: avoid_print
-          print('You are disconnected from the internet.');
-          break;
-      }
-    },
-  );
-}
+
 
 class MyApp extends StatelessWidget {
   static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
@@ -248,42 +233,3 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class XXXX extends StatefulWidget {
-  final Widget child;
-  const XXXX(this.child, {Key? key}) : super(key: key);
-
-  @override
-  _XXXXState createState() => _XXXXState();
-}
-
-class _XXXXState extends State<XXXX> {
-  @override
-  void initState() {
-
-
-    InternetConnectionChecker().onStatusChange.listen(
-      (InternetConnectionStatus status) {
-        switch (status) {
-          case InternetConnectionStatus.connected:
-            // ignore: avoid_print
-            print('Data connection is available.');
-            break;
-          case InternetConnectionStatus.disconnected:
-            // ignore: avoid_print
-            ScaffoldMessenger.of(context)
-                .showSnackBar(SnackBar(content: Text('Opps!')));
-            print('You are disconnected from the internet.');
-            break;
-        }
-      },
-    );
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: widget.child,
-    );
-  }
-}

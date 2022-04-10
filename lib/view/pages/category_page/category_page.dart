@@ -1,8 +1,13 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:sizer/sizer.dart';
 //import '/controller/database.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
 import '../../../main.dart';
@@ -26,40 +31,73 @@ class CategoryPage extends StatefulWidget {
 }
 
 class _CategoryPageState extends State<CategoryPage> {
-  late  bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late List<Category> _categories;
+
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   @override
   void initState() {
     _categories = [];
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   Future _initCategories() async {
-    _internetConnectionChecker = await InternetConnectionChecker().hasConnection;
 
-    if(_internetConnectionChecker) {
-      _customDio = await CustomDio.dio.post('categories');
+    _customDio = await CustomDio.dio.post('categories');
 
-      if(_customDio.statusCode == 200) {
-        _categories.clear();
+    if(_customDio.statusCode == 200) {
+      _categories.clear();
 
-        _customResponse = CustomResponse.fromJson(_customDio.data);
+      _customResponse = CustomResponse.fromJson(_customDio.data);
 
-        Map<String, IconData> categoriesIcon = {
-          'کتاب صوتی': Ionicons.musical_notes_outline,
-          'نامه صوتی': Ionicons.mail_open_outline,
-          'کتاب الکترونیکی': Ionicons.laptop_outline,
-          'پادکست': Ionicons.volume_medium_outline,
-          'کتاب کودک و نوجوان': Ionicons.happy_outline,
-        };
+      Map<String, IconData> categoriesIcon = {
+        'کتاب صوتی': Ionicons.musical_notes_outline,
+        'نامه صوتی': Ionicons.mail_open_outline,
+        'کتاب الکترونیکی': Ionicons.laptop_outline,
+        'پادکست': Ionicons.volume_medium_outline,
+        'کتاب کودک و نوجوان': Ionicons.happy_outline,
+      };
 
-        for(Map<String, dynamic> category in _customResponse.data) {
-          _categories.add(Category.fromJson(categoriesIcon[category['name']] ?? Ionicons.albums_outline, category));
-        }
+      for(Map<String, dynamic> category in _customResponse.data) {
+        _categories.add(Category.fromJson(categoriesIcon[category['name']] ?? Ionicons.albums_outline, category));
       }
     }
 
@@ -87,30 +125,31 @@ class _CategoryPageState extends State<CategoryPage> {
   FutureBuilder _body() {
     return FutureBuilder(
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? _innerBody()
-            : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+        } else {
+          return (_connectionStatus == ConnectivityResult.none)
+              ? const Center(child: NoInternetConnection(),)
+              : _innerBody();
+        }
       },
       future: _initCategories(),
     );
   }
 
-  SingleChildScrollView _innerBody() {
-    return SingleChildScrollView(
-      child: Column(
-        children: List<CategoryName>.generate(
-          _categories.length,
-          (index) => CategoryName(
-            iconData: _categories[index].iconData,
-            title: _categories[index].name,
-            lastCategory: false,
-            page: SubcategoriesPage(
-              iconData: _categories[index].iconData,
-              title: _categories[index].name,
-              subcategories: _categories[index].subcategories,
-            ),
-          ),
+  RefreshIndicator _innerBody() {
+    return RefreshIndicator(
+      onRefresh: () { return _initCategories(); },
+      child: ListView.builder(itemBuilder: (BuildContext context, int index) { return CategoryName(
+        iconData: _categories[index].iconData,
+        title: _categories[index].name,
+        lastCategory: false,
+        page: SubcategoriesPage(
+          iconData: _categories[index].iconData,
+          title: _categories[index].name,
+          subcategories: _categories[index].subcategories,
         ),
+      ); }, itemCount: _categories.length,
       ),
     );
   }

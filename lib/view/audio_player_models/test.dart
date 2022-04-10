@@ -1,10 +1,14 @@
 
 
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as INTL;
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/view/audio_player_models/audio_player_handler.dart';
@@ -17,6 +21,7 @@ import 'package:sizer/sizer.dart';
 import '../../controller/custom_dio.dart';
 import '../../main.dart';
 import '../../model/book_introduction.dart';
+import '../view_models/no_internet_connection.dart';
 import 'common.dart';
 
 import 'package:rxdart/rxdart.dart';
@@ -35,6 +40,14 @@ class MainScreen extends StatefulWidget {
 
 List<MediaItem> mediaItems = [];
 class _MainScreenState extends State<MainScreen> {
+
+
+
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
+
   late bool _dataIsLoading;
   late Response<dynamic> _customDio;
 
@@ -62,6 +75,39 @@ class _MainScreenState extends State<MainScreen> {
     audioIsPlaying.$ = true;
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   Future _initMediaItems() async {
@@ -157,10 +203,10 @@ class _MainScreenState extends State<MainScreen> {
     return _dataIsLoading
         ? FutureBuilder(
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              return snapshot.hasData
-                  ? _innerBody()
-                  : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
-            },
+              return (_connectionStatus == ConnectivityResult.none)
+                  ? const Center(child: NoInternetConnection(),)
+                  : _innerBody();
+              },
             future: _initMediaItems(),
           )
         : _innerBody();
@@ -367,11 +413,18 @@ class _MainScreenState extends State<MainScreen> {
     );
 
 
-    if (MediaQuery.of(context).orientation == Orientation.landscape) {
-      return SingleChildScrollView(child: _body);
+    if(_connectionStatus == ConnectivityResult.none) {
+      audioPlayerHandler.stop();
+
+      return const Center(child: NoInternetConnection(),);
     } else {
-      return _body;
+      if (MediaQuery.of(context).orientation == Orientation.landscape) {
+        return SingleChildScrollView(child: _body);
+      } else {
+        return _body;
+      }
     }
+
   }
 
   Widget _bookCover() {

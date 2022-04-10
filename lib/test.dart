@@ -1,72 +1,135 @@
-import 'package:flutter/material.dart';
-import 'package:new_version/new_version.dart';
+import 'dart:async';
 
-void main() {
-  runApp(MyApp());
-}
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  static const String _title = 'Flutter Code Sample';
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MyHomePage(),
+    return const MaterialApp(
+      title: _title,
+      home: MyStatefulWidget(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
+class MyStatefulWidget extends StatefulWidget {
+  const MyStatefulWidget({Key? key}) : super(key: key);
+
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  void initState() {
-    super.initState();
-
-    // Instantiate NewVersion manager object (Using GCP Console app as example)
-    final newVersion = NewVersion(
-      iOSId: 'com.google.Vespa',
-      androidId: 'com.google.android.apps.cloudconsole',
+class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  final Stream<int> _bids = (() {
+    late final StreamController<int> controller;
+    controller = StreamController<int>(
+      onListen: () async {
+        await Future<void>.delayed(const Duration(seconds: 1));
+        controller.add(1);
+        await Future<void>.delayed(const Duration(seconds: 1));
+        await controller.close();
+      },
     );
-
-    // You can let the plugin handle fetching the status and showing a dialog,
-    // or you can fetch the status and display your own dialog, or no dialog.
-    const simpleBehavior = true;
-
-    if (simpleBehavior) {
-      basicStatusCheck(newVersion);
-    } else {
-      advancedStatusCheck(newVersion);
-    }
-  }
-
-  basicStatusCheck(NewVersion newVersion) {
-    newVersion.showAlertIfNecessary(context: context);
-  }
-
-  advancedStatusCheck(NewVersion newVersion) async {
-    final status = await newVersion.getVersionStatus();
-    if (status != null) {
-      debugPrint(status.releaseNotes);
-      debugPrint(status.appStoreLink);
-      debugPrint(status.localVersion);
-      debugPrint(status.storeVersion);
-      debugPrint(status.canUpdate.toString());
-      newVersion.showUpdateDialog(
-        context: context,
-        versionStatus: status,
-        dialogTitle: 'Custom Title',
-        dialogText: 'Custom Text',
-      );
-    }
-  }
+    return controller.stream;
+  })();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Example App"),
+    return DefaultTextStyle(
+      style: Theme.of(context).textTheme.headline2!,
+      textAlign: TextAlign.center,
+      child: Container(
+        alignment: FractionalOffset.center,
+        color: Colors.white,
+        child: StreamBuilder<int>(
+          stream: _bids,
+          builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+            List<Widget> children;
+            if (snapshot.hasError) {
+              children = <Widget>[
+                const Icon(
+                  Icons.error_outline,
+                  color: Colors.red,
+                  size: 60,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text('Error: ${snapshot.error}'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text('Stack trace: ${snapshot.stackTrace}'),
+                ),
+              ];
+            } else {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  children = const <Widget>[
+                    Icon(
+                      Icons.info,
+                      color: Colors.blue,
+                      size: 60,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Text('Select a lot'),
+                    )
+                  ];
+                  break;
+                case ConnectionState.waiting:
+                  children = const <Widget>[
+                    SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: CircularProgressIndicator(),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 16),
+                      child: Text('Awaiting bids...'),
+                    )
+                  ];
+                  break;
+                case ConnectionState.active:
+                  children = <Widget>[
+                    const Icon(
+                      Icons.check_circle_outline,
+                      color: Colors.green,
+                      size: 60,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text('\$${snapshot.data}'),
+                    )
+                  ];
+                  break;
+                case ConnectionState.done:
+                  children = <Widget>[
+                    const Icon(
+                      Icons.info,
+                      color: Colors.blue,
+                      size: 60,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16),
+                      child: Text('\$${snapshot.data} (closed)'),
+                    )
+                  ];
+                  break;
+              }
+            }
+
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: children,
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:kaghaze_souti/view/audio_player_models/test.dart';
 import 'package:kaghaze_souti/view/pages/library_page/book_chapters_page.dart';
+
 // import 'package:takfood_seller/controller/database.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 import '/model/book.dart';
 import '/view/view_models/audiobook_player_page.dart';
@@ -27,42 +33,81 @@ class MyLibraryPage extends StatefulWidget {
 }
 
 class _MyLibraryPageState extends State<MyLibraryPage> {
-  late  bool _internetConnectionChecker;
+  late bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse customResponse;
 
   late List<BookIntroduction> _myBooks;
+
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   @override
   void initState() {
     _myBooks = [];
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   Future _initMyBooks() async {
     _customDio = await CustomDio.dio.get('dashboard/my_books');
 
-
     print(_customDio.headers);
-    if(_customDio.statusCode == 200) {
+    if (_customDio.statusCode == 200) {
       _myBooks.clear();
 
       Map<String, dynamic> data = _customDio.data;
 
       int lastPage = data['last_page'];
 
-      for(Map<String, dynamic> bookIntroduction in data['data']) {
+      for (Map<String, dynamic> bookIntroduction in data['data']) {
         _myBooks.add(BookIntroduction.fromJson(bookIntroduction));
       }
 
-      for(int i = 2; i <= lastPage; ++i) {
-        _customDio = await CustomDio.dio.get('dashboard/my_books', queryParameters: {'page': i},);
+      for (int i = 2; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.get(
+          'dashboard/my_books',
+          queryParameters: {'page': i},
+        );
 
-        if(_customDio.statusCode == 200) {
+        if (_customDio.statusCode == 200) {
           data = _customDio.data;
 
-          for(Map<String, dynamic> bookIntroduction in data['data']) {
+          for (Map<String, dynamic> bookIntroduction in data['data']) {
             _myBooks.add(BookIntroduction.fromJson(bookIntroduction));
           }
         }
@@ -74,7 +119,6 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
@@ -92,7 +136,18 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   }
 
   FutureBuilder _body() {
-    return FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return snapshot.hasData ? _innerBody() : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));}, future: _initMyBooks(),);
+    return FutureBuilder(
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+        } else {
+          return (_connectionStatus == ConnectivityResult.none)
+              ? const Center(child: NoInternetConnection(),)
+              : _innerBody();
+        }
+      },
+      future: _initMyBooks(),
+    );
   }
 
   Widget _innerBody() {
@@ -133,8 +188,7 @@ class _MyBookState extends State<MyBook> {
     return InkWell(
       onTap: () {
         setState(() {
-
-          if(widget.book.id != previousAudiobookInPlayId) {
+          if (widget.book.id != previousAudiobookInPlayId) {
             demoIsPlaying.$ = false;
             demoInPlayId = -1;
             demoPlayer.stop();
@@ -143,7 +197,6 @@ class _MyBookState extends State<MyBook> {
             audiobookInPlay = widget.book;
             audiobookInPlayId = widget.book.id;
           }
-
 
           Navigator.of(context).push(
             MaterialPageRoute(

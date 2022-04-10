@@ -75,9 +75,9 @@ class _SearchPageState extends State<SearchPage> {
 
       setState(() {
         refresh = false;
-        load = false;
+        loading = false;
 
-        print('load $load');
+        print('load $loading');
         print('refresh $refresh');
       });
     }
@@ -328,7 +328,7 @@ class _SearchPageState extends State<SearchPage> {
       child: SmartRefresher(
         enablePullDown: true,
         enablePullUp: true,
-        header: MaterialClassicHeader(),
+        header: const MaterialClassicHeader(),
         footer: CustomFooter(
           builder: (BuildContext? context, LoadStatus? mode) {
             Widget body;
@@ -388,7 +388,7 @@ class _SearchPageState extends State<SearchPage> {
           },
         ),
         controller: _refreshController,
-        onRefresh: load ? null : _onRefresh,
+        onRefresh: loading ? null : _onRefresh,
         onLoading: refresh ? null : _onLoading,
         child: ListView.builder(
           itemBuilder: (BuildContext context, int index) =>
@@ -405,14 +405,14 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   bool refresh = false;
-  bool load = false;
+  bool loading = false;
 
   void _onRefresh() async {
     if (_textEditingController.text.isEmpty) {
       try {
         // monitor network fetch
         setState(() {
-          refresh = load ? false : true;
+          refresh = loading ? false : true;
           if (refresh) {
             _currentPage = 1;
 
@@ -421,7 +421,7 @@ class _SearchPageState extends State<SearchPage> {
             print(_currentPage);
             print('refresh');
             print(refresh);
-            print(load);
+            print(loading);
           }
         });
         await Future.delayed(Duration(milliseconds: 1000));
@@ -435,7 +435,7 @@ class _SearchPageState extends State<SearchPage> {
       try {
         // monitor network fetch
         setState(() {
-          refresh = load ? false : true;
+          refresh = loading ? false : true;
           if (refresh) {
             _initSearch();
           }
@@ -457,9 +457,9 @@ class _SearchPageState extends State<SearchPage> {
 
         if (_currentPage < _lastPage) {
           setState(() {
-            load = refresh ? false : true;
-            print('$load xxxx');
-            if (load) {
+            loading = refresh ? false : true;
+            print('$loading xxxx');
+            if (loading) {
               _currentPage++;
 
               print('xxxx');
@@ -467,7 +467,7 @@ class _SearchPageState extends State<SearchPage> {
 
               print(_currentPage);
               print('load');
-              print(load);
+              print(loading);
               print(refresh);
             }
           });
@@ -486,9 +486,9 @@ class _SearchPageState extends State<SearchPage> {
     } else {
       try {
         setState(() {
-          load = refresh ? false : true;
+          loading = refresh ? false : true;
 
-          if (load) {
+          if (loading) {
             _initSearch();
           }
         });

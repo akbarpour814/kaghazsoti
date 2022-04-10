@@ -1,9 +1,12 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/model/book_introduction.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
@@ -25,51 +28,97 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late  bool _internetConnectionChecker;
+  late bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late List<HomePageCategoryData> _homePageCategoriesData;
+
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   @override
   void initState() {
     _homePageCategoriesData = [];
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   Future _initHomePageCategoriesData() async {
     _customDio = await CustomDio.dio.post('home');
-    print("1 -----------------------------------------------------------------------------------------------------");
+    print(
+        "1 -----------------------------------------------------------------------------------------------------");
 
     _homePageCategoriesData.clear();
-    print("2 -----------------------------------------------------------------------------------------------------");
+    print(
+        "2 -----------------------------------------------------------------------------------------------------");
 
     _customResponse = CustomResponse.fromJson(_customDio.data);
-    print("3 -----------------------------------------------------------------------------------------------------");
+    print(
+        "3 -----------------------------------------------------------------------------------------------------");
 
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson('کتاب های صوتی', (_customResponse.data['books'])['کتاب-صوتی']));
-    print("4 -----------------------------------------------------------------------------------------------------");
+    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
+        'کتاب های صوتی', (_customResponse.data['books'])['کتاب-صوتی']));
+    print(
+        "4 -----------------------------------------------------------------------------------------------------");
 
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson('نامه های صوتی', (_customResponse.data['books'])['نامه-صوتی']));
-    print("5 -----------------------------------------------------------------------------------------------------");
+    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
+        'نامه های صوتی', (_customResponse.data['books'])['نامه-صوتی']));
+    print(
+        "5 -----------------------------------------------------------------------------------------------------");
 
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson('کتاب های الکترونیکی', (_customResponse.data['books'])['کتاب-الکترونیکی']));
-    print("6 -----------------------------------------------------------------------------------------------------");
+    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
+        'کتاب های الکترونیکی',
+        (_customResponse.data['books'])['کتاب-الکترونیکی']));
+    print(
+        "6 -----------------------------------------------------------------------------------------------------");
 
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson('پادکست ها', (_customResponse.data['books'])['پادکست']));
-    print("7 -----------------------------------------------------------------------------------------------------");
+    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
+        'پادکست ها', (_customResponse.data['books'])['پادکست']));
+    print(
+        "7 -----------------------------------------------------------------------------------------------------");
     print(_homePageCategoriesData.length);
 
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson('کتاب های کودک و نوجوان', (_customResponse.data['books'])['کتاب-کودک-و-نوجوان']));
-    print("8 -----------------------------------------------------------------------------------------------------");
+    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
+        'کتاب های کودک و نوجوان',
+        (_customResponse.data['books'])['کتاب-کودک-و-نوجوان']));
+    print(
+        "8 -----------------------------------------------------------------------------------------------------");
 
-
-
-    if (_customDio.statusCode == 200) {
-
-
-
-    }
+    if (_customDio.statusCode == 200) {}
 
     return _customDio;
   }
@@ -81,8 +130,6 @@ class _HomePageState extends State<HomePage> {
       body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
     );
-
-
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -106,12 +153,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  FutureBuilder _body() {
+  Widget _body() {
     return FutureBuilder(
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? _innerBody()
-            : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+        } else {
+          return (_connectionStatus == ConnectivityResult.none)
+              ? const Center(child: NoInternetConnection(),)
+              : _innerBody();
+        }
       },
       future: _initHomePageCategoriesData(),
     );
@@ -119,10 +170,17 @@ class _HomePageState extends State<HomePage> {
 
   RefreshIndicator _innerBody() {
     return RefreshIndicator(
-      onRefresh: () { return _initHomePageCategoriesData(); },
-      child: ListView.builder(itemBuilder: (BuildContext context, int index) { return HomePageCategoryView(
-        homePageCategoryData: _homePageCategoriesData[index],
-      );}, itemCount: _homePageCategoriesData.length,),
+      onRefresh: () {
+        return _initHomePageCategoriesData();
+      },
+      child: ListView.builder(
+        itemBuilder: (BuildContext context, int index) {
+          return HomePageCategoryView(
+            homePageCategoryData: _homePageCategoriesData[index],
+          );
+        },
+        itemCount: _homePageCategoriesData.length,
+      ),
       // child: Column(
       //   children: List<HomePageCategoryView>.generate(
       //     _homePageCategoriesData.length,
