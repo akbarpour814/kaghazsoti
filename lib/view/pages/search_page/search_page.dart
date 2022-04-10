@@ -388,7 +388,7 @@ class _SearchPageState extends State<SearchPage> {
           },
         ),
         controller: _refreshController,
-        onRefresh: loading ? null : _onRefresh,
+        onRefresh: _onRefresh,
         onLoading: refresh ? null : _onLoading,
         child: ListView.builder(
           itemBuilder: (BuildContext context, int index) =>
@@ -407,7 +407,28 @@ class _SearchPageState extends State<SearchPage> {
   bool refresh = false;
   bool loading = false;
 
-  void _onRefresh() async {
+  void _onRefresh() async{
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use refreshFailed()
+    _refreshController.refreshCompleted();
+  }
+
+ /* void _onRefresh() async {
+    setState(() {
+      refresh = loading ? false : true;
+      if (refresh) {
+        _currentPage = 1;
+
+        _initBooks();
+
+        print(_currentPage);
+        print('refresh');
+        print(refresh);
+        print(loading);
+      }
+    });
+    await Future.delayed(Duration(milliseconds: 1000));
     if (_textEditingController.text.isEmpty) {
       try {
         // monitor network fetch
@@ -448,7 +469,7 @@ class _SearchPageState extends State<SearchPage> {
         _refreshController.refreshFailed();
       }
     }
-  }
+  }*/
 
   void _onLoading() async {
     if (_textEditingController.text.isEmpty) {
