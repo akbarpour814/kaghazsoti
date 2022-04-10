@@ -79,6 +79,7 @@ class _HomePageState extends State<HomePage> {
 
   Future _initHomePageCategoriesData() async {
     _customDio = await CustomDio.dio.post('home');
+
     print(
         "1 -----------------------------------------------------------------------------------------------------");
 

@@ -200,34 +200,40 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
   }
 
   Widget _innerBody() {
-    return (_connectionStatus == ConnectivityResult.none)
-        ? const Center(child: NoInternetConnection(),)
-        : SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 16.0,
-              horizontal: 5.0.w,
+    if(_connectionStatus == ConnectivityResult.none) {
+      setState(() {
+        _dataIsLoading = true;
+      });
+
+      return const Center(child: NoInternetConnection(),);
+    } else {
+      return RefreshIndicator(
+        onRefresh: () { return _initBook(); },
+        child: ListView(
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(
+                vertical: 16.0,
+                horizontal: 5.0.w,
+              ),
+              child: Column(
+                children: [
+                  _bookCover(),
+                  _bookPricesAndVotes(),
+                  _cartButton(),
+                  _addToLibraryButton(),
+                  _tabsTopic(),
+                  _tab(_tabIndex),
+                ],
+              ),
             ),
-            child: Column(
-              children: [
-                _bookCover(),
-                _bookPricesAndVotes(),
-                _cartButton(),
-                _addToLibraryButton(),
-                _tabsTopic(),
-                _tab(_tabIndex),
-              ],
-            ),
-          ),
-          _otherPublisherBooks(),
-          _relatedBooks(),
-          _userComments(),
-        ],
-      ),
-    );
+            _otherPublisherBooks(),
+            _relatedBooks(),
+            _userComments(),
+          ],
+        ),
+      );
+    }
   }
 
   bool playDemo = false;
@@ -416,7 +422,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       child: Material(
         color: Theme.of(context).primaryColor,
         borderRadius:
-            (libraryId.contains(_book.id)) || (_book.price.contains('رایگان'))
+            libraryId.contains(_book.id)
                 ? const BorderRadius.vertical(top: Radius.circular(5.0))
                 : null,
         child: DefaultTabController(

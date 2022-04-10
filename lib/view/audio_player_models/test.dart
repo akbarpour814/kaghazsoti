@@ -203,9 +203,9 @@ class _MainScreenState extends State<MainScreen> {
     return _dataIsLoading
         ? FutureBuilder(
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              return (_connectionStatus == ConnectivityResult.none)
-                  ? const Center(child: NoInternetConnection(),)
-                  : _innerBody();
+              return snapshot.hasData
+                  ? _innerBody()
+                  : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
               },
             future: _initMediaItems(),
           )
@@ -415,6 +415,10 @@ class _MainScreenState extends State<MainScreen> {
 
     if(_connectionStatus == ConnectivityResult.none) {
       audioPlayerHandler.stop();
+
+      setState(() {
+        _dataIsLoading = true;
+      });
 
       return const Center(child: NoInternetConnection(),);
     } else {

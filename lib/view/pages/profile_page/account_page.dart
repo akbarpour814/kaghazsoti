@@ -1,6 +1,11 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/view/view_models/custom_circular_progress_indicator.dart';
 import '/view/view_models/custom_text_field.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
@@ -34,6 +39,11 @@ class _AccountPageState extends State<AccountPage> {
   late bool _permissionToEdit;
   late bool _registeredInformation;
 
+
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   @override
   void initState() {
     _dataIsLoading = true;
@@ -41,6 +51,39 @@ class _AccountPageState extends State<AccountPage> {
     _registeredInformation = false;
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   Future _initUserInformation() async {
@@ -91,44 +134,50 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Widget _body() {
-    return Center(
-      child: SingleChildScrollView(
-        child: _dataIsLoading
-            ? FutureBuilder(
-          builder:
-              (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            return snapshot.hasData
-                ? _innerBody()
-                : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
-          },
-          future: _initUserInformation(),
-        )
-            : _innerBody(),
-      ),
-    );
+    return _dataIsLoading
+        ? FutureBuilder(
+      builder:
+          (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        return snapshot.hasData
+            ? _innerBody()
+            : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+      },
+      future: _initUserInformation(),
+    )
+        : _innerBody();
   }
 
-  Padding _innerBody() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _permissionToEditCheckbox(),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.0.h),
-            child: Column(
-              children: [
-                _firstAndLastName(),
-                _email(),
-                _phoneNumber(),
-              ],
+  Widget _innerBody() {
+
+    if(_connectionStatus == ConnectivityResult.none) {
+      // setState(() {
+      //   _dataIsLoading = true;
+      // });
+
+      return const Center(child: NoInternetConnection(),);
+    } else {
+
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _permissionToEditCheckbox(),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 5.0.h),
+              child: Column(
+                children: [
+                  _firstAndLastName(),
+                  _email(),
+                  _phoneNumber(),
+                ],
+              ),
             ),
-          ),
-          _informationRegistrationButton(),
-        ],
-      ),
-    );
+            _informationRegistrationButton(),
+          ],
+        ),
+      );
+    }
   }
 
   Row _permissionToEditCheckbox() {
