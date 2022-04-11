@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 
 import 'date_time_format.dart';
-class Comment {
+class CommentData {
   late Topic topic;
   late String text;
   late CommentStatus status;
@@ -12,7 +12,7 @@ class Comment {
   late String sentDate;
   late String lastAnswerDate;
 
-  Comment.fromJson(Map<String, dynamic> json) {
+  CommentData.fromJson(Map<String, dynamic> json) {
     int findTopic = TopicExtension.topics.values.toList().indexWhere((element) => element == json['title']);
 
     topic = TopicExtension.topics.keys.elementAt(findTopic > -1 ? findTopic : TopicExtension.topics.length - 1);

@@ -1,4 +1,4 @@
-import '/model/comment.dart';
+import '/model/comment_data.dart';
 import '/model/purchase.dart';
 
 import 'book.dart';
@@ -12,7 +12,7 @@ class User {
   late List cart;
   late List<Purchase> purchaseHistory;
   late List<Book> markedBooks;
-  late List<Comment> comments;
+  late List<CommentData> comments;
   late List<Book> library;
 
   User({

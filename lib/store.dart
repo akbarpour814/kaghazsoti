@@ -9,7 +9,7 @@ import '/controller/functions_for_checking_user_information_format.dart';
 import '/model/book.dart';
 import '/model/book_introduction.dart';
 import '/model/category.dart';
-import '/model/comment.dart';
+import '/model/comment_data.dart';
 import '/model/date_time_format.dart';
 import '/model/home_page_category_data.dart';
 import '/model/price_format.dart';

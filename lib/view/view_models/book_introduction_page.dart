@@ -41,8 +41,7 @@ class BookIntroductionPage extends StatefulWidget {
   _BookIntroductionPageState createState() => _BookIntroductionPageState();
 }
 
-class _BookIntroductionPageState extends State<BookIntroductionPage>
-    with TickerProviderStateMixin {
+class _BookIntroductionPageState extends State<BookIntroductionPage> with TickerProviderStateMixin {
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late bool _dataIsLoading;

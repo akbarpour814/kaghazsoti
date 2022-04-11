@@ -7,9 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
-import '/model/comment.dart';
+import '/model/comment_data.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 import '/view/view_models/property.dart';
 import 'package:sizer/sizer.dart';
@@ -40,7 +41,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
   late bool _commentPosted;
   late List<bool> _displayOfDetails;
   late int _previousIndex;
-  late List<Comment> _comments;
+  late List<CommentData> _comments;
 
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
@@ -101,7 +102,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
       int lastPage = _customResponse.data['last_page'];
 
       for (Map<String, dynamic> comment in _customResponse.data['data']) {
-        _comments.add(Comment.fromJson(comment));
+        _comments.add(CommentData.fromJson(comment));
       }
 
       for (int i = 2; i <= lastPage; ++i) {
@@ -114,15 +115,13 @@ class _ContactUsPageState extends State<ContactUsPage> {
           _customResponse = CustomResponse.fromJson(_customDio.data);
 
           for (Map<String, dynamic> comment in _customResponse.data['data']) {
-            _comments.add(Comment.fromJson(comment));
+            _comments.add(CommentData.fromJson(comment));
           }
         }
       }
 
       _displayOfDetails =
           List<bool>.generate(_comments.length, (index) => false);
-
-      _comments.clear();
 
       _dataIsLoading = false;
     }
@@ -187,26 +186,50 @@ class _ContactUsPageState extends State<ContactUsPage> {
         child: NoInternetConnection(),
       );
     } else {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _selectACommentTopic(),
-            _commentTextField(),
-            _commentRegistrationButton(),
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: Text(
-                'نظرات شما',
-                style: TextStyle(color: Theme.of(context).primaryColor),
+      return SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _selectACommentTopic(),
+              _commentTextField(),
+              _commentRegistrationButton(),
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0,),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'نظرات شما',
+                      style: TextStyle(color: Theme.of(context).primaryColor),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return CommentsPage(comments: _comments,);
+                            },
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'نمایش همه',
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const Divider(
-              height: 32.0,
-            ),
-            _userComments(),
-          ],
+              const Padding(
+                padding: EdgeInsets.only(bottom: 16.0),
+                child: Divider(
+                  height: 0.0,
+                ),
+              ),
+              _userComments(),
+            ],
+          ),
         ),
       );
     }
@@ -544,3 +567,368 @@ class _ContactUsPageState extends State<ContactUsPage> {
     }
   }
 }
+
+class CommentsPage extends StatefulWidget {
+  late List<CommentData> comments;
+  CommentsPage({Key? key, required this.comments,}) : super(key: key);
+
+  @override
+  _CommentsPageState createState() => _CommentsPageState();
+}
+
+class _CommentsPageState extends State<CommentsPage> {
+  late Response<dynamic> _customDio;
+  late CustomResponse _customResponse;
+  late bool _dataIsLoading;
+  late int _lastPage;
+  late int _currentPage;
+
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late RefreshController _refreshController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _refreshController = RefreshController(initialRefresh: false);
+
+    return Scaffold(
+      appBar: _appBar(),
+      // body: _body(),
+      bottomNavigationBar: playerBottomNavigationBar,
+    );
+  }
+
+  AppBar _appBar() {
+    return AppBar(
+      title: const Text('نظرات شما'),
+      automaticallyImplyLeading: false,
+      leading: const Icon(
+        Ionicons.call_outline,
+      ),
+      actions: [
+        InkWell(
+          child: const Padding(
+            padding: EdgeInsets.all(18.0),
+            child: Icon(
+              Ionicons.chevron_back_outline,
+            ),
+          ),
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
+
+  /*Widget _body() {
+    return _dataIsLoading ? FutureBuilder(
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        return snapshot.hasData
+            ? _innerBody()
+            : Center(
+            child: CustomCircularProgressIndicator(
+                message: 'لطفاً شکیبا باشید.'));
+      },
+      future: _initMarkedBooks(),
+    ) : _innerBody();
+  }
+
+  Widget _innerBody() {
+
+    if(_connectionStatus == ConnectivityResult.none) {
+      setState(() {
+        _dataIsLoading = true;
+      });
+
+      return const Center(child: NoInternetConnection(),);
+    } else {
+      if (_markedBooksTemp.isEmpty) {
+        return const Center(
+          child: Text('شما تا کنون کتابی را نشان نکرده اید.'),
+        );
+      } else {
+        return SmartRefresher(
+          enablePullDown: true,
+          enablePullUp: true,
+          header: const MaterialClassicHeader(),
+          footer: CustomFooter(
+            builder: (BuildContext? context, LoadStatus? mode) {
+              Widget bar;
+
+              if ((mode == LoadStatus.idle) && (_currentPage == _lastPage) && (!_dataIsLoading)) {
+                bar = Text(
+                  'کتاب دیگری یافت نشد.',
+                  style: TextStyle(
+                    color: Theme.of(context!).primaryColor,
+                  ),
+                );
+              } else if (mode == LoadStatus.idle) {
+                bar = Text('لطفاً صفحه را بالا بکشید.',
+                    style: TextStyle(color: Theme.of(context!).primaryColor));
+              } else if (mode == LoadStatus.loading) {
+                bar = CustomCircularProgressIndicator(
+                    message: 'لطفاً شکیبا باشید.');
+              } else if (mode == LoadStatus.failed) {
+                bar = CustomCircularProgressIndicator(
+                    message: 'لطفاً دوباره امتحان کنید.');
+              } else if (mode == LoadStatus.canLoading) {
+                bar = CustomCircularProgressIndicator(
+                    message: 'لطفاً صفحه را پایین بکشید.');
+              } else {
+                bar = Text(
+                  'کتاب دیگری یافت نشد.',
+                  style: TextStyle(color: Theme.of(context!).primaryColor),
+                );
+              }
+
+              return SizedBox(
+                height: 55.0,
+                child: Center(child: bar),
+              );
+            },
+          ),
+          controller: _refreshController,
+          onRefresh: _onRefresh,
+          onLoading: _onLoading,
+          child: ListView.builder(
+            itemBuilder: (BuildContext context, int index) =>
+                BookShortIntroduction(
+                  book: _markedBooksTemp[index],
+                ),
+            itemCount: _markedBooksTemp.length,
+            itemExtent: 15.8.h,
+          ),
+        );
+      }
+    }
+
+
+  }
+
+
+  void _onRefresh() async {
+    await Future.delayed(const Duration(milliseconds: 1000));
+
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async {
+    try {
+      if (_currentPage < _lastPage) {
+        setState(() {
+          loading = refresh ? false : true;
+
+          if (loading) {
+            _currentPage++;
+
+            _initMarkedBooks();
+          }
+        });
+      }
+
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      _refreshController.loadComplete();
+    } catch (e) {
+      _refreshController.loadFailed();
+    }
+  }*/
+}
+
+
+/*class CommentView extends StatefulWidget {
+  late CommentData commentData;
+  late int index;
+
+  CommentView({Key? key, required this.commentData, required this.index,}) : super(key: key);
+
+  @override
+  _CommentViewState createState() => _CommentViewState();
+}
+
+class _CommentViewState extends State<CommentView> {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: 0.0,
+        bottom: widget.index == _comments.length - 1 ? 0.0 : 8.0,
+      ),
+      child: Container(
+        padding: const EdgeInsets.only(
+          left: 18.0,
+          top: 18.0,
+          right: 18.0,
+          bottom: 8.0,
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(color: Theme.of(context).primaryColor),
+          borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+        ),
+        child: Column(
+          children: [
+            Property(
+              property: 'موضوع',
+              value: widget.commentData.topic.title!,
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
+            Property(
+              property: 'تاریخ ارسال',
+              value: widget.commentData.sentDate,
+              valueInTheEnd: false,
+              lastProperty: false,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 0.0,
+                top: 0.0,
+                right: 0.0,
+                bottom: 8.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  const Expanded(
+                    child: Text('وضعیت:'),
+                  ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            widget.commentData.status.title!,
+                            style: TextStyle(
+                              color: widget.commentData.status.color,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Divider(
+                  height: 24.0,
+                ),
+                Property(
+                  property: 'دیدگاه شما',
+                  value: '',
+                  valueInTheEnd: false,
+                  lastProperty: false,
+                ),
+                Text(
+                  '- ${widget.commentData.text}',
+                  textAlign: TextAlign.justify,
+                ),
+                Visibility(
+                  visible:
+                  widget.commentData.status == CommentStatus.answered,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Divider(
+                        height: 24.0,
+                      ),
+                      Property(
+                        property: 'پاسخ ما',
+                        value: '',
+                        valueInTheEnd: false,
+                        lastProperty: false,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List<Text>.generate(
+                          widget.commentData.answers.length,
+                              (commentIndex) => Text(
+                            '${commentIndex + 1}- ${widget.commentData.answers[commentIndex]}',
+                            textAlign: TextAlign.start,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const Divider(
+              height: 24.0,
+            ),
+            InkWell(
+              onTap: () {
+                setState(() {
+                  if (index == _previousIndex &&
+                      _displayOfDetails[index]) {
+                    _displayOfDetails[index] = false;
+                  } else if (index == _previousIndex &&
+                      !_displayOfDetails[index]) {
+                    _displayOfDetails[index] = true;
+                  } else if (index != _previousIndex) {
+                    if (_previousIndex != -1) {
+                      _displayOfDetails[_previousIndex] = false;
+                    }
+                    _displayOfDetails[index] = true;
+                  }
+
+                  _previousIndex = index;
+                });
+              },
+              child: Icon(
+                _displayOfDetails[index]
+                    ? Icons.expand_less
+                    : Icons.expand_more,
+                color: Theme.of(context).primaryColor,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}*/
