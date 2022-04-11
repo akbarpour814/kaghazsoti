@@ -145,7 +145,7 @@ class MyApp extends StatelessWidget {
       fontFamily: fontFamily,
       primarySwatch: generateMaterialColor(color: _primaryColor),
       primaryColor: _primaryColor,
-      scaffoldBackgroundColor: Colors.black,
+      scaffoldBackgroundColor: const Color(0xFF171E26),
       dividerColor: _primaryColor,
       accentColor: _primaryColor,
       appBarTheme: AppBarTheme(

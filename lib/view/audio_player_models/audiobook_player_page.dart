@@ -26,20 +26,20 @@ import 'common.dart';
 
 import 'package:rxdart/rxdart.dart';
 
-class MainScreen extends StatefulWidget {
+class AudiobookPlayerPage extends StatefulWidget {
   late BookIntroduction audiobook;
 
-  MainScreen({
+  AudiobookPlayerPage({
     Key? key,
     required this.audiobook,
   }) : super(key: key);
 
   @override
-  State<MainScreen> createState() => _MainScreenState();
+  State<AudiobookPlayerPage> createState() => _AudiobookPlayerPageState();
 }
 
 List<MediaItem> mediaItems = [];
-class _MainScreenState extends State<MainScreen> {
+class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
 
 
 

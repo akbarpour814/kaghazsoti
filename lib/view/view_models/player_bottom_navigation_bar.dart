@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:kaghaze_souti/test_1.dart';
-import '../audio_player_models/test.dart';
 import '../audio_player_models/common.dart';
 import '/main.dart';
 import '/view/view_models/progress_bar/custom_progress_bar.dart';
@@ -176,7 +175,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
-                    return MainScreen(audiobook: audiobookInPlay,);
+                    return AudiobookPlayerPage(audiobook: audiobookInPlay,);
                   },
                 ),
               );

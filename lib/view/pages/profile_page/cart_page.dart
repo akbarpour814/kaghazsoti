@@ -1,6 +1,11 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 import '/model/book.dart';
 import '/model/book_introduction.dart';
@@ -30,6 +35,11 @@ class _CartPageState extends State<CartPage> {
   late bool _purchaseInvoiceWasIssued;
   Purchase? _purchaseInvoice;
 
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
+
   @override
   void initState() {
     _dataIsLoading = true;
@@ -37,22 +47,65 @@ class _CartPageState extends State<CartPage> {
     _purchaseInvoiceWasIssued = false;
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+
   }
 
-  Future _initCart() async {
-    _cart.clear();
-
-    for (int i = 0; i < cartSlug.length; ++i) {
-      _customDio = await CustomDio.dio.post('books/${cartSlug[i]}');
-
-      if (_customDio.statusCode == 200) {
-        _customResponse = CustomResponse.fromJson(_customDio.data);
-
-        _cart.add(Book.fromJson(_customResponse.data));
-      }
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
     }
 
-    _dataIsLoading = false;
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+
+  Map<String, Book> cart = {};
+  Future _initCart() async {
+
+    if(_dataIsLoading) {
+      cart.clear();
+
+      for (int i = 0; i < cartSlug.length; ++i) {
+        _customDio = await CustomDio.dio.post('books/${cartSlug[i]}');
+
+        if (_customDio.statusCode == 200) {
+          _customResponse = CustomResponse.fromJson(_customDio.data);
+
+          cart.addAll({cartSlug[i] : Book.fromJson(_customResponse.data)});
+        }
+      }
+
+     setState(() {
+       _dataIsLoading = false;
+
+       _cart = cart.values.toList();
+     });
+    }
 
     return _customDio;
   }
@@ -63,7 +116,7 @@ class _CartPageState extends State<CartPage> {
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
-      floatingActionButton: cartSlug.isNotEmpty ? _issuanceOfPurchaseInvoiceButton() : null,
+      floatingActionButton: cartSlug.isNotEmpty && _connectionStatus != ConnectivityResult.none && !_dataIsLoading ? _issuanceOfPurchaseInvoiceButton() : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -117,23 +170,44 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _innerBody() {
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 5.0.w,
-          top: 16.0,
-          right: 5.0.w,
-          bottom: _purchaseInvoiceWasIssued ? 8.0.h : 16.0,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    if(_connectionStatus == ConnectivityResult.none) {
+      setState(() {
+        _dataIsLoading = true;
+      });
+
+      return const Center(child: NoInternetConnection(),);
+    } else {
+
+
+      return RefreshIndicator(
+        onRefresh: () {
+          setState(() {
+            _dataIsLoading = true;
+          });
+
+          return _initCart();
+          },
+        child: ListView(
           children: [
-            _books(),
-            _prices(),
+            Padding(
+              padding: EdgeInsets.only(
+                left: 5.0.w,
+                top: 16.0,
+                right: 5.0.w,
+                bottom: _purchaseInvoiceWasIssued ? 8.0.h : 16.0,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _books(),
+                  _prices(),
+                ],
+              ),
+            ),
           ],
         ),
-      ),
-    );
+      );
+    }
   }
 
   Padding _books() {

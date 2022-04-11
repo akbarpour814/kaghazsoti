@@ -25,7 +25,7 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  late  bool _internetConnectionChecker;
+  late bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late TextEditingController _firstAndLastNameController;
   late TextEditingController _emailController;
@@ -38,7 +38,6 @@ class _AccountPageState extends State<AccountPage> {
   late bool _dataIsLoading;
   late bool _permissionToEdit;
   late bool _registeredInformation;
-
 
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
@@ -87,8 +86,7 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future _initUserInformation() async {
-    _customDio =
-        await CustomDio.dio.get('user');
+    _customDio = await CustomDio.dio.get('user');
 
     if (_customDio.statusCode == 200) {
       _firstAndLastNameController =
@@ -96,6 +94,8 @@ class _AccountPageState extends State<AccountPage> {
       _emailController = TextEditingController(text: _customDio.data['email']);
       _phoneNumberController =
           TextEditingController(text: _customDio.data['mobile']);
+
+     _dataIsLoading = false;
     }
 
     return _customDio;
@@ -136,45 +136,47 @@ class _AccountPageState extends State<AccountPage> {
   Widget _body() {
     return _dataIsLoading
         ? FutureBuilder(
-      builder:
-          (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? _innerBody()
-            : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
-      },
-      future: _initUserInformation(),
-    )
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              return snapshot.hasData
+                  ? _innerBody()
+                  : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+            },
+            future: _initUserInformation(),
+          )
         : _innerBody();
   }
 
   Widget _innerBody() {
+    if (_connectionStatus == ConnectivityResult.none) {
+      setState(() {
+        _dataIsLoading = true;
+      });
 
-    if(_connectionStatus == ConnectivityResult.none) {
-      // setState(() {
-      //   _dataIsLoading = true;
-      // });
-
-      return const Center(child: NoInternetConnection(),);
+      return const Center(child: NoInternetConnection(),
+      );
     } else {
-
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _permissionToEditCheckbox(),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 5.0.h),
-              child: Column(
-                children: [
-                  _firstAndLastName(),
-                  _email(),
-                  _phoneNumber(),
-                ],
-              ),
+      return Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _permissionToEditCheckbox(),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.0.h),
+                  child: Column(
+                    children: [
+                      _firstAndLastName(),
+                      _email(),
+                      _phoneNumber(),
+                    ],
+                  ),
+                ),
+                _informationRegistrationButton(),
+              ],
             ),
-            _informationRegistrationButton(),
-          ],
+          ),
         ),
       );
     }
@@ -234,7 +236,9 @@ class _AccountPageState extends State<AccountPage> {
           setState(() {
             _firstAndLastNameError =
                 UserInformationFormatCheck.checkFirstAndLastNameFormat(
-                    _firstAndLastNameController, null,);
+              _firstAndLastNameController,
+              null,
+            );
           });
         },
       ),
@@ -257,7 +261,9 @@ class _AccountPageState extends State<AccountPage> {
         onChanged: (String text) {
           setState(() {
             _emailError = UserInformationFormatCheck.checkEmailFormat(
-                _emailController, null,);
+              _emailController,
+              null,
+            );
           });
         },
       ),

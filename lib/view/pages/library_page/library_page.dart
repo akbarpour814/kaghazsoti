@@ -7,14 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:kaghaze_souti/view/audio_player_models/test.dart';
+import 'package:kaghaze_souti/view/audio_player_models/audiobook_player_page.dart';
 import 'package:kaghaze_souti/view/pages/library_page/book_chapters_page.dart';
 
 // import 'package:takfood_seller/controller/database.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 import '/model/book.dart';
-import '/view/view_models/audiobook_player_page.dart';
 import '/view/view_models/book_introduction_page.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
@@ -201,7 +200,7 @@ class _MyBookState extends State<MyBook> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return MainScreen(audiobook: widget.book);
+                return AudiobookPlayerPage(audiobook: widget.book);
               },
             ),
           );

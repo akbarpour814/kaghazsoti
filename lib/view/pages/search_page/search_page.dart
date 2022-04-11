@@ -1,8 +1,13 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sizer/sizer.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/model/book_introduction.dart';
 
 import '../../../controller/custom_response.dart';
@@ -35,6 +40,10 @@ class _SearchPageState extends State<SearchPage> {
   late int _lastPage;
   late int _currentPage;
 
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   @override
   void initState() {
     _dataIsLoading = true;
@@ -46,7 +55,41 @@ class _SearchPageState extends State<SearchPage> {
     _currentPage = 1;
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
 
   Future _initBooks() async {
     _customDio = await CustomDio.dio.post(
@@ -122,29 +165,37 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _innerBody() {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: 16.0,
-            horizontal: 5.0.w,
-          ),
-          child: Column(
-            children: [
-              /* _selectASearchTopic(),
+    if(_connectionStatus == ConnectivityResult.none) {
+      setState(() {
+        _dataIsLoading = true;
+      });
+
+      return const Center(child: NoInternetConnection(),);
+    } else {
+      return Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: 16.0,
+              horizontal: 5.0.w,
+            ),
+            child: Column(
+              children: [
+                /* _selectASearchTopic(),
               const Divider(
                 height: 32.0,
               ),*/
-              _searchTextField(),
-            ],
+                _searchTextField(),
+              ],
+            ),
           ),
-        ),
-        const Divider(
-          height: 0.0,
-        ),
-        _searchResults(),
-      ],
-    );
+          const Divider(
+            height: 0.0,
+          ),
+          _searchResults(),
+        ],
+      );
+    }
   }
 
   Row _selectASearchTopic() {
@@ -389,7 +440,7 @@ class _SearchPageState extends State<SearchPage> {
         ),
         controller: _refreshController,
         onRefresh: _onRefresh,
-        onLoading: refresh ? null : _onLoading,
+        onLoading: _onLoading,
         child: ListView.builder(
           itemBuilder: (BuildContext context, int index) =>
               BookShortIntroduction(
@@ -409,7 +460,7 @@ class _SearchPageState extends State<SearchPage> {
 
   void _onRefresh() async{
     // monitor network fetch
-    await Future.delayed(Duration(milliseconds: 1000));
+   // await Future.delayed(Duration(milliseconds: 1000));
     // if failed,use refreshFailed()
     _refreshController.refreshCompleted();
   }

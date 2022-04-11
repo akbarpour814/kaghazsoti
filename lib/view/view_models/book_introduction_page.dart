@@ -105,6 +105,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     });
   }
 
+
   @override
   void dispose() {
     _connectivitySubscription.cancel();
@@ -120,8 +121,8 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
       _book = Book.fromJson(_customResponse.data);
 
-      _displayOfDetails =
-          List<bool>.generate(_book.reviews.length, (index) => false);
+      _displayOfDetails = List<bool>.generate(_book.reviews.length, (index) => false);
+      print(_displayOfDetails);
 
       _availableInCart = cartSlug.contains(_book.slug);
 
@@ -208,7 +209,12 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       return const Center(child: NoInternetConnection(),);
     } else {
       return RefreshIndicator(
-        onRefresh: () { return _initBook(); },
+        onRefresh: () {
+          setState(() {
+            _dataIsLoading = true;
+          });
+
+          return _initBook(); },
         child: ListView(
           children: [
             Padding(
@@ -406,11 +412,13 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     setState(() {
       if (_availableInCart) {
         cartSlug.remove(_book.slug);
+
+        _availableInCart = false;
       } else {
         cartSlug.add(_book.slug);
-      }
 
-      _availableInCart = cartSlug.contains(_book.slug);
+        _availableInCart = true;
+      }
     });
 
     await sharedPreferences.setStringList('cartSlug', cartSlug);

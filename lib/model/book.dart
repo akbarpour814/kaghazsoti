@@ -39,88 +39,88 @@ class Book {
     Map<String, dynamic> product = json['product'];
 
     id = product['id'] ?? -1;
-    print(product['id']);
-    print("product['id']");
+    // print(product['id']);
+    // print("product['id']");
 
     slug = product['slug'] ?? '';
-    print(product['slug']);
-    print("product['slug']");
+    // print(product['slug']);
+    // print("product['slug']");
 
     name = product['title'] ?? '';
-    print(product['title']);
-    print("product['title']");
+    // print(product['title']);
+    // print("product['title']");
 
     category = product['category'] == null ? '' : (product['category'])['name']  ?? '';
-    print(product['category']);
-    print("product['category']");
+    // print(product['category']);
+    // print("product['category']");
 
     subcategory = product['parent_category'] == null ? '' : (product['parent_category'])['name']  ?? '';
-    print(product['parent_category']);
-    print("product['parent_category']");
+    // print(product['parent_category']);
+    // print("product['parent_category']");
 
     author = product['author'] == null ? '' : (product['author'])['name']  ?? '';
-    print(product['author']);
-    print("product['author']");
+    // print(product['author']);
+    // print("product['author']");
 
     announcer = product['narrator'] == null ? '' : (product['narrator'])['name']  ?? '';
-    print(product['narrator']);
-    print("product['narrator']");
+    // print(product['narrator']);
+    // print("product['narrator']");
 
     /////////////////////
     fileSize = (product['download_volume'] ?? 0.0).toString();
-    print(product['download_volume']);
-    print("product['download_volume']");
+    // print(product['download_volume']);
+    // print("product['download_volume']");
     ////////////////////////
 
     publisherOfPrintedVersion = product['publisher'] == null ? '' : (product['publisher'])['name']  ?? '';
-    print(product['publisher']);
-    print("product['publisher']");
+    // print(product['publisher']);
+    // print("product['publisher']");
 
     printedVersionYear = product['publish_year'] ?? 0;
-    print(product['publish_year']);
-    print("product['publish_year']");
+    // print(product['publish_year']);
+    // print("product['publish_year']");
 
     publisherOfAudioVersion = product['audio_publisher'] == null ? '' : (product['audio_publisher'])['name']  ?? '';
-    print(product['audio_publisher']);
-    print("product['audio_publisher']");
+    // print(product['audio_publisher']);
+    // print("product['audio_publisher']");
 
     audioVersionYear = product['audio_publish_year'] ?? 0;
-    print(product['audio_publish_year']);
-    print("product['audio_publish_year']");
+    // print(product['audio_publish_year']);
+    // print("product['audio_publish_year']");
 
     ///////////////////
     numberOfChapters = product['orders_count'] ?? 0;
-    print(product['orders_count']);
-    print("product['orders_count']");
+    // print(product['orders_count']);
+    // print("product['orders_count']");
 
     numberOfPages = product['page_count'];
-    print(product['page_count']);
-    print("product['page_count']");
+    // print(product['page_count']);
+    // print("product['page_count']");
 
     duration = product['duration'] ?? '';
-    print(product['duration']);
-    print("product['duration']");
+    // print(product['duration']);
+    // print("product['duration']");
     //////////////////////
 
     //price = PriceFormat.priceFormat(price: int.parse(product['price'] ?? '0'), isFree: true);
     price = product['cast_price'] ;
-    print(product['cast_price']);
-    print("product['cast_price']");
+    // print(product['cast_price']);
+    // print("product['cast_price']");
 
     //////////////////////////
     marked = markedBooksId.contains(product['id']);
 
     numberOfVotes = product['vote'] ?? 0;
-    print(product['vote']);
-    print("product['vote']");
+    // print(product['vote']);
+    // print("product['vote']");
 
     numberOfStars = double.parse(product['rating'] ?? 0.0).toInt();
-    print(product['rating']);
-    print("product['rating']");
+    // print(product['rating']);
+    // print("product['rating']");
 
     aboutBook = product['description'] ?? '';
-    print(product['description']);
-    print("product['description']");
+    // print(product['description']);
+    // print("product['description']");
 
     Document document = parse(aboutBook);
 
@@ -129,8 +129,8 @@ class Book {
     aboutBook = aboutBook.replaceAll('  ', '');
 
     partOfTheBook = product['summery'] ?? '';
-    print(product['summery']);
-    print("product['summery']");
+    // print(product['summery']);
+    // print("product['summery']");
 
     document = parse(partOfTheBook);
 
@@ -142,8 +142,8 @@ class Book {
     reviews = [];
     reviewed = false;
     setReviews(json['reviews'] ?? []);
-    print(json['reviews']);
-    print("json['reviews']");
+    // print(json['reviews']);
+    // print("json['reviews']");
 
     int myReviewIndex = reviews.indexWhere((element) => element.id == userId);
 
@@ -159,12 +159,12 @@ class Book {
 
     parts = [];
     demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}';
-    print(product['demo']);
-    print("product['demo']");
+    // print(product['demo']);
+    // print("product['demo']");
 
     bookCoverPath = product['image'] == null ? defaultBookCover : 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
-    print(product['image']);
-    print("product['image']");
+    // print(product['image']);
+    // print("product['image']");
 
     /////////////////////////////////////////////////////////
     otherBooksByThePublisher = [];
@@ -172,8 +172,8 @@ class Book {
 
     relatedBooks = [];
     setRelatedBooks(json['similar'] ?? []);
-    print(json['similar']);
-    print("json['similar']");
+    // print(json['similar']);
+    // print("json['similar']");
   }
 
   void _toString() {
