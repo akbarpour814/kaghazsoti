@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 import '/view/view_models/custom_snack_bar.dart';
 import '/view/view_models/custom_text_field.dart';
@@ -32,13 +36,53 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
   String? _newPasswordError;
   String? _repeatNewPasswordError;
 
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   @override
   void initState() {
     _newPasswordRegistered = false;
     _obscureText = true;
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+
   }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -73,26 +117,30 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
   }
 
   Widget _body() {
-    return Center(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(bottom: 5.0.h),
-                child: _permissionToObscureText(),
-              ),
-              _previousPassword(),
-              _newPassword(),
-              _repeatNewPassword(),
-              _newPasswordRegistrationButton(),
-            ],
+    if(_connectionStatus == ConnectivityResult.none) {
+      return const Center(child: NoInternetConnection(),);
+    } else {
+      return Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(bottom: 5.0.h),
+                  child: _permissionToObscureText(),
+                ),
+                _previousPassword(),
+                _newPassword(),
+                _repeatNewPassword(),
+                _newPasswordRegistrationButton(),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Row _permissionToObscureText() {

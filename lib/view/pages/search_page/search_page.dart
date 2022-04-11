@@ -383,7 +383,7 @@ class _SearchPageState extends State<SearchPage> {
         footer: CustomFooter(
           builder: (BuildContext? context, LoadStatus? mode) {
             Widget body;
-            if ((mode == LoadStatus.idle && _currentPage == _lastPage) ||
+            if ((mode == LoadStatus.idle && _currentPage == _lastPage && !_dataIsLoading) ||
                 _textEditingController.text.isNotEmpty) {
               print('mod 1');
 

@@ -81,6 +81,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+
   }
 
   Future<void> initConnectivity() async {

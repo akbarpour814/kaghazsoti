@@ -1,8 +1,13 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 import '/model/comment.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
@@ -10,6 +15,7 @@ import '/view/view_models/property.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_dio.dart';
+
 //import '../../../controller/database.dart';
 import '../../../controller/custom_response.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
@@ -23,7 +29,7 @@ class ContactUsPage extends StatefulWidget {
 }
 
 class _ContactUsPageState extends State<ContactUsPage> {
-  late  bool _internetConnectionChecker;
+  late bool _internetConnectionChecker;
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   TextEditingController _textEditingController = TextEditingController();
@@ -36,6 +42,10 @@ class _ContactUsPageState extends State<ContactUsPage> {
   late int _previousIndex;
   late List<Comment> _comments;
 
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   @override
   void initState() {
     _dataIsLoading = true;
@@ -45,6 +55,39 @@ class _ContactUsPageState extends State<ContactUsPage> {
     _comments = [];
 
     super.initState();
+
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print(e.toString());
+      return;
+    }
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
   }
 
   Future _initComments() async {
@@ -61,10 +104,13 @@ class _ContactUsPageState extends State<ContactUsPage> {
         _comments.add(Comment.fromJson(comment));
       }
 
-      for(int i = 2; i <= lastPage; ++i) {
-        _customDio = await CustomDio.dio.get('dashboard/tickets', queryParameters: {'page': i},);
+      for (int i = 2; i <= lastPage; ++i) {
+        _customDio = await CustomDio.dio.get(
+          'dashboard/tickets',
+          queryParameters: {'page': i},
+        );
 
-        if(_customDio.statusCode == 200) {
+        if (_customDio.statusCode == 200) {
           _customResponse = CustomResponse.fromJson(_customDio.data);
 
           for (Map<String, dynamic> comment in _customResponse.data['data']) {
@@ -73,7 +119,10 @@ class _ContactUsPageState extends State<ContactUsPage> {
         }
       }
 
-      _displayOfDetails = List<bool>.generate(_comments.length, (index) => false);
+      _displayOfDetails =
+          List<bool>.generate(_comments.length, (index) => false);
+
+      _comments.clear();
 
       _dataIsLoading = false;
     }
@@ -114,19 +163,31 @@ class _ContactUsPageState extends State<ContactUsPage> {
   }
 
   Widget _body() {
-    return _dataIsLoading ? FutureBuilder(
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? _innerBody()
-            : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
-      },
-      future: _initComments(),
-    ) : _innerBody();
+    return _dataIsLoading
+        ? FutureBuilder(
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+              return snapshot.hasData
+                  ? _innerBody()
+                  : Center(
+                      child: CustomCircularProgressIndicator(
+                          message: 'لطفاً شکیبا باشید.'));
+            },
+            future: _initComments(),
+          )
+        : _innerBody();
   }
 
-  SingleChildScrollView _innerBody() {
-    return SingleChildScrollView(
-      child: Padding(
+  Widget _innerBody() {
+    if (_connectionStatus == ConnectivityResult.none) {
+      setState(() {
+        _dataIsLoading = true;
+      });
+
+      return const Center(
+        child: NoInternetConnection(),
+      );
+    } else {
+      return Padding(
         padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,11 +195,21 @@ class _ContactUsPageState extends State<ContactUsPage> {
             _selectACommentTopic(),
             _commentTextField(),
             _commentRegistrationButton(),
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0),
+              child: Text(
+                'نظرات شما',
+                style: TextStyle(color: Theme.of(context).primaryColor),
+              ),
+            ),
+            const Divider(
+              height: 32.0,
+            ),
             _userComments(),
           ],
         ),
-      ),
-    );
+      );
+    }
   }
 
   Column _selectACommentTopic() {
@@ -248,13 +319,13 @@ class _ContactUsPageState extends State<ContactUsPage> {
       child: ElevatedButton.icon(
         onPressed: () {
           setState(() {
-            if((_topic == null) && (_textEditingController.text.isEmpty)) {
+            if ((_topic == null) && (_textEditingController.text.isEmpty)) {
               _errorText = 'لطفاً نظر خود را به همراه موضوع بنویسید.';
-            } else if(_topic == null) {
+            } else if (_topic == null) {
               _errorText = 'لطفاً موضوع را انتخاب کنید.';
-            } else if(_textEditingController.text.isEmpty) {
+            } else if (_textEditingController.text.isEmpty) {
               _errorText = 'لطفاً نظر خود را بنویسید.';
-            } else if(_textEditingController.text.length < 3) {
+            } else if (_textEditingController.text.length < 3) {
               _errorText = 'نظر شما باید بیش از حرف داشته باشد.';
             } else {
               _errorText = null;
@@ -310,161 +381,165 @@ class _ContactUsPageState extends State<ContactUsPage> {
   }
 
   Widget _userComments() {
-    if(_comments.isEmpty) {
-      return const Center(
-        child: Text('کتابی در کتابخانه شما موجود نمی باشد.'),
+    if (_comments.isEmpty) {
+      return Expanded(
+        child: Center(
+          child: Text(
+            'شما تا کنون نظری به ثبت نرسانده اید.',
+            style: TextStyle(color: Theme.of(context).primaryColor),
+          ),
+        ),
       );
     } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: Text(
-              'نظرات شما',
-              style: TextStyle(color: Theme.of(context).primaryColor),
-            ),
-          ),
-          const Divider(
-            height: 32.0,
-          ),
-          Column(
-            children: List.generate(
-              _comments.length,
-                  (index) => Padding(
-                padding: EdgeInsets.only(
-                  top: 0.0,
-                  bottom: index == _comments.length - 1 ? 0.0 : 8.0,
-                ),
-                child: Container(
-                  padding: const EdgeInsets.only(
-                    left: 18.0,
-                    top: 18.0,
-                    right: 18.0,
-                    bottom: 8.0,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).primaryColor),
-                    borderRadius:
-                    const BorderRadius.all(Radius.circular(5.0)),
-                  ),
-                  child: Column(
-                    children: [
-                      Property(
-                        property: 'موضوع',
-                        value: _comments[index].topic.title!,
-                        valueInTheEnd: false,
-                        lastProperty: false,),
-                      Property(
-                        property: 'تاریخ ارسال',
-                        value: _comments[index].sentDate,
-                        valueInTheEnd: false,
-                        lastProperty: false,),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 0.0,
-                          top: 0.0,
-                          right: 0.0,
-                          bottom: 8.0,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            const Expanded(
-                              child: Text('وضعیت:'),
-                            ),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      _comments[index].status.title!,
-                                      style: TextStyle(
-                                        color: _comments[index].status.color,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Visibility(
-                        visible: _displayOfDetails[index],
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Divider(
-                              height: 24.0,
-                            ),
-                            Property(
-                              property: 'دیدگاه شما',
-                              value: '',
-                              valueInTheEnd: false,
-                              lastProperty: false,),
-                            Text(
-                              '- ${_comments[index].text}',
-                              textAlign: TextAlign.justify,
-                            ),
-                            Visibility(
-                              visible: _comments[index].status ==
-                                  CommentStatus.answered,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Divider(
-                                    height: 24.0,
-                                  ),
-                                  Property(
-                                    property: 'پاسخ ما',
-                                    value: '',
-                                    valueInTheEnd: false,
-                                    lastProperty: false,),
-                                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: List<Text>.generate(_comments[index].answers.length, (commentIndex) => Text('${commentIndex + 1}- ${_comments[index].answers[commentIndex]}', textAlign: TextAlign.start,),),),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(
-                        height: 24.0,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            if (index == _previousIndex &&
-                                _displayOfDetails[index]) {
-                              _displayOfDetails[index] = false;
-                            } else if (index == _previousIndex &&
-                                !_displayOfDetails[index]) {
-                              _displayOfDetails[index] = true;
-                            } else if (index != _previousIndex) {
-                              if (_previousIndex != -1) {
-                                _displayOfDetails[_previousIndex] = false;
-                              }
-                              _displayOfDetails[index] = true;
-                            }
 
-                            _previousIndex = index;
-                          });
-                        },
-                        child: Icon(
-                          _displayOfDetails[index]
-                              ? Icons.expand_less
-                              : Icons.expand_more,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-                    ],
+
+      return Column(
+        children: List.generate(
+          _comments.length,
+          (index) => Padding(
+            padding: EdgeInsets.only(
+              top: 0.0,
+              bottom: index == _comments.length - 1 ? 0.0 : 8.0,
+            ),
+            child: Container(
+              padding: const EdgeInsets.only(
+                left: 18.0,
+                top: 18.0,
+                right: 18.0,
+                bottom: 8.0,
+              ),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).primaryColor),
+                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+              ),
+              child: Column(
+                children: [
+                  Property(
+                    property: 'موضوع',
+                    value: _comments[index].topic.title!,
+                    valueInTheEnd: false,
+                    lastProperty: false,
                   ),
-                ),
+                  Property(
+                    property: 'تاریخ ارسال',
+                    value: _comments[index].sentDate,
+                    valueInTheEnd: false,
+                    lastProperty: false,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 0.0,
+                      top: 0.0,
+                      right: 0.0,
+                      bottom: 8.0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        const Expanded(
+                          child: Text('وضعیت:'),
+                        ),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  _comments[index].status.title!,
+                                  style: TextStyle(
+                                    color: _comments[index].status.color,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Visibility(
+                    visible: _displayOfDetails[index],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Divider(
+                          height: 24.0,
+                        ),
+                        Property(
+                          property: 'دیدگاه شما',
+                          value: '',
+                          valueInTheEnd: false,
+                          lastProperty: false,
+                        ),
+                        Text(
+                          '- ${_comments[index].text}',
+                          textAlign: TextAlign.justify,
+                        ),
+                        Visibility(
+                          visible:
+                              _comments[index].status == CommentStatus.answered,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Divider(
+                                height: 24.0,
+                              ),
+                              Property(
+                                property: 'پاسخ ما',
+                                value: '',
+                                valueInTheEnd: false,
+                                lastProperty: false,
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: List<Text>.generate(
+                                  _comments[index].answers.length,
+                                  (commentIndex) => Text(
+                                    '${commentIndex + 1}- ${_comments[index].answers[commentIndex]}',
+                                    textAlign: TextAlign.start,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(
+                    height: 24.0,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        if (index == _previousIndex &&
+                            _displayOfDetails[index]) {
+                          _displayOfDetails[index] = false;
+                        } else if (index == _previousIndex &&
+                            !_displayOfDetails[index]) {
+                          _displayOfDetails[index] = true;
+                        } else if (index != _previousIndex) {
+                          if (_previousIndex != -1) {
+                            _displayOfDetails[_previousIndex] = false;
+                          }
+                          _displayOfDetails[index] = true;
+                        }
+
+                        _previousIndex = index;
+                      });
+                    },
+                    child: Icon(
+                      _displayOfDetails[index]
+                          ? Icons.expand_less
+                          : Icons.expand_more,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
+        ),
       );
     }
   }
