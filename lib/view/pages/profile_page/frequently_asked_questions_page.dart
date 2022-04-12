@@ -9,6 +9,7 @@ import 'package:ionicons/ionicons.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
 import '../../../main.dart';
+import '../../../model/text_format.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
@@ -235,7 +236,9 @@ class FrequentlyAskedQuestion {
 
   FrequentlyAskedQuestion.fromJson(Map<String, dynamic> json) {
     question = json['q'];
+    question = TextFormat.textFormat(text: question);
 
     answer = json['a'];
+    answer = TextFormat.textFormat(text: answer);
   }
 }

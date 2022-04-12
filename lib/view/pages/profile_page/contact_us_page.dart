@@ -99,29 +99,9 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
-      int lastPage = _customResponse.data['last_page'];
+      _comments.add(CommentData.fromJson(_customResponse.data['data'][0]));
 
-      for (Map<String, dynamic> comment in _customResponse.data['data']) {
-        _comments.add(CommentData.fromJson(comment));
-      }
-
-      for (int i = 2; i <= lastPage; ++i) {
-        _customDio = await CustomDio.dio.get(
-          'dashboard/tickets',
-          queryParameters: {'page': i},
-        );
-
-        if (_customDio.statusCode == 200) {
-          _customResponse = CustomResponse.fromJson(_customDio.data);
-
-          for (Map<String, dynamic> comment in _customResponse.data['data']) {
-            _comments.add(CommentData.fromJson(comment));
-          }
-        }
-      }
-
-      _displayOfDetails =
-          List<bool>.generate(_comments.length, (index) => false);
+      _displayOfDetails = List<bool>.generate(_comments.length, (index) => false);
 
       _dataIsLoading = false;
     }
@@ -582,6 +562,10 @@ class _CommentsPageState extends State<CommentsPage> {
   late bool _dataIsLoading;
   late int _lastPage;
   late int _currentPage;
+  late List<CommentData> _commentsTemp;
+  late List<CommentData> _comments;
+  late List<bool> _displayOfDetails;
+  late int _previousIndex;
 
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
@@ -590,7 +574,12 @@ class _CommentsPageState extends State<CommentsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    _dataIsLoading = true;
+    _previousIndex = -1;
+    _commentsTemp = [];
+    _comments = [];
+    _currentPage = 1;
+
     super.initState();
 
     initConnectivity();
@@ -627,13 +616,40 @@ class _CommentsPageState extends State<CommentsPage> {
     super.dispose();
   }
 
+  Future _initComments() async {
+    _customDio = await CustomDio.dio.get('dashboard/tickets', queryParameters: {'page': _currentPage},);
+
+    if (_customDio.statusCode == 200) {
+      _customResponse = CustomResponse.fromJson(_customDio.data);
+
+      _lastPage = _customResponse.data['last_page'];
+
+      if(_currentPage == 1) {
+        _comments.clear();
+      }
+
+      for (Map<String, dynamic> comment in _customResponse.data['data']) {
+        _comments.add(CommentData.fromJson(comment));
+      }
+
+      _commentsTemp.clear();
+      _commentsTemp.addAll(_comments);
+
+      _displayOfDetails = List<bool>.generate(_commentsTemp.length, (index) => false);
+
+      _dataIsLoading = false;
+    }
+
+    return _customDio;
+  }
+
   @override
   Widget build(BuildContext context) {
     _refreshController = RefreshController(initialRefresh: false);
 
     return Scaffold(
       appBar: _appBar(),
-      // body: _body(),
+      body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
     );
   }
@@ -661,7 +677,7 @@ class _CommentsPageState extends State<CommentsPage> {
     );
   }
 
-  /*Widget _body() {
+  Widget _body() {
     return _dataIsLoading ? FutureBuilder(
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         return snapshot.hasData
@@ -670,7 +686,7 @@ class _CommentsPageState extends State<CommentsPage> {
             child: CustomCircularProgressIndicator(
                 message: 'لطفاً شکیبا باشید.'));
       },
-      future: _initMarkedBooks(),
+      future: _initComments(),
     ) : _innerBody();
   }
 
@@ -683,9 +699,9 @@ class _CommentsPageState extends State<CommentsPage> {
 
       return const Center(child: NoInternetConnection(),);
     } else {
-      if (_markedBooksTemp.isEmpty) {
+      if (_commentsTemp.isEmpty) {
         return const Center(
-          child: Text('شما تا کنون کتابی را نشان نکرده اید.'),
+          child: Text('شما تا کنون نظری به ثبت نرسانده اید.'),
         );
       } else {
         return SmartRefresher(
@@ -698,7 +714,7 @@ class _CommentsPageState extends State<CommentsPage> {
 
               if ((mode == LoadStatus.idle) && (_currentPage == _lastPage) && (!_dataIsLoading)) {
                 bar = Text(
-                  'کتاب دیگری یافت نشد.',
+                  'نظر دیگری یافت نشد.',
                   style: TextStyle(
                     color: Theme.of(context!).primaryColor,
                   ),
@@ -717,7 +733,7 @@ class _CommentsPageState extends State<CommentsPage> {
                     message: 'لطفاً صفحه را پایین بکشید.');
               } else {
                 bar = Text(
-                  'کتاب دیگری یافت نشد.',
+                  'نظر دیگری یافت نشد.',
                   style: TextStyle(color: Theme.of(context!).primaryColor),
                 );
               }
@@ -733,11 +749,152 @@ class _CommentsPageState extends State<CommentsPage> {
           onLoading: _onLoading,
           child: ListView.builder(
             itemBuilder: (BuildContext context, int index) =>
-                BookShortIntroduction(
-                  book: _markedBooksTemp[index],
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: 5.0.w,
+                    top: index == 0 ? 16.0 : 0.0,
+                    right: 5.0.w,
+                    bottom: index == _commentsTemp.length - 1 ? 0.0 : 16.0,
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      left: 18.0,
+                      top: 18.0,
+                      right: 18.0,
+                      bottom: 8.0,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Theme.of(context).primaryColor),
+                      borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+                    ),
+                    child: Column(
+                      children: [
+                        Property(
+                          property: 'موضوع',
+                          value: _commentsTemp[index].topic.title!,
+                          valueInTheEnd: false,
+                          lastProperty: false,
+                        ),
+                        Property(
+                          property: 'تاریخ ارسال',
+                          value: _commentsTemp[index].sentDate,
+                          valueInTheEnd: false,
+                          lastProperty: false,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 0.0,
+                            top: 0.0,
+                            right: 0.0,
+                            bottom: 8.0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              const Expanded(
+                                child: Text('وضعیت:'),
+                              ),
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        _commentsTemp[index].status.title!,
+                                        style: TextStyle(
+                                          color: _commentsTemp[index].status.color,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Visibility(
+                          visible: _displayOfDetails[index],
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Divider(
+                                height: 24.0,
+                              ),
+                              Property(
+                                property: 'دیدگاه شما',
+                                value: '',
+                                valueInTheEnd: false,
+                                lastProperty: false,
+                              ),
+                              Text(
+                                '- ${_commentsTemp[index].text}',
+                                textAlign: TextAlign.justify,
+                              ),
+                              Visibility(
+                                visible:
+                                _commentsTemp[index].status == CommentStatus.answered,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Divider(
+                                      height: 24.0,
+                                    ),
+                                    Property(
+                                      property: 'پاسخ ما',
+                                      value: '',
+                                      valueInTheEnd: false,
+                                      lastProperty: false,
+                                    ),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: List<Text>.generate(
+                                        _commentsTemp[index].answers.length,
+                                            (commentIndex) => Text(
+                                          '${commentIndex + 1}- ${_commentsTemp[index].answers[commentIndex]}',
+                                          textAlign: TextAlign.start,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(
+                          height: 24.0,
+                        ),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              if (index == _previousIndex &&
+                                  _displayOfDetails[index]) {
+                                _displayOfDetails[index] = false;
+                              } else if (index == _previousIndex &&
+                                  !_displayOfDetails[index]) {
+                                _displayOfDetails[index] = true;
+                              } else if (index != _previousIndex) {
+                                if (_previousIndex != -1) {
+                                  _displayOfDetails[_previousIndex] = false;
+                                }
+                                _displayOfDetails[index] = true;
+                              }
+
+                              _previousIndex = index;
+                            });
+                          },
+                          child: Icon(
+                            _displayOfDetails[index]
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-            itemCount: _markedBooksTemp.length,
-            itemExtent: 15.8.h,
+            itemCount: _commentsTemp.length,
           ),
         );
       }
@@ -757,13 +914,9 @@ class _CommentsPageState extends State<CommentsPage> {
     try {
       if (_currentPage < _lastPage) {
         setState(() {
-          loading = refresh ? false : true;
+          _currentPage++;
 
-          if (loading) {
-            _currentPage++;
-
-            _initMarkedBooks();
-          }
+          _initComments();
         });
       }
 
@@ -773,162 +926,5 @@ class _CommentsPageState extends State<CommentsPage> {
     } catch (e) {
       _refreshController.loadFailed();
     }
-  }*/
-}
-
-
-/*class CommentView extends StatefulWidget {
-  late CommentData commentData;
-  late int index;
-
-  CommentView({Key? key, required this.commentData, required this.index,}) : super(key: key);
-
-  @override
-  _CommentViewState createState() => _CommentViewState();
-}
-
-class _CommentViewState extends State<CommentView> {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        top: 0.0,
-        bottom: widget.index == _comments.length - 1 ? 0.0 : 8.0,
-      ),
-      child: Container(
-        padding: const EdgeInsets.only(
-          left: 18.0,
-          top: 18.0,
-          right: 18.0,
-          bottom: 8.0,
-        ),
-        decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).primaryColor),
-          borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-        ),
-        child: Column(
-          children: [
-            Property(
-              property: 'موضوع',
-              value: widget.commentData.topic.title!,
-              valueInTheEnd: false,
-              lastProperty: false,
-            ),
-            Property(
-              property: 'تاریخ ارسال',
-              value: widget.commentData.sentDate,
-              valueInTheEnd: false,
-              lastProperty: false,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 0.0,
-                top: 0.0,
-                right: 0.0,
-                bottom: 8.0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  const Expanded(
-                    child: Text('وضعیت:'),
-                  ),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            widget.commentData.status.title!,
-                            style: TextStyle(
-                              color: widget.commentData.status.color,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Divider(
-                  height: 24.0,
-                ),
-                Property(
-                  property: 'دیدگاه شما',
-                  value: '',
-                  valueInTheEnd: false,
-                  lastProperty: false,
-                ),
-                Text(
-                  '- ${widget.commentData.text}',
-                  textAlign: TextAlign.justify,
-                ),
-                Visibility(
-                  visible:
-                  widget.commentData.status == CommentStatus.answered,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Divider(
-                        height: 24.0,
-                      ),
-                      Property(
-                        property: 'پاسخ ما',
-                        value: '',
-                        valueInTheEnd: false,
-                        lastProperty: false,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List<Text>.generate(
-                          widget.commentData.answers.length,
-                              (commentIndex) => Text(
-                            '${commentIndex + 1}- ${widget.commentData.answers[commentIndex]}',
-                            textAlign: TextAlign.start,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const Divider(
-              height: 24.0,
-            ),
-            InkWell(
-              onTap: () {
-                setState(() {
-                  if (index == _previousIndex &&
-                      _displayOfDetails[index]) {
-                    _displayOfDetails[index] = false;
-                  } else if (index == _previousIndex &&
-                      !_displayOfDetails[index]) {
-                    _displayOfDetails[index] = true;
-                  } else if (index != _previousIndex) {
-                    if (_previousIndex != -1) {
-                      _displayOfDetails[_previousIndex] = false;
-                    }
-                    _displayOfDetails[index] = true;
-                  }
-
-                  _previousIndex = index;
-                });
-              },
-              child: Icon(
-                _displayOfDetails[index]
-                    ? Icons.expand_less
-                    : Icons.expand_more,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
-}*/
+}

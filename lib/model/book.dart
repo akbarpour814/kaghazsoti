@@ -1,5 +1,6 @@
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:kaghaze_souti/model/text_format.dart';
 
 import '/main.dart';
 import '/model/book_introduction.dart';
@@ -122,20 +123,13 @@ class Book {
     // print(product['description']);
     // print("product['description']");
 
-    Document document = parse(aboutBook);
-
-    aboutBook = parse(document.body!.text).documentElement!.text;
-
-    aboutBook = aboutBook.replaceAll('  ', '');
+    aboutBook = TextFormat.textFormat(text: aboutBook);
 
     partOfTheBook = product['summery'] ?? '';
     // print(product['summery']);
     // print("product['summery']");
+    partOfTheBook = TextFormat.textFormat(text: partOfTheBook);
 
-    document = parse(partOfTheBook);
-
-    partOfTheBook = parse(document.body!.text).documentElement!.text;
-    partOfTheBook = partOfTheBook.replaceAll('  ', '');
     /////////////////////////
 
 
@@ -168,6 +162,7 @@ class Book {
 
     /////////////////////////////////////////////////////////
     otherBooksByThePublisher = [];
+    setOtherBooksByThePublisher(json['more_from_publisher'] ?? []);
     /////////////////////////////////////////////////////////
 
     relatedBooks = [];
@@ -221,6 +216,12 @@ class Book {
   void setRelatedBooks(List<dynamic> relatedBooksAsMap) {
     for(Map<String, dynamic> bookIntroduction in relatedBooksAsMap) {
       relatedBooks.add(BookIntroduction.fromJson(bookIntroduction));
+    }
+  }
+
+  void setOtherBooksByThePublisher(List<dynamic> otherBooksByThePublisherAsMap) {
+    for(Map<String, dynamic> bookIntroduction in otherBooksByThePublisherAsMap) {
+      otherBooksByThePublisher.add(BookIntroduction.fromJson(bookIntroduction));
     }
   }
 }
