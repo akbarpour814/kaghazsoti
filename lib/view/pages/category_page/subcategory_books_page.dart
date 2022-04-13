@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:sizer/sizer.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/model/category.dart';
 import '../../../controller/custom_dio.dart';
@@ -14,61 +13,65 @@ import '../../../controller/custom_response.dart';
 import '../../../main.dart';
 import '../../../model/book_introduction.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
-import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 
-
+// ignore: must_be_immutable
 class SubcategoryBooksPage extends StatefulWidget {
   late Subcategory subcategory;
-  SubcategoryBooksPage({Key? key, required this.subcategory,}) : super(key: key);
+
+  SubcategoryBooksPage({
+    Key? key,
+    required this.subcategory,
+  }) : super(key: key);
 
   @override
   _SubcategoryBooksPageState createState() => _SubcategoryBooksPageState();
 }
 
 class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
-  late  bool _internetConnectionChecker;
+  late ConnectivityResult _connectionStatus;
+  late Connectivity _connectivity;
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late bool _dataIsLoading;
 
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
-  List<BookIntroduction> _books = [];
-  List<BookIntroduction> _booksTemp = [];
-
   late RefreshController _refreshController;
-
+  late bool _refresh;
+  late bool _loading;
   late int _lastPage;
   late int _currentPage;
 
+  late List<BookIntroduction> _subcategoryBooks;
+  late List<BookIntroduction> _subcategoryBooksTemp;
 
   @override
   void initState() {
     super.initState();
-    _refreshController = RefreshController(initialRefresh: false);
-    _dataIsLoading = true;
-
-    _currentPage = 1;
-
-    initConnectivity();
-
-
-
+    _connectionStatus = ConnectivityResult.none;
+    _connectivity = Connectivity();
+    _initConnectivity();
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+
+    _dataIsLoading = true;
+
+    _refreshController = RefreshController(initialRefresh: false);
+    _refresh = false;
+    _loading = false;
+    _currentPage = 1;
+
+    _subcategoryBooks = [];
+    _subcategoryBooksTemp = [];
   }
 
-  Future<void> initConnectivity() async {
+  Future<void> _initConnectivity() async {
     late ConnectivityResult result;
+
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
       return;
     }
     if (!mounted) {
@@ -87,34 +90,38 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
   @override
   void dispose() {
     _connectivitySubscription.cancel();
+
     super.dispose();
   }
 
   Future _initSubcategoryBooks() async {
-    _customDio = await CustomDio.dio.post('categories/${widget.subcategory.slug}', queryParameters: {'page': _currentPage},);
+    _customDio = await CustomDio.dio.post(
+      'categories/${widget.subcategory.slug}',
+      queryParameters: {'page': _currentPage},
+    );
 
-    if(_customDio.statusCode == 200) {
+    if (_customDio.statusCode == 200) {
       _customResponse = CustomResponse.fromJson(_customDio.data);
 
       _lastPage = _customResponse.data['last_page'];
 
-      if(_currentPage == 1) {
-        _books.clear();
+      if (_currentPage == 1) {
+        _subcategoryBooksTemp.clear();
       }
 
-      for(Map<String, dynamic> bookIntroduction in _customResponse.data['data']) {
-        _books.add(BookIntroduction.fromJson(bookIntroduction));
+      for (Map<String, dynamic> book in _customResponse.data['data']) {
+        _subcategoryBooksTemp.add(BookIntroduction.fromJson(book));
       }
 
-     setState(() {
-       _booksTemp.clear();
-       _booksTemp.addAll(_books);
+      setState(() {
+        _dataIsLoading = false;
 
-       _dataIsLoading = false;
-       refresh = false;
-       loading = false;
-     });
+        _refresh = false;
+        _loading = false;
 
+        _subcategoryBooks.clear();
+        _subcategoryBooks.addAll(_subcategoryBooksTemp);
+      });
     }
 
     return _customDio;
@@ -151,129 +158,129 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
   }
 
   Widget _body() {
-    return _dataIsLoading ? FutureBuilder(
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? _innerBody()
-            : Center(
-            child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.'));
-      },
-      future: _initSubcategoryBooks(),
-    ) : _innerBody();
+    if (_dataIsLoading) {
+      return FutureBuilder(
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return _innerBody();
+          } else {
+            return Center(
+              child: CustomCircularProgressIndicator(
+                message: 'لطفاً شکیبا باشید.',
+              ),
+            );
+          }
+        },
+        future: _initSubcategoryBooks(),
+      );
+    } else {
+      return _innerBody();
+    }
   }
 
   Widget _innerBody() {
-
-    if(_connectionStatus == ConnectivityResult.none) {
+    if (_connectionStatus == ConnectivityResult.none) {
       setState(() {
         _dataIsLoading = true;
       });
 
-      return const Center(child: NoInternetConnection(),);
+      return const Center(
+        child: NoInternetConnection(),
+      );
     } else {
-      if(_booksTemp.isEmpty) {
+      if (_subcategoryBooks.isEmpty) {
         return const Center(
           child: Text('کتابی یافت نشد.'),
         );
       } else {
         return SmartRefresher(
+          controller: _refreshController,
+          onRefresh: _loading ? null : _onRefresh,
+          onLoading: _refresh ? null : _onLoading,
           enablePullDown: true,
           enablePullUp: true,
           header: const MaterialClassicHeader(),
           footer: CustomFooter(
             builder: (BuildContext? context, LoadStatus? mode) {
-              Widget body;
-              if ((mode == LoadStatus.idle && _currentPage == _lastPage && !_dataIsLoading)) {
-                print('mod 1');
+              Widget bar;
 
-                body = Text(
+              if ((mode == LoadStatus.idle) &&
+                  (_currentPage == _lastPage) &&
+                  (!_dataIsLoading)) {
+                bar = Text(
                   'کتاب دیگری یافت نشد.',
                   style: TextStyle(
                     color: Theme.of(context!).primaryColor,
                   ),
                 );
               } else if (mode == LoadStatus.idle) {
-                print('mod 2');
-
-
-                body = Text(
+                bar = Text(
                   'لطفاً صفحه را بالا بکشید.',
                   style: TextStyle(
                     color: Theme.of(context!).primaryColor,
                   ),
                 );
-
               } else if (mode == LoadStatus.loading) {
-                print('mod 3');
-
-                body = Center(
-                    child: CustomCircularProgressIndicator(
-                        message: 'لطفاً شکیبا باشید.'));
+                bar = Center(
+                  child: CustomCircularProgressIndicator(
+                    message: 'لطفاً شکیبا باشید.',
+                  ),
+                );
               } else if (mode == LoadStatus.failed) {
-                print('mod 4');
-
-                body = Center(
-                    child: CustomCircularProgressIndicator(
-                        message: 'لطفاً دوباره امتحان کنید.'));
+                bar = Text(
+                  'لطفاً دوباره امتحان کنید.',
+                  style: TextStyle(
+                    color: Theme.of(context!).primaryColor,
+                  ),
+                );
               } else if (mode == LoadStatus.canLoading) {
-                print('mod 5');
-
-                body = Center(
-                    child: CustomCircularProgressIndicator(
-                        message: 'لطفاً صفحه را پایین بکشید.'));
+                bar = Text(
+                  'لطفاً صفحه را پایین بکشید.',
+                  style: TextStyle(
+                    color: Theme.of(context!).primaryColor,
+                  ),
+                );
               } else {
-                print('mod 6');
-
-                body = Text(
+                bar = Text(
                   'کتاب دیگری یافت نشد.',
                   style: TextStyle(
                     color: Theme.of(context!).primaryColor,
                   ),
                 );
               }
-              return Container(
+
+              return SizedBox(
                 height: 55.0,
-                child: Center(child: body),
+                child: Center(child: bar),
               );
             },
           ),
-          controller: _refreshController,
-          onRefresh: loading ? null : _onRefresh,
-          onLoading: refresh ? null : _onLoading,
-          child: ListView.builder(
-            itemBuilder: (BuildContext context, int index) =>
-                BookShortIntroduction(book: _booksTemp[index],),
-            itemCount: _booksTemp.length,
-            //itemExtent: 15.8.h,
+          child: ListView(
+            children: List<BookShortIntroduction>.generate(
+              _subcategoryBooks.length,
+              (index) => BookShortIntroduction(
+                book: _subcategoryBooks[index],
+              ),
+            ),
           ),
         );
       }
     }
   }
 
-  bool refresh = false;
-  bool loading = false;
-
-
   void _onRefresh() async {
     try {
-      // monitor network fetch
       setState(() {
-        refresh = loading ? false : true;
-        if (refresh) {
+        _refresh = _loading ? false : true;
+
+        if (_refresh) {
           _currentPage = 1;
 
           _initSubcategoryBooks();
-
-          print(_currentPage);
-          print('refresh');
-          print(refresh);
-          print(loading);
         }
       });
-      await Future.delayed(Duration(milliseconds: 1000));
-      // if failed,use refreshFailed()
+
+      await Future.delayed(const Duration(milliseconds: 1000));
 
       _refreshController.refreshCompleted();
     } catch (e) {
@@ -285,27 +292,21 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
     try {
       if (_currentPage < _lastPage) {
         setState(() {
-          loading = refresh ? false : true;
+          _loading = _refresh ? false : true;
 
-          if (loading) {
+          if (_loading) {
             _currentPage++;
-
 
             _initSubcategoryBooks();
           }
         });
       }
-      await Future.delayed(Duration(milliseconds: 1000));
-      // if failed,use loadFailed(),if no data return,use LoadNodata()
 
-      // if(mounted)
-      //   setState(() {
-      //
-      //   });
+      await Future.delayed(const Duration(milliseconds: 1000));
+
       _refreshController.loadComplete();
     } catch (e) {
       _refreshController.loadFailed();
     }
   }
-
 }

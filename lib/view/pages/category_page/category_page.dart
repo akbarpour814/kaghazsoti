@@ -36,15 +36,13 @@ class _CategoryPageState extends State<CategoryPage> {
   @override
   void initState() {
     super.initState();
-
     _connectionStatus = ConnectivityResult.none;
     _connectivity = Connectivity();
-
-    _categories = [];
-
     _initConnectivity();
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+
+    _categories = [];
   }
 
   Future<void> _initConnectivity() async {
@@ -128,8 +126,9 @@ class _CategoryPageState extends State<CategoryPage> {
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
-            child:
-                CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'),
+            child: CustomCircularProgressIndicator(
+              message: 'لطفاً شکیبا باشید.',
+            ),
           );
         } else {
           if (_connectionStatus == ConnectivityResult.none) {
@@ -147,10 +146,10 @@ class _CategoryPageState extends State<CategoryPage> {
   RefreshIndicator _innerBody() {
     return RefreshIndicator(
       onRefresh: _initCategories,
-      child: ListView.builder(
-        itemCount: _categories.length,
-        itemBuilder: (BuildContext context, int index) {
-          return CategoryName(
+      child: ListView(
+        children: List<CategoryName>.generate(
+          _categories.length,
+          (index) => CategoryName(
             iconData: _categories[index].iconData,
             title: _categories[index].name,
             lastCategory: false,
@@ -159,8 +158,8 @@ class _CategoryPageState extends State<CategoryPage> {
               title: _categories[index].name,
               subcategories: _categories[index].subcategories,
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }
