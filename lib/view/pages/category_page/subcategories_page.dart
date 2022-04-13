@@ -3,10 +3,9 @@ import 'package:ionicons/ionicons.dart';
 import '/view/pages/category_page/subcategory_books_page.dart';
 import '../../../main.dart';
 import '/model/category.dart';
-import '../../view_models/books_page.dart';
 import '/view/view_models/category_name.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 
+// ignore: must_be_immutable
 class SubcategoriesPage extends StatefulWidget {
   late IconData iconData;
   late String title;
@@ -65,7 +64,9 @@ class _SubcategoriesPageState extends State<SubcategoriesPage> {
             iconData: null,
             title: widget.subcategories[index].name,
             lastCategory: false,
-            page: SubcategoryBooksPage(subcategory: widget.subcategories[index],),
+            page: SubcategoryBooksPage(
+              subcategory: widget.subcategories[index],
+            ),
           ),
         ),
       ),
