@@ -24,12 +24,10 @@ class Subcategory {
   late String slug;
   late String categoryTitle;
   late IconData iconData;
-  late List<BookIntroduction> books;
 
   Subcategory.fromJson(this.categoryTitle, this.iconData, Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     slug = json['slug'];
-    books = [];
   }
 }

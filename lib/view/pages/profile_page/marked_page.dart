@@ -49,6 +49,8 @@ class _MarkedPageState extends State<MarkedPage> {
 
     super.initState();
 
+    _refreshController = RefreshController(initialRefresh: false);
+
     initConnectivity();
 
     _connectivitySubscription =
@@ -86,7 +88,7 @@ class _MarkedPageState extends State<MarkedPage> {
 
 
   Future _initMarkedBooks() async {
-    _customDio = await CustomDio.dio.get('dashboard/users/wish', queryParameters: {'page': _currentPage}, options: Options(headers: {'Authorization': 'Bearer 106|aF8aWGhal8EDHk9sBBdW2tMo8DcaV13vJKfqG5Lj'}));
+    _customDio = await CustomDio.dio.get('dashboard/users/wish', queryParameters: {'page': _currentPage},);
 
 
     if (_customDio.statusCode == 200) {
@@ -109,6 +111,8 @@ class _MarkedPageState extends State<MarkedPage> {
         _dataIsLoading = false;
         refresh = false;
         loading = false;
+
+        print(_markedBooksTemp.length);
       });
     }
 
@@ -119,7 +123,7 @@ class _MarkedPageState extends State<MarkedPage> {
 
   @override
   Widget build(BuildContext context) {
-    _refreshController = RefreshController(initialRefresh: false);
+
 
     return Scaffold(
       appBar: _appBar(),
@@ -219,16 +223,21 @@ class _MarkedPageState extends State<MarkedPage> {
             },
           ),
           controller: _refreshController,
-          onRefresh: _onRefresh,
-          onLoading: _onLoading,
-          child: ListView.builder(
+          onRefresh: loading ? null : _onRefresh,
+          onLoading: refresh ? null : _onLoading,
+          child: ListView(
+            children: List.generate(_markedBooksTemp.length, (index) => BookShortIntroduction(
+              book: _markedBooksTemp[index],
+            )),
+          ),
+          /*child: ListView.builder(
             itemBuilder: (BuildContext context, int index) =>
                 BookShortIntroduction(
                   book: _markedBooksTemp[index],
                 ),
             itemCount: _markedBooksTemp.length,
             itemExtent: 15.8.h,
-          ),
+          ),*/
         );
       }
     }
@@ -243,9 +252,28 @@ class _MarkedPageState extends State<MarkedPage> {
   bool loading = false;
 
   void _onRefresh() async {
-    await Future.delayed(const Duration(milliseconds: 1000));
+    try {
+      // monitor network fetch
+      setState(() {
+        refresh = loading ? false : true;
+        if (refresh) {
+          _currentPage = 1;
 
-    _refreshController.refreshCompleted();
+          _initMarkedBooks();
+
+          print(_currentPage);
+          print('refresh');
+          print(refresh);
+          print(loading);
+        }
+      });
+      await Future.delayed(Duration(milliseconds: 1000));
+      // if failed,use refreshFailed()
+
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      _refreshController.refreshFailed();
+    }
   }
 
   void _onLoading() async {

@@ -139,7 +139,8 @@ class _CategoryPageState extends State<CategoryPage> {
 
   RefreshIndicator _innerBody() {
     return RefreshIndicator(
-      onRefresh: () { return _initCategories(); },
+      onRefresh: () {
+        return _initCategories(); },
       child: ListView.builder(itemBuilder: (BuildContext context, int index) { return CategoryName(
         iconData: _categories[index].iconData,
         title: _categories[index].name,

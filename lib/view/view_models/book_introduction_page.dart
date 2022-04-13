@@ -840,7 +840,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                           MaterialPageRoute(
                             builder: (context) {
                               return BooksPage(
-                                title: '$title با کتاب ${_book.name}',
+                                title: '$title${title.contains('مرتبط') ? ' با' : ''} کتاب ${_book.name}',
                                 books: books,
                               );
                             },

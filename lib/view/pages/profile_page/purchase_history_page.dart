@@ -56,6 +56,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
     _currentPage = 1;
 
     super.initState();
+    _refreshController = RefreshController(initialRefresh: false);
 
     initConnectivity();
 
@@ -113,18 +114,15 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
       setState(() {
         _purchaseHistoryTemp.clear();
         _purchaseHistoryTemp.addAll(_purchaseHistory);
+
+        _dataIsLoading = false;
+        refresh = false;
+        loading = false;
+
+        _displayOfDetails =
+        List<bool>.generate(_purchaseHistoryTemp.length, (index) => false);
       });
 
-      // List<Purchase> _purchaseHistoryTemp = [];
-      // _purchaseHistoryTemp.addAll(_purchaseHistory.reversed.toList());
-      //
-      // _purchaseHistory.clear();
-      // _purchaseHistory.addAll(_purchaseHistoryTemp);
-
-      _displayOfDetails =
-          List<bool>.generate(_purchaseHistoryTemp.length, (index) => false);
-
-      _dataIsLoading = false;
     }
 
     return _customDio;
@@ -133,7 +131,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
   late RefreshController _refreshController;
   @override
   Widget build(BuildContext context) {
-    _refreshController = RefreshController(initialRefresh: false);
+
 
     return Scaffold(
       appBar: _appBar(),
@@ -247,40 +245,59 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
           controller: _refreshController,
           onRefresh: _onRefresh,
           onLoading: _onLoading,
-          child: ListView.builder(
-            itemBuilder: (BuildContext context, int index) =>
-                _purchaseInvoice(index),
-            itemCount: _purchaseHistoryTemp.length,
+          child: ListView(
+            children: List.generate(_purchaseHistoryTemp.length, (index) => _purchaseInvoice(index)),
           ),
         );
       }
     }
   }
 
-  void _onRefresh() {
-    //await Future.delayed(Duration(milliseconds: 1000));
-    _refreshController.refreshCompleted();
+
+  bool refresh = false;
+  bool loading = false;
+
+  void _onRefresh() async {
+    try {
+      // monitor network fetch
+      setState(() {
+        refresh = loading ? false : true;
+        if (refresh) {
+          _currentPage = 1;
+
+          _initPurchaseHistory();
+
+          print(_currentPage);
+          print('refresh');
+          print(refresh);
+          print(loading);
+        }
+      });
+      await Future.delayed(Duration(milliseconds: 1000));
+      // if failed,use refreshFailed()
+
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      _refreshController.refreshFailed();
+    }
   }
 
   void _onLoading() async {
     try {
-      print('${_currentPage} xxxx');
-
       if (_currentPage < _lastPage) {
         setState(() {
-          _currentPage++;
+          loading = refresh ? false : true;
 
-          print('xxxx');
+          if (loading) {
+            _currentPage++;
+
           _initPurchaseHistory();
+          }
         });
       }
-      await Future.delayed(Duration(milliseconds: 1000));
-      // if failed,use loadFailed(),if no data return,use LoadNodata()
 
-      // if(mounted)
-      //   setState(() {
-      //
-      //   });
+      await Future.delayed(const Duration(milliseconds: 1000));
+
       _refreshController.loadComplete();
     } catch (e) {
       _refreshController.loadFailed();

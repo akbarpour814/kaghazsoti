@@ -56,6 +56,8 @@ class _SearchPageState extends State<SearchPage> {
 
     super.initState();
 
+    _refreshController = RefreshController(initialRefresh: false);
+
     initConnectivity();
 
     _connectivitySubscription =
@@ -130,8 +132,6 @@ class _SearchPageState extends State<SearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    _refreshController = RefreshController(initialRefresh: false);
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: _appBar(),
@@ -439,8 +439,8 @@ class _SearchPageState extends State<SearchPage> {
           },
         ),
         controller: _refreshController,
-        onRefresh: _onRefresh,
-        onLoading: _onLoading,
+        onRefresh: loading ? null : _onRefresh,
+        onLoading: refresh ? null : _onLoading,
         child: ListView.builder(
           itemBuilder: (BuildContext context, int index) =>
               BookShortIntroduction(
@@ -458,28 +458,8 @@ class _SearchPageState extends State<SearchPage> {
   bool refresh = false;
   bool loading = false;
 
-  void _onRefresh() async{
-    // monitor network fetch
-   // await Future.delayed(Duration(milliseconds: 1000));
-    // if failed,use refreshFailed()
-    _refreshController.refreshCompleted();
-  }
 
- /* void _onRefresh() async {
-    setState(() {
-      refresh = loading ? false : true;
-      if (refresh) {
-        _currentPage = 1;
-
-        _initBooks();
-
-        print(_currentPage);
-        print('refresh');
-        print(refresh);
-        print(loading);
-      }
-    });
-    await Future.delayed(Duration(milliseconds: 1000));
+  void _onRefresh() async {
     if (_textEditingController.text.isEmpty) {
       try {
         // monitor network fetch
@@ -520,7 +500,7 @@ class _SearchPageState extends State<SearchPage> {
         _refreshController.refreshFailed();
       }
     }
-  }*/
+  }
 
   void _onLoading() async {
     if (_textEditingController.text.isEmpty) {

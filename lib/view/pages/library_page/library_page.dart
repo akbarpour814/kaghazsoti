@@ -9,6 +9,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:kaghaze_souti/view/audio_player_models/audiobook_player_page.dart';
 import 'package:kaghaze_souti/view/pages/library_page/book_chapters_page.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 // import 'package:takfood_seller/controller/database.dart';
 import '../../view_models/no_internet_connection.dart';
@@ -36,6 +37,11 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   late Response<dynamic> _customDio;
   late CustomResponse customResponse;
 
+  late bool _dataIsLoading;
+  late int _lastPage;
+  late int _currentPage;
+
+  late List<BookIntroduction> _myBooksTemp;
   late List<BookIntroduction> _myBooks;
 
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
@@ -44,9 +50,14 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
 
   @override
   void initState() {
+
+    _dataIsLoading = true;
+    _currentPage = 1;
+    _myBooksTemp = [];
     _myBooks = [];
 
     super.initState();
+    _refreshController = RefreshController(initialRefresh: false);
 
     initConnectivity();
 
@@ -83,34 +94,31 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   }
 
   Future _initMyBooks() async {
-    _customDio = await CustomDio.dio.get('dashboard/my_books');
+    _customDio = await CustomDio.dio.get('dashboard/my_books', queryParameters: {'page': _currentPage},);
 
     print(_customDio.headers);
     if (_customDio.statusCode == 200) {
-      _myBooks.clear();
-
       Map<String, dynamic> data = _customDio.data;
 
-      int lastPage = data['last_page'];
+      if(_currentPage == 1) {
+        _myBooks.clear();
+      }
+
+      _lastPage = data['last_page'];
 
       for (Map<String, dynamic> bookIntroduction in data['data']) {
         _myBooks.add(BookIntroduction.fromJson(bookIntroduction));
       }
 
-      for (int i = 2; i <= lastPage; ++i) {
-        _customDio = await CustomDio.dio.get(
-          'dashboard/my_books',
-          queryParameters: {'page': i},
-        );
+      setState(() {
+        _myBooksTemp.clear();
+        _myBooksTemp.addAll(_myBooks);
 
-        if (_customDio.statusCode == 200) {
-          data = _customDio.data;
+        _dataIsLoading = false;
+        refresh = false;
+        loading = false;
+      });
 
-          for (Map<String, dynamic> bookIntroduction in data['data']) {
-            _myBooks.add(BookIntroduction.fromJson(bookIntroduction));
-          }
-        }
-      }
     }
 
     return _customDio;
@@ -150,23 +158,136 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   }
 
   Widget _innerBody() {
-    if (_myBooks.isEmpty) {
-      return const Center(
-        child: Text('کتابی در کتابخانه شما موجود نمی باشد.'),
-      );
+    if (_connectionStatus == ConnectivityResult.none) {
+      setState(() {
+        _dataIsLoading = true;
+      });
+
+      return const Center(child: NoInternetConnection(),);
     } else {
-      return SingleChildScrollView(
-        child: Column(
-          children: List<MyBook>.generate(
-            _myBooks.length,
-            (index) => MyBook(
-              book: _myBooks[index],
-            ),
+      if (_myBooksTemp.isEmpty) {
+        return const Center(
+          child: Text('کتابی در کتابخانه شما موجود نمی باشد.'),
+        );
+      } else {
+        return SmartRefresher(
+          enablePullDown: true,
+          enablePullUp: true,
+          header: const MaterialClassicHeader(),
+          footer: CustomFooter(
+            builder: (BuildContext? context, LoadStatus? mode) {
+              Widget bar;
+
+              if ((mode == LoadStatus.idle) && (_currentPage == _lastPage) &&
+                  (!_dataIsLoading)) {
+                bar = Text(
+                  'کتاب دیگری یافت نشد.',
+                  style: TextStyle(
+                    color: Theme
+                        .of(context!)
+                        .primaryColor,
+                  ),
+                );
+              } else if (mode == LoadStatus.idle) {
+                bar = Text('لطفاً صفحه را بالا بکشید.',
+                    style: TextStyle(color: Theme
+                        .of(context!)
+                        .primaryColor));
+              } else if (mode == LoadStatus.loading) {
+                bar = CustomCircularProgressIndicator(
+                    message: 'لطفاً شکیبا باشید.');
+              } else if (mode == LoadStatus.failed) {
+                bar = CustomCircularProgressIndicator(
+                    message: 'لطفاً دوباره امتحان کنید.');
+              } else if (mode == LoadStatus.canLoading) {
+                bar = CustomCircularProgressIndicator(
+                    message: 'لطفاً صفحه را پایین بکشید.');
+              } else {
+                bar = Text(
+                  'کتاب دیگری یافت نشد.',
+                  style: TextStyle(color: Theme
+                      .of(context!)
+                      .primaryColor),
+                );
+              }
+
+              return SizedBox(
+                height: 55.0,
+                child: Center(child: bar),
+              );
+            },
           ),
-        ),
-      );
+          controller: _refreshController,
+          onRefresh: loading ? null : _onRefresh,
+          onLoading: refresh ? null : _onLoading,
+          child: ListView.builder(
+            itemBuilder: (BuildContext context, int index) =>
+                MyBook(
+                  book: _myBooksTemp[index],
+                ),
+            itemCount: _myBooksTemp.length,
+            itemExtent: 15.8.h,
+          ),
+        );
+      }
     }
   }
+
+
+  late RefreshController _refreshController;
+
+
+  bool refresh = false;
+  bool loading = false;
+
+  void _onRefresh() async {
+    try {
+      // monitor network fetch
+      setState(() {
+        refresh = loading ? false : true;
+        if (refresh) {
+          _currentPage = 1;
+
+          _initMyBooks();
+
+          print(_currentPage);
+          print('refresh');
+          print(refresh);
+          print(loading);
+        }
+      });
+      await Future.delayed(Duration(milliseconds: 1000));
+      // if failed,use refreshFailed()
+
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      _refreshController.refreshFailed();
+    }
+  }
+
+  void _onLoading() async {
+    try {
+      if (_currentPage < _lastPage) {
+        setState(() {
+          loading = refresh ? false : true;
+
+          if (loading) {
+            _currentPage++;
+
+            _initMyBooks();
+          }
+        });
+      }
+
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      _refreshController.loadComplete();
+    } catch (e) {
+      _refreshController.loadFailed();
+    }
+  }
+
+
 }
 
 class MyBook extends StatefulWidget {
