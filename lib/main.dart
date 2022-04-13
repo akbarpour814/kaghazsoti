@@ -8,7 +8,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:kaghaze_souti/view/audio_player_models/audio_player_handler.dart';
 import 'package:kaghaze_souti/view/pages/login_pages/login_page.dart';
 import 'package:kaghaze_souti/view/pages/login_pages/password_recovery_page.dart';
+import 'package:kaghaze_souti/view/pages/profile_page/cart_page.dart';
 import 'package:kaghaze_souti/view/pages/profile_page/marked_page.dart';
+import 'package:kaghaze_souti/view/pages/profile_page/purchase_history_page.dart';
 import 'package:material_color_generator/material_color_generator.dart';
 
 import '/view/view_models/player_bottom_navigation_bar.dart';
@@ -103,6 +105,10 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
               title: 'Kaghaze souti',
               debugShowCheckedModeBanner: false,
+              routes: {
+                CartPage.routeName: (context) => const CartPage(),
+                PurchaseHistoryPage.routeName: (context) => const PurchaseHistoryPage(),
+              },
               theme: _theme(context),
               darkTheme: _darkTheme(context),
               themeMode: currentMode,

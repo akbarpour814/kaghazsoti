@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import '../../../model/payment.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 import '/model/book.dart';
@@ -20,6 +21,8 @@ import '../../view_models/book_introduction_page.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 
 class CartPage extends StatefulWidget {
+  static const routeName = '/cartPage';
+
   const CartPage({Key? key}) : super(key: key);
 
   @override
@@ -116,7 +119,7 @@ class _CartPageState extends State<CartPage> {
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
-      floatingActionButton: cartSlug.isNotEmpty && _connectionStatus != ConnectivityResult.none && !_dataIsLoading ? _issuanceOfPurchaseInvoiceButton() : null,
+      floatingActionButton: cartSlug.isNotEmpty && _connectionStatus != ConnectivityResult.none && !_dataIsLoading ? (_purchaseInvoiceWasIssued ? _paymentButton() : _issuanceOfPurchaseInvoiceButton())  : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -429,17 +432,11 @@ class _CartPageState extends State<CartPage> {
       child: ElevatedButton.icon(
         onPressed: () {
           if(!_dataIsLoading) {
-            if(_purchaseInvoiceWasIssued) {
-
-            } else {
-              _issuanceOfPurchaseInvoice();
-            }
+            _issuanceOfPurchaseInvoice();
           }
         },
-        label: Text(!_purchaseInvoiceWasIssued
-            ? 'صدور فاکتور خرید'
-            : 'ادامه خرید'),
-        icon: Icon(!_purchaseInvoiceWasIssued ? Ionicons.bag_check_outline : Ionicons.card_outline),
+        label: const Text('صدور فاکتور خرید'),
+        icon: const Icon(Ionicons.bag_check_outline),
       ),
     );
   }
@@ -465,5 +462,26 @@ class _CartPageState extends State<CartPage> {
 
       await sharedPreferences.setStringList('cartSlug', []);
     }
+  }
+
+  SizedBox _paymentButton() {
+    return SizedBox(
+      width: 100.0.w - (2 * 5.0.w),
+      child: ElevatedButton.icon(
+        onPressed: () {
+          if(!_dataIsLoading) {
+           _payment();
+          }
+        },
+        label: const Text('ادامه خرید'),
+        icon: const Icon(Ionicons.card_outline),
+      ),
+    );
+  }
+
+  void _payment() {
+    Payment payment = Payment(amount: _purchaseInvoice!.finalPriceInt, callbackURL: CartPage.routeName, description: 'description',);
+
+    payment.startPayment();
   }
 }

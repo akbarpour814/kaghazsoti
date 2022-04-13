@@ -10,6 +10,7 @@ class Purchase {
   late String couponDiscount;
   late String totalPrice;
   late String finalPrice;
+  late int finalPriceInt;
   late String date;
   late PurchaseStatus status;
   late List<BookIntroduction> books;
@@ -19,6 +20,7 @@ class Purchase {
     couponDiscount = PriceFormat.priceFormat(price: json['coupon_discount'] ?? 0, isFree: false);
     totalPrice = PriceFormat.priceFormat(price: json['total_price'] ?? 0, isFree: true);
     finalPrice = PriceFormat.priceFormat(price: json['final_price'] ?? 0, isFree: true);
+    finalPriceInt = json['final_price'] ?? 0;
     date = DateTimeFormat.dateTimeFormat(date: json['created_at']);
 
     String statusTemp = json['real_status'];
