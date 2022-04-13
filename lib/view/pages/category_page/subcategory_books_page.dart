@@ -49,6 +49,7 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
   @override
   void initState() {
     super.initState();
+
     _connectionStatus = ConnectivityResult.none;
     _connectivity = Connectivity();
     _initConnectivity();
@@ -74,6 +75,7 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
     } on PlatformException catch (e) {
       return;
     }
+
     if (!mounted) {
       return Future.value(null);
     }
@@ -160,6 +162,7 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
   Widget _body() {
     if (_dataIsLoading) {
       return FutureBuilder(
+        future: _initSubcategoryBooks(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           if (snapshot.hasData) {
             return _innerBody();
@@ -171,7 +174,6 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> {
             );
           }
         },
-        future: _initSubcategoryBooks(),
       );
     } else {
       return _innerBody();

@@ -18,7 +18,6 @@ import 'package:sizer/sizer.dart';
 
 import '/model/home_page_category_data.dart';
 import '/view/view_models/books_list_view.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -28,36 +27,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late bool _internetConnectionChecker;
+  late ConnectivityResult _connectionStatus;
+  late Connectivity _connectivity;
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
-  late List<HomePageCategoryData> _homePageCategoriesData;
 
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late List<HomePageCategoryData> _homePageCategoriesData;
 
   @override
   void initState() {
-    _homePageCategoriesData = [];
-
     super.initState();
 
-    initConnectivity();
-
+    _connectionStatus = ConnectivityResult.none;
+    _connectivity = Connectivity();
+    _initConnectivity();
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+
+    _homePageCategoriesData = [];
   }
 
-  Future<void> initConnectivity() async {
+  Future<void> _initConnectivity() async {
     late ConnectivityResult result;
+
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
       return;
     }
+
     if (!mounted) {
       return Future.value(null);
     }
@@ -74,52 +74,53 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     _connectivitySubscription.cancel();
+
     super.dispose();
   }
 
   Future _initHomePageCategoriesData() async {
     _customDio = await CustomDio.dio.post('home');
 
-    print(
-        "1 -----------------------------------------------------------------------------------------------------");
+    if (_customDio.statusCode == 200) {
+      _homePageCategoriesData.clear();
 
-    _homePageCategoriesData.clear();
-    print(
-        "2 -----------------------------------------------------------------------------------------------------");
+      _customResponse = CustomResponse.fromJson(_customDio.data);
 
-    _customResponse = CustomResponse.fromJson(_customDio.data);
-    print(
-        "3 -----------------------------------------------------------------------------------------------------");
+      _homePageCategoriesData.add(
+        HomePageCategoryData.fromJson(
+          'کتاب های صوتی',
+          (_customResponse.data['books'])['کتاب-صوتی'],
+        ),
+      );
 
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
-        'کتاب های صوتی', (_customResponse.data['books'])['کتاب-صوتی']));
-    print(
-        "4 -----------------------------------------------------------------------------------------------------");
+      _homePageCategoriesData.add(
+        HomePageCategoryData.fromJson(
+          'نامه های صوتی',
+          (_customResponse.data['books'])['نامه-صوتی'],
+        ),
+      );
 
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
-        'نامه های صوتی', (_customResponse.data['books'])['نامه-صوتی']));
-    print(
-        "5 -----------------------------------------------------------------------------------------------------");
+      _homePageCategoriesData.add(
+        HomePageCategoryData.fromJson(
+          'کتاب های الکترونیکی',
+          (_customResponse.data['books'])['کتاب-الکترونیکی'],
+        ),
+      );
 
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
-        'کتاب های الکترونیکی',
-        (_customResponse.data['books'])['کتاب-الکترونیکی']));
-    print(
-        "6 -----------------------------------------------------------------------------------------------------");
+      _homePageCategoriesData.add(
+        HomePageCategoryData.fromJson(
+          'پادکست ها',
+          (_customResponse.data['books'])['پادکست'],
+        ),
+      );
 
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
-        'پادکست ها', (_customResponse.data['books'])['پادکست']));
-    print(
-        "7 -----------------------------------------------------------------------------------------------------");
-    print(_homePageCategoriesData.length);
-
-    _homePageCategoriesData.add(HomePageCategoryData.fromJson(
-        'کتاب های کودک و نوجوان',
-        (_customResponse.data['books'])['کتاب-کودک-و-نوجوان']));
-    print(
-        "8 -----------------------------------------------------------------------------------------------------");
-
-    if (_customDio.statusCode == 200) {}
+      _homePageCategoriesData.add(
+        HomePageCategoryData.fromJson(
+          'کتاب های کودک و نوجوان',
+          (_customResponse.data['books'])['کتاب-کودک-و-نوجوان'],
+        ),
+      );
+    }
 
     return _customDio;
   }
@@ -130,18 +131,6 @@ class _HomePageState extends State<HomePage> {
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
-    );
-
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Color(0xFF00444D), // navigation bar color
-      ),
-      child: SafeArea(
-        child: Scaffold(
-          body: _innerBody(),
-          bottomNavigationBar: playerBottomNavigationBar,
-        ),
-      ),
     );
   }
 
@@ -154,46 +143,45 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _body() {
+  FutureBuilder _body() {
     return FutureBuilder(
+      future: _initHomePageCategoriesData(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+          return Center(
+            child: CustomCircularProgressIndicator(
+              message: 'لطفاً شکیبا باشید.',
+            ),
+          );
         } else {
-          return (_connectionStatus == ConnectivityResult.none)
-              ? const Center(child: NoInternetConnection(),)
-              : _innerBody();
+          if (_connectionStatus == ConnectivityResult.none) {
+            return const Center(
+              child: NoInternetConnection(),
+            );
+          } else {
+            return _innerBody();
+          }
         }
       },
-      future: _initHomePageCategoriesData(),
     );
   }
 
   RefreshIndicator _innerBody() {
     return RefreshIndicator(
-      onRefresh: () {
-        return _initHomePageCategoriesData();
-      },
-      child: ListView.builder(
-        itemBuilder: (BuildContext context, int index) {
-          return HomePageCategoryView(
+      onRefresh: _initHomePageCategoriesData,
+      child: ListView(
+        children: List<HomePageCategoryView>.generate(
+          _homePageCategoriesData.length,
+          (index) => HomePageCategoryView(
             homePageCategoryData: _homePageCategoriesData[index],
-          );
-        },
-        itemCount: _homePageCategoriesData.length,
+          ),
+        ),
       ),
-      // child: Column(
-      //   children: List<HomePageCategoryView>.generate(
-      //     _homePageCategoriesData.length,
-      //     (index) => HomePageCategoryView(
-      //       homePageCategoryData: _homePageCategoriesData[index],
-      //     ),
-      //   ),
-      // ),
     );
   }
 }
 
+// ignore: must_be_immutable
 class HomePageCategoryView extends StatefulWidget {
   late HomePageCategoryData homePageCategoryData;
 
@@ -275,7 +263,9 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
 
   Column _latestBooksPart() {
     return _latestAndBestSellingBooks(
-        'تازه ترین', widget.homePageCategoryData.latestBooks);
+      'تازه ترین',
+      widget.homePageCategoryData.latestBooks,
+    );
   }
 
   Column _bestSellingBooksPart() {
@@ -285,8 +275,7 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
     );
   }
 
-  Column _latestAndBestSellingBooks(
-      String title, List<BookIntroduction> books) {
+  Column _latestAndBestSellingBooks(String title, List<BookIntroduction> books) {
     return Column(
       children: [
         Card(

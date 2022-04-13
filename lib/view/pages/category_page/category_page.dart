@@ -36,6 +36,7 @@ class _CategoryPageState extends State<CategoryPage> {
   @override
   void initState() {
     super.initState();
+
     _connectionStatus = ConnectivityResult.none;
     _connectivity = Connectivity();
     _initConnectivity();
@@ -53,6 +54,7 @@ class _CategoryPageState extends State<CategoryPage> {
     } on PlatformException catch (e) {
       return;
     }
+
     if (!mounted) {
       return Future.value(null);
     }
