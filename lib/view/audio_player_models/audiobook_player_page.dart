@@ -334,7 +334,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5.0.w),
-                child: CustomProgressBar(audioPlayer: audioPlayerHandler.playing, timeLabelLocation: TimeLabelLocation.below, baseBarColor: Colors.grey.shade300,),
+                child: CustomProgressBar(audioPlayer: audioPlayerHandler.audioPlayer, timeLabelLocation: TimeLabelLocation.below, baseBarColor: Colors.grey.shade300,),
               ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 5.0.w),

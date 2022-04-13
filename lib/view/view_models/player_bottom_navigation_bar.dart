@@ -207,7 +207,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
         // ),
         SizedBox(
             width: 75.0.w,
-            child: CustomProgressBarBottom(audioPlayer: audioPlayerHandler.playing, timeLabelLocation: TimeLabelLocation.none,
+            child: CustomProgressBarBottom(audioPlayer: audioPlayerHandler.audioPlayer, timeLabelLocation: TimeLabelLocation.none,
               baseBarColor: Colors.white,
               progressBarColor: const Color(0xFF55929C),
               bufferedBarColor: const Color(0xFFC6DADE),

@@ -12,7 +12,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:audio_session/audio_session.dart';
 
 abstract class AudioPlayerHandler implements AudioHandler {
-  AudioPlayer get playing ;
+  AudioPlayer get audioPlayer ;
   Stream<QueueState> get queueState;
   Future<void> moveQueueItem(int currentIndex, int newIndex);
   ValueStream<double> get volume;
@@ -22,7 +22,7 @@ abstract class AudioPlayerHandler implements AudioHandler {
 
 class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler implements AudioPlayerHandler {
 
-  AudioPlayer player = AudioPlayer();
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   Map<String, List<MediaItem>> mediaItems = {'' : []};
 
@@ -32,7 +32,6 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
 
   }
 
-  // ignore: close_sinks
   final BehaviorSubject<List<MediaItem>> _recentSubject =
   BehaviorSubject.seeded(<MediaItem>[]);
 
@@ -50,8 +49,8 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
       List<IndexedAudioSource>?,
       List<int>?,
       bool,
-      List<IndexedAudioSource>?>(player.sequenceStream,
-      player.shuffleIndicesStream, player.shuffleModeEnabledStream,
+      List<IndexedAudioSource>?>(_audioPlayer.sequenceStream,
+      _audioPlayer.shuffleIndicesStream, _audioPlayer.shuffleModeEnabledStream,
           (sequence, shuffleIndices, shuffleModeEnabled) {
         if (sequence == null) return [];
         if (!shuffleModeEnabled) return sequence;
@@ -63,7 +62,7 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
   /// Computes the effective queue index taking shuffle mode into account.
   int? getQueueIndex(
       int? currentIndex, bool shuffleModeEnabled, List<int>? shuffleIndices) {
-    final effectiveIndices = player.effectiveIndices ?? [];
+    final effectiveIndices = _audioPlayer.effectiveIndices ?? [];
     final shuffleIndicesInv = List.filled(effectiveIndices.length, 0);
     for (var i = 0; i < effectiveIndices.length; i++) {
       shuffleIndicesInv[effectiveIndices[i]] = i;
@@ -81,7 +80,7 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
       Rx.combineLatest3<List<MediaItem>, PlaybackState, List<int>, QueueState>(
           queue,
           playbackState,
-          player.shuffleIndicesStream.whereType<List<int>>(),
+          _audioPlayer.shuffleIndicesStream.whereType<List<int>>(),
               (queue, playbackState, shuffleIndices) => QueueState(
             queue,
             playbackState.queueIndex,
@@ -97,28 +96,28 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
   Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
     final enabled = shuffleMode == AudioServiceShuffleMode.all;
     if (enabled) {
-      await player.shuffle();
+      await _audioPlayer.shuffle();
     }
     playbackState.add(playbackState.value.copyWith(shuffleMode: shuffleMode));
-    await player.setShuffleModeEnabled(enabled);
+    await _audioPlayer.setShuffleModeEnabled(enabled);
   }
 
   @override
   Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
     playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
-    await player.setLoopMode(LoopMode.values[repeatMode.index]);
+    await _audioPlayer.setLoopMode(LoopMode.values[repeatMode.index]);
   }
 
   @override
   Future<void> setSpeed(double speed) async {
     this.speed.add(speed);
-    await player.setSpeed(speed);
+    await _audioPlayer.setSpeed(speed);
   }
 
   @override
   Future<void> setVolume(double volume) async {
     this.volume.add(volume);
-    await player.setVolume(volume);
+    await _audioPlayer.setVolume(volume);
   }
 
 
@@ -139,10 +138,10 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
         .listen((item) => _recentSubject.add([item]));
     // Broadcast media item changes.
     Rx.combineLatest4<int?, List<MediaItem>, bool, List<int>?, MediaItem?>(
-        player.currentIndexStream,
+        _audioPlayer.currentIndexStream,
         queue,
-        player.shuffleModeEnabledStream,
-        player.shuffleIndicesStream,
+        _audioPlayer.shuffleModeEnabledStream,
+        _audioPlayer.shuffleIndicesStream,
             (index, queue, shuffleModeEnabled, shuffleIndices) {
           final queueIndex =
           getQueueIndex(index, shuffleModeEnabled, shuffleIndices);
@@ -151,14 +150,14 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
               : null;
         }).whereType<MediaItem>().distinct().listen(mediaItem.add);
     // Propagate all events from the audio player to AudioService clients.
-    player.playbackEventStream.listen(_broadcastState);
-    player.shuffleModeEnabledStream
-        .listen((enabled) => _broadcastState(player.playbackEvent));
+    _audioPlayer.playbackEventStream.listen(_broadcastState);
+    _audioPlayer.shuffleModeEnabledStream
+        .listen((enabled) => _broadcastState(_audioPlayer.playbackEvent));
     // In this example, the service stops when reaching the end.
-    player.processingStateStream.listen((state) {
+    _audioPlayer.processingStateStream.listen((state) {
       if (state == ProcessingState.completed) {
         stop();
-        player.seek(Duration.zero, index: 0);
+        _audioPlayer.seek(Duration.zero, index: 0);
       }
     });
     // Broadcast the current queue.
@@ -168,7 +167,7 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
         .pipe(queue);
     // Load the playlist.
     _playlist.addAll(queue.value.map(_itemToSource).toList());
-    await player.setAudioSource(_playlist);
+    await _audioPlayer.setAudioSource(_playlist);
   }
 
   AudioSource _itemToSource(MediaItem mediaItem) {
@@ -233,7 +232,7 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
   @override
   Future<void> updateMediaItem(MediaItem mediaItem) async {
     final index = queue.value.indexWhere((item) => item.id == mediaItem.id);
-    _mediaItemExpando[player.sequence![index]] = mediaItem;
+    _mediaItemExpando[_audioPlayer.sequence![index]] = mediaItem;
   }
 
   @override
@@ -248,42 +247,41 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
   }
 
   @override
-  Future<void> skipToNext() => player.seekToNext();
+  Future<void> skipToNext() => _audioPlayer.seekToNext();
 
   @override
-  Future<void> skipToPrevious() => player.seekToPrevious();
+  Future<void> skipToPrevious() => _audioPlayer.seekToPrevious();
 
   @override
   Future<void> skipToQueueItem(int index) async {
     if (index < 0 || index >= _playlist.children.length) return;
     // This jumps to the beginning of the queue item at [index].
-    player.seek(Duration.zero,
-        index: player.shuffleModeEnabled
-            ? player.shuffleIndices![index]
+    _audioPlayer.seek(Duration.zero,
+        index: _audioPlayer.shuffleModeEnabled
+            ? _audioPlayer.shuffleIndices![index]
             : index);
   }
 
   @override
-  Future<void> play() => player.play();
+  Future<void> play() => _audioPlayer.play();
 
   @override
-  Future<void> pause() => player.pause();
+  Future<void> pause() => _audioPlayer.pause();
 
   @override
-  Future<void> seek(Duration position) => player.seek(position);
+  Future<void> seek(Duration position) => _audioPlayer.seek(position);
 
   @override
   Future<void> stop() async {
-    await player.stop();
+    await _audioPlayer.stop();
     await playbackState.firstWhere(
             (state) => state.processingState == AudioProcessingState.idle);
   }
 
-  /// Broadcasts the current state to all clients.
   void _broadcastState(PlaybackEvent event) {
-    final playing = player.playing;
+    final playing = _audioPlayer.playing;
     final queueIndex = getQueueIndex(
-        event.currentIndex, player.shuffleModeEnabled, player.shuffleIndices);
+        event.currentIndex, _audioPlayer.shuffleModeEnabled, _audioPlayer.shuffleIndices);
     playbackState.add(playbackState.value.copyWith(
       controls: [
         MediaControl.skipToPrevious,
@@ -303,17 +301,17 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
         ProcessingState.buffering: AudioProcessingState.buffering,
         ProcessingState.ready: AudioProcessingState.ready,
         ProcessingState.completed: AudioProcessingState.completed,
-      }[player.processingState]!,
+      }[_audioPlayer.processingState]!,
       playing: playing,
-      updatePosition: player.position,
-      bufferedPosition: player.bufferedPosition,
-      speed: player.speed,
+      updatePosition: _audioPlayer.position,
+      bufferedPosition: _audioPlayer.bufferedPosition,
+      speed: _audioPlayer.speed,
       queueIndex: queueIndex,
     ));
   }
 
   @override
-  AudioPlayer get playing => player;
+  AudioPlayer get audioPlayer => _audioPlayer;
 
 }
 
