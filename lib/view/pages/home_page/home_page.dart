@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/model/book_introduction.dart';
@@ -26,103 +28,61 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  late ConnectivityResult _connectionStatus;
-  late Connectivity _connectivity;
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-
+class _HomePageState extends State<HomePage> with InternetConnection, LoadDataFromAPI {
   late List<HomePageCategoryData> _homePageCategoriesData;
 
   @override
   void initState() {
     super.initState();
 
-    _connectionStatus = ConnectivityResult.none;
-    _connectivity = Connectivity();
-    _initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-
     _homePageCategoriesData = [];
   }
 
-  Future<void> _initConnectivity() async {
-    late ConnectivityResult result;
-
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      return;
-    }
-
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-
-    super.dispose();
-  }
-
   Future _initHomePageCategoriesData() async {
-    _customDio = await CustomDio.dio.post('home');
+    customDio = await CustomDio.dio.post('home');
 
-    if (_customDio.statusCode == 200) {
+    if (customDio.statusCode == 200) {
       _homePageCategoriesData.clear();
 
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+      customResponse = CustomResponse.fromJson(customDio.data);
 
       _homePageCategoriesData.add(
         HomePageCategoryData.fromJson(
           'کتاب های صوتی',
-          (_customResponse.data['books'])['کتاب-صوتی'],
+          (customResponse.data['books'])['کتاب-صوتی'],
         ),
       );
 
       _homePageCategoriesData.add(
         HomePageCategoryData.fromJson(
           'نامه های صوتی',
-          (_customResponse.data['books'])['نامه-صوتی'],
+          (customResponse.data['books'])['نامه-صوتی'],
         ),
       );
 
       _homePageCategoriesData.add(
         HomePageCategoryData.fromJson(
           'کتاب های الکترونیکی',
-          (_customResponse.data['books'])['کتاب-الکترونیکی'],
+          (customResponse.data['books'])['کتاب-الکترونیکی'],
         ),
       );
 
       _homePageCategoriesData.add(
         HomePageCategoryData.fromJson(
           'پادکست ها',
-          (_customResponse.data['books'])['پادکست'],
+          (customResponse.data['books'])['پادکست'],
         ),
       );
 
       _homePageCategoriesData.add(
         HomePageCategoryData.fromJson(
           'کتاب های کودک و نوجوان',
-          (_customResponse.data['books'])['کتاب-کودک-و-نوجوان'],
+          (customResponse.data['books'])['کتاب-کودک-و-نوجوان'],
         ),
       );
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -154,7 +114,7 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         } else {
-          if (_connectionStatus == ConnectivityResult.none) {
+          if (connectionStatus == ConnectivityResult.none) {
             return const Center(
               child: NoInternetConnection(),
             );

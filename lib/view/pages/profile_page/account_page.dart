@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import '../../../controller/internet_connection.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/view/view_models/custom_circular_progress_indicator.dart';
 import 'package:sizer/sizer.dart';
@@ -21,14 +23,7 @@ class AccountPage extends StatefulWidget {
   _AccountPageState createState() => _AccountPageState();
 }
 
-class _AccountPageState extends State<AccountPage> {
-  late ConnectivityResult _connectionStatus;
-  late Connectivity _connectivity;
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
-  late Response<dynamic> _customDio;
-  late bool _dataIsLoading;
-
+class _AccountPageState extends State<AccountPage> with InternetConnection, LoadDataFromAPI {
   late TextEditingController _firstAndLastNameController;
   String? _firstAndLastNameError;
   late TextEditingController _emailController;
@@ -42,64 +37,27 @@ class _AccountPageState extends State<AccountPage> {
   void initState() {
     super.initState();
 
-    _connectionStatus = ConnectivityResult.none;
-    _connectivity = Connectivity();
-    _initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-
-    _dataIsLoading = true;
-
     _permissionToEdit = false;
     _registeredInformation = false;
   }
 
-  Future<void> _initConnectivity() async {
-    late ConnectivityResult result;
-
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      return;
-    }
-
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-
-    super.dispose();
-  }
-
   Future _initUserInformation() async {
-    _customDio = await CustomDio.dio.get('user');
+    customDio = await CustomDio.dio.get('user');
 
-    if (_customDio.statusCode == 200) {
+    if (customDio.statusCode == 200) {
       setState(() {
         _firstAndLastNameController =
-            TextEditingController(text: _customDio.data['name']);
+            TextEditingController(text: customDio.data['name']);
         _emailController =
-            TextEditingController(text: _customDio.data['email']);
+            TextEditingController(text: customDio.data['email']);
         _phoneNumberController =
-            TextEditingController(text: _customDio.data['mobile']);
+            TextEditingController(text: customDio.data['mobile']);
 
-        _dataIsLoading = false;
+        dataIsLoading = false;
       });
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -135,7 +93,7 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Widget _body() {
-    if (_dataIsLoading) {
+    if (dataIsLoading) {
       return FutureBuilder(
         future: _initUserInformation(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -156,9 +114,9 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Widget _innerBody() {
-    if (_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
       return const Center(
@@ -202,7 +160,7 @@ class _AccountPageState extends State<AccountPage> {
                 if (!_registeredInformation) {
                   _permissionToEdit = _permissionToEdit ? false : true;
 
-                  _dataIsLoading = false;
+                  dataIsLoading = false;
                 }
               });
             },
@@ -352,7 +310,7 @@ class _AccountPageState extends State<AccountPage> {
       _permissionToEdit = false;
       _registeredInformation = false;
 
-      _customDio = await CustomDio.dio.post(
+      customDio = await CustomDio.dio.post(
         'user',
         data: {
           'name': _firstAndLastNameController.text,
@@ -362,7 +320,7 @@ class _AccountPageState extends State<AccountPage> {
       );
 
       setState(() {
-        if (_customDio.statusCode == 200) {
+        if (customDio.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
             customSnackBar(
               context,

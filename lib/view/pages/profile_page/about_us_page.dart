@@ -6,6 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:kaghaze_souti/model/text_format.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
@@ -23,82 +25,35 @@ class AboutUsPage extends StatefulWidget {
   _AboutUsPageState createState() => _AboutUsPageState();
 }
 
-class _AboutUsPageState extends State<AboutUsPage> {
-  late ConnectivityResult _connectionStatus;
-  late Connectivity _connectivity;
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-
+class _AboutUsPageState extends State<AboutUsPage> with InternetConnection, LoadDataFromAPI {
   late String _whatsappPhoneNumber;
   late String _email;
   late String _websiteAddress;
   late String _textOfShare;
   late String _introductionText;
 
-  @override
-  void initState() {
-    super.initState();
-
-    _connectionStatus = ConnectivityResult.none;
-    _connectivity = Connectivity();
-    _initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-  }
-
-  Future<void> _initConnectivity() async {
-    late ConnectivityResult result;
-
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      return;
-    }
-
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-
-    super.dispose();
-  }
-
   Future _initInformation() async {
-    _customDio = await CustomDio.dio.get('درباره-ما');
+    customDio = await CustomDio.dio.get('درباره-ما');
 
-    if (_customDio.statusCode == 200) {
+    if (customDio.statusCode == 200) {
       _introductionText =
-          TextFormat.textFormat(text: _customDio.data['data'][0]['content']);
+          TextFormat.textFormat(text: customDio.data['data'][0]['content']);
 
-      _customDio = await CustomDio.dio.post('admin/info');
+      customDio = await CustomDio.dio.post('admin/info');
 
-      if (_customDio.statusCode == 200) {
-        _customResponse = CustomResponse.fromJson(_customDio.data);
+      if (customDio.statusCode == 200) {
+        customResponse = CustomResponse.fromJson(customDio.data);
 
-        _whatsappPhoneNumber = _customResponse.data['admin_mobile_number'];
-        _email = _customResponse.data['admin_email_address'];
-        _websiteAddress = _customResponse.data['general_website_url'];
+        _whatsappPhoneNumber = customResponse.data['admin_mobile_number'];
+        _email = customResponse.data['admin_email_address'];
+        _websiteAddress = customResponse.data['general_website_url'];
 
         _textOfShare =
             'بهترین و جدیدترین کتاب های صوتی را با ما بشنوید.\n\nراه های ارتباط با ما:\n\nواتساپ: $_whatsappPhoneNumber\nایمیل: $_email\nوب سایت: $_websiteAddress\n\nدانلود از طریق: \n\n\nوب سایت:';
       }
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -140,7 +95,7 @@ class _AboutUsPageState extends State<AboutUsPage> {
         if (snapshot.hasData) {
           return _innerBody();
         } else {
-          if (_connectionStatus == ConnectivityResult.none) {
+          if (connectionStatus == ConnectivityResult.none) {
             return const Center(
               child: NoInternetConnection(),
             );

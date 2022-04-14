@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:kaghaze_souti/view/audio_player_models/audiobook_player_page.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -24,14 +26,7 @@ class MyLibraryPage extends StatefulWidget {
   _MyLibraryPageState createState() => _MyLibraryPageState();
 }
 
-class _MyLibraryPageState extends State<MyLibraryPage> {
-  late ConnectivityResult _connectionStatus;
-  late Connectivity _connectivity;
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
-  late Response<dynamic> _customDio;
-  late bool _dataIsLoading;
-
+class _MyLibraryPageState extends State<MyLibraryPage> with InternetConnection, LoadDataFromAPI {
   late RefreshController _refreshController;
   late bool _refresh;
   late bool _loading;
@@ -45,14 +40,6 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   void initState() {
     super.initState();
 
-    _connectionStatus = ConnectivityResult.none;
-    _connectivity = Connectivity();
-    _initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-
-    _dataIsLoading = true;
-
     _refreshController = RefreshController(initialRefresh: false);
     _refresh = false;
     _loading = false;
@@ -62,43 +49,14 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
     _myBooksTemp = [];
   }
 
-  Future<void> _initConnectivity() async {
-    late ConnectivityResult result;
-
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      return;
-    }
-
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-
-    super.dispose();
-  }
-
   Future _initMyBooks() async {
-    _customDio = await CustomDio.dio.get(
+    customDio = await CustomDio.dio.get(
       'dashboard/my_books',
       queryParameters: {'page': _currentPage},
     );
 
-    if (_customDio.statusCode == 200) {
-      Map<String, dynamic> data = _customDio.data;
+    if (customDio.statusCode == 200) {
+      Map<String, dynamic> data = customDio.data;
 
       _lastPage = data['last_page'];
 
@@ -111,7 +69,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
       }
 
       setState(() {
-        _dataIsLoading = false;
+        dataIsLoading = false;
 
         _refresh = false;
         _loading = false;
@@ -121,7 +79,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
       });
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -153,7 +111,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
             ),
           );
         } else {
-          if (_connectionStatus == ConnectivityResult.none) {
+          if (connectionStatus == ConnectivityResult.none) {
             return const Center(
               child: NoInternetConnection(),
             );
@@ -166,9 +124,9 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
   }
 
   Widget _innerBody() {
-    if (_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
       return const Center(
@@ -193,7 +151,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> {
 
               if ((mode == LoadStatus.idle) &&
                   (_currentPage == _lastPage) &&
-                  (!_dataIsLoading)) {
+                  (!dataIsLoading)) {
                 bar = Text(
                   'کتاب دیگری یافت نشد.',
                   style: TextStyle(

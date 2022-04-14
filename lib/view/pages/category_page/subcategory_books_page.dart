@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/model/category.dart';
@@ -28,15 +30,7 @@ class SubcategoryBooksPage extends StatefulWidget {
   _SubcategoryBooksPageState createState() => _SubcategoryBooksPageState();
 }
 
-class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Load {
-  late ConnectivityResult _connectionStatus;
-  late Connectivity _connectivity;
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-  late bool _dataIsLoading;
-
+class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with InternetConnection, LoadDataFromAPI, Load {
   // late RefreshController _refreshController;
   // late bool _refresh;
   // late bool _loading;
@@ -50,14 +44,6 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Load {
   void initState() {
     super.initState();
 
-    _connectionStatus = ConnectivityResult.none;
-    _connectivity = Connectivity();
-    _initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-
-    _dataIsLoading = true;
-
     _refreshController = RefreshController(initialRefresh: false);
     _refresh = false;
     _loading = false;
@@ -67,56 +53,27 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Load {
     _subcategoryBooksTemp = [];
   }
 
-  Future<void> _initConnectivity() async {
-    late ConnectivityResult result;
-
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      return;
-    }
-
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-
-    super.dispose();
-  }
-
   Future _initSubcategoryBooks() async {
-    _customDio = await CustomDio.dio.post(
+    customDio = await CustomDio.dio.post(
       'categories/${widget.subcategory.slug}',
       queryParameters: {'page': _currentPage},
     );
 
-    if (_customDio.statusCode == 200) {
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
 
-      _lastPage = _customResponse.data['last_page'];
+      _lastPage = customResponse.data['last_page'];
 
       if (_currentPage == 1) {
         _subcategoryBooksTemp.clear();
       }
 
-      for (Map<String, dynamic> book in _customResponse.data['data']) {
+      for (Map<String, dynamic> book in customResponse.data['data']) {
         _subcategoryBooksTemp.add(BookIntroduction.fromJson(book));
       }
 
       setState(() {
-        _dataIsLoading = false;
+        dataIsLoading = false;
 
         _refresh = false;
         _loading = false;
@@ -126,7 +83,7 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Load {
       });
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -160,7 +117,7 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Load {
   }
 
   Widget _body() {
-    if (_dataIsLoading) {
+    if (dataIsLoading) {
       return FutureBuilder(
         future: _initSubcategoryBooks(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -181,9 +138,9 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Load {
   }
 
   Widget _innerBody() {
-    if (_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
       return const Center(
@@ -207,7 +164,7 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Load {
             loading: _loading,
             lastPage: _lastPage,
             currentPage: _currentPage,
-            dataIsLoading: _dataIsLoading,
+            dataIsLoading: dataIsLoading,
         );
         /*return SmartRefresher(
           controller: _refreshController,

@@ -30,35 +30,37 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  late  bool _internetConnectionChecker;
+  late ConnectivityResult _connectionStatus;
+  late Connectivity _connectivity;
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   late Response<dynamic> _customDio;
   late CustomResponse _customResponse;
   late bool _dataIsLoading;
-  late List<Book> _cart;
+
+  late List<Book> _bookCart;
   late bool _purchaseInvoiceWasIssued;
   Purchase? _purchaseInvoice;
-
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
 
   @override
   void initState() {
-    _dataIsLoading = true;
-    _cart = [];
-    _purchaseInvoiceWasIssued = false;
-
     super.initState();
 
-    initConnectivity();
-
+    _connectionStatus = ConnectivityResult.none;
+    _connectivity = Connectivity();
+    _initConnectivity();
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
 
+    _dataIsLoading = true;
+
+    _bookCart = [];
+    _purchaseInvoiceWasIssued = false;
+
   }
 
-  Future<void> initConnectivity() async {
+  Future<void> _initConnectivity() async {
     late ConnectivityResult result;
     try {
       result = await _connectivity.checkConnectivity();
@@ -106,7 +108,7 @@ class _CartPageState extends State<CartPage> {
      setState(() {
        _dataIsLoading = false;
 
-       _cart = cart.values.toList();
+       _bookCart = cart.values.toList();
      });
     }
 
@@ -236,7 +238,7 @@ class _CartPageState extends State<CartPage> {
             ),
             Column(
               children: List<Card>.generate(
-                _cart.length,
+                _bookCart.length,
                 (index) => _book(index),
               ),
             ),
@@ -250,7 +252,7 @@ class _CartPageState extends State<CartPage> {
     return Card(
       color: Colors.transparent,
       elevation: 0.0,
-      shape: index == _cart.length - 1
+      shape: index == _bookCart.length - 1
           ? const Border()
           : Theme.of(context).cardTheme.shape,
       child: Row(
@@ -272,17 +274,17 @@ class _CartPageState extends State<CartPage> {
               builder: (context) {
                 return BookIntroductionPage(
                   bookIntroduction: BookIntroduction(
-                    id: _cart[index].id,
-                    slug: _cart[index].slug,
-                    name: _cart[index].name,
-                    author: _cart[index].author,
+                    id: _bookCart[index].id,
+                    slug: _bookCart[index].slug,
+                    name: _bookCart[index].name,
+                    author: _bookCart[index].author,
                     publisherOfPrintedVersion:
-                    _cart[index].publisherOfPrintedVersion,
-                    duration: _cart[index].duration,
-                    price: _cart[index].price,
-                    numberOfVotes: _cart[index].numberOfVotes,
-                    numberOfStars: _cart[index].numberOfStars,
-                    bookCoverPath: _cart[index].bookCoverPath,
+                    _bookCart[index].publisherOfPrintedVersion,
+                    duration: _bookCart[index].duration,
+                    price: _bookCart[index].price,
+                    numberOfVotes: _bookCart[index].numberOfVotes,
+                    numberOfStars: _bookCart[index].numberOfStars,
+                    bookCoverPath: _bookCart[index].bookCoverPath,
                   ),
                 );
               },
@@ -306,7 +308,7 @@ class _CartPageState extends State<CartPage> {
             ),
             child: FadeInImage.assetNetwork(
               placeholder: defaultBookCover,
-              image: _cart[index].bookCoverPath,
+              image: _bookCart[index].bookCoverPath,
               fit: BoxFit.cover,
             ),
           ),
@@ -319,13 +321,13 @@ class _CartPageState extends State<CartPage> {
     return Expanded(
       child: ListTile(
         title: Text(
-          _cart[index].name,
+          _bookCart[index].name,
           style: TextStyle(
             fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
           ),
         ),
         subtitle: Text(
-          'قیمت:\n${_cart[index].price}',
+          'قیمت:\n${_bookCart[index].price}',
           style: Theme.of(context).textTheme.caption,
         ),
         trailing: _bookRemoveButton(index),
@@ -368,9 +370,9 @@ class _CartPageState extends State<CartPage> {
 
   void _bookRemove(int index) async {
     setState(() {
-      cartSlug.remove(_cart[index].slug);
+      cartSlug.remove(_bookCart[index].slug);
 
-      _cart.removeAt(index);
+      _bookCart.removeAt(index);
     });
 
     await sharedPreferences.setStringList('cartSlug', cartSlug);
@@ -442,7 +444,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   void _issuanceOfPurchaseInvoice() async {
-    List<String> booksId = List<String>.generate(_cart.length, (index) => _cart[index].id.toString());
+    List<String> booksId = List<String>.generate(_bookCart.length, (index) => _bookCart[index].id.toString());
 
     _customDio = await CustomDio.dio.post(
       'dashboard/invoices/create',

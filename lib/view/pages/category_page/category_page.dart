@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 
 import '../../view_models/no_internet_connection.dart';
 import '/controller/custom_dio.dart';
@@ -23,65 +25,23 @@ class CategoryPage extends StatefulWidget {
   _CategoryPageState createState() => _CategoryPageState();
 }
 
-class _CategoryPageState extends State<CategoryPage> {
-  late ConnectivityResult _connectionStatus;
-  late Connectivity _connectivity;
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-
+class _CategoryPageState extends State<CategoryPage> with InternetConnection, LoadDataFromAPI {
   late List<Category> _categories;
 
   @override
   void initState() {
     super.initState();
 
-    _connectionStatus = ConnectivityResult.none;
-    _connectivity = Connectivity();
-    _initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-
     _categories = [];
   }
 
-  Future<void> _initConnectivity() async {
-    late ConnectivityResult result;
-
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      return;
-    }
-
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-
-    super.dispose();
-  }
-
   Future _initCategories() async {
-    _customDio = await CustomDio.dio.post('categories');
+    customDio = await CustomDio.dio.post('categories');
 
-    if (_customDio.statusCode == 200) {
+    if (customDio.statusCode == 200) {
       _categories.clear();
 
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+      customResponse = CustomResponse.fromJson(customDio.data);
 
       Map<String, IconData> categoriesIcon = {
         'کتاب صوتی': Ionicons.musical_notes_outline,
@@ -91,7 +51,7 @@ class _CategoryPageState extends State<CategoryPage> {
         'کتاب کودک و نوجوان': Ionicons.happy_outline,
       };
 
-      for (Map<String, dynamic> category in _customResponse.data) {
+      for (Map<String, dynamic> category in customResponse.data) {
         _categories.add(
           Category.fromJson(
             categoriesIcon[category['name']] ?? Ionicons.albums_outline,
@@ -101,7 +61,7 @@ class _CategoryPageState extends State<CategoryPage> {
       }
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -133,7 +93,7 @@ class _CategoryPageState extends State<CategoryPage> {
             ),
           );
         } else {
-          if (_connectionStatus == ConnectivityResult.none) {
+          if (connectionStatus == ConnectivityResult.none) {
             return const Center(
               child: NoInternetConnection(),
             );
