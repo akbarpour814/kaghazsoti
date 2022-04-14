@@ -197,10 +197,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
               height: 24.0,
             ),
             InkWell(
-              onTap: () {
-
-                display(index);
-              },
+              onTap: () => display(index),
               child: Icon(
                 displayOfDetails[index]
                     ? Icons.expand_less
