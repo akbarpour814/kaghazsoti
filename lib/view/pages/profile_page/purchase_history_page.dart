@@ -5,9 +5,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import 'package:kaghaze_souti/view/pages/category_page/subcategory_books_page.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sizer/sizer.dart';
 import '../../../model/payment.dart';
+import '../../view_models/custom_smart_refresher.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/model/purchase.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
@@ -28,111 +32,67 @@ class PurchaseHistoryPage extends StatefulWidget {
   _PurchaseHistoryPageState createState() => _PurchaseHistoryPageState();
 }
 
-class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
-  late bool _internetConnectionChecker;
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-  late bool _dataIsLoading;
-  late List<Purchase> _purchaseHistoryTemp;
+class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
+    with InternetConnection, LoadDataFromAPI, Refresher {
   late List<Purchase> _purchaseHistory;
+  late List<Purchase> _purchaseHistoryTemp;
+
   late List<bool> _displayOfDetails;
   late int _previousIndex;
 
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
-  late int _lastPage;
-  late int _currentPage;
 
   @override
   void initState() {
-    _dataIsLoading = true;
-    _purchaseHistoryTemp = [];
-    _purchaseHistory = [];
 
-    _previousIndex = -1;
 
-    _currentPage = 1;
+
 
     super.initState();
-    _refreshController = RefreshController(initialRefresh: false);
 
-    initConnectivity();
+    _purchaseHistory = [];
+    _purchaseHistoryTemp = [];
 
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-  }
-
-  Future<void> initConnectivity() async {
-    late ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-    super.dispose();
+    _previousIndex = -1;
   }
 
   Future _initPurchaseHistory() async {
-    _customDio = await CustomDio.dio.post(
+    customDio = await CustomDio.dio.post(
       'dashboard/invoices',
-      queryParameters: {'page': _currentPage},
+      queryParameters: {'page': currentPage},
     );
 
-    if (_customDio.statusCode == 200) {
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
 
-      _lastPage = _customResponse.data['last_page'];
+      lastPage = customResponse.data['last_page'];
 
-      if (_currentPage == 1) {
-        _purchaseHistory.clear();
+      if (currentPage == 1) {
+        _purchaseHistoryTemp.clear();
       }
 
-      for (Map<String, dynamic> purchase in _customResponse.data['data']) {
-        _purchaseHistory.add(Purchase.fromJson(purchase));
+      for (Map<String, dynamic> purchase in customResponse.data['data']) {
+        _purchaseHistoryTemp.add(Purchase.fromJson(purchase));
       }
 
       setState(() {
-        _purchaseHistoryTemp.clear();
-        _purchaseHistoryTemp.addAll(_purchaseHistory);
+        _purchaseHistory.clear();
+        _purchaseHistory.addAll(_purchaseHistoryTemp);
 
-        _dataIsLoading = false;
+        dataIsLoading = false;
         refresh = false;
         loading = false;
 
         _displayOfDetails =
-        List<bool>.generate(_purchaseHistoryTemp.length, (index) => false);
+        List<bool>.generate(_purchaseHistory.length, (index) => false);
       });
-
     }
 
-    return _customDio;
+    return customDio;
   }
 
-  late RefreshController _refreshController;
+  // late RefreshController _refreshController;
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
@@ -164,143 +124,53 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
   }
 
   Widget _body() {
-    return _dataIsLoading
+    return dataIsLoading
         ? FutureBuilder(
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              return snapshot.hasData
-                  ? _innerBody()
-                  : Center(
-                      child: CustomCircularProgressIndicator(
-                          message: 'لطفاً شکیبا باشید.'));
-            },
-            future: _initPurchaseHistory(),
-          )
+      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        return snapshot.hasData
+            ? _innerBody()
+            : Center(
+            child: CustomCircularProgressIndicator(
+                message: 'لطفاً شکیبا باشید.'));
+      },
+      future: _initPurchaseHistory(),
+    )
         : _innerBody();
   }
 
   Widget _innerBody() {
-    if (_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
       return const Center(
         child: NoInternetConnection(),
       );
     } else {
-      if (_purchaseHistoryTemp.isEmpty) {
+      if (_purchaseHistory.isEmpty) {
         return const Center(
           child: Text('تا کنون برای شما فاکتور خریدی صادر نشده است.'),
         );
       } else {
-        return SmartRefresher(
-          enablePullDown: true,
-          enablePullUp: true,
-          header: const MaterialClassicHeader(),
-          footer: CustomFooter(
-            builder: (BuildContext? context, LoadStatus? mode) {
-              Widget body;
-              if (mode == LoadStatus.idle &&
-                  _currentPage == _lastPage &&
-                  !_dataIsLoading) {
-                body = Text(
-                  'فاکتور خرید دیگری یافت نشد.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              } else if (mode == LoadStatus.idle) {
-                body = Text(
-                  'لطفاً صفحه را بالا بکشید.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              } else if (mode == LoadStatus.loading) {
-                body = Center(
-                    child: CustomCircularProgressIndicator(
-                        message: 'لطفاً شکیبا باشید.'));
-              } else if (mode == LoadStatus.failed) {
-                body = Center(
-                    child: CustomCircularProgressIndicator(
-                        message: 'لطفاً دوباره امتحان کنید.'));
-              } else if (mode == LoadStatus.canLoading) {
-                body = Center(
-                    child: CustomCircularProgressIndicator(
-                        message: 'لطفاً صفحه را پایین بکشید.'));
-              } else {
-                body = Text(
-                  'فاکتور خرید دیگری یافت نشد.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              }
-              return Container(
-                height: 55.0,
-                child: Center(child: body),
-              );
+        return CustomSmartRefresher(
+            refreshController: refreshController,
+            onRefresh: () {
+              onRefresh(() => _initPurchaseHistory());
             },
-          ),
-          controller: _refreshController,
-          onRefresh: _onRefresh,
-          onLoading: _onLoading,
-          child: ListView(
-            children: List.generate(_purchaseHistoryTemp.length, (index) => _purchaseInvoice(index)),
-          ),
+          onLoading: () {
+            onLoading(() => _initPurchaseHistory());
+          },
+            list: List.generate(
+                _purchaseHistory.length, (index) => _purchaseInvoice(index)),
+          listType: 'فاکتور خرید',
+            refresh: refresh,
+            loading: loading,
+            lastPage: lastPage,
+            currentPage: currentPage,
+            dataIsLoading: dataIsLoading,
         );
       }
-    }
-  }
-
-
-  bool refresh = false;
-  bool loading = false;
-
-  void _onRefresh() async {
-    try {
-      // monitor network fetch
-      setState(() {
-        refresh = loading ? false : true;
-        if (refresh) {
-          _currentPage = 1;
-
-          _initPurchaseHistory();
-
-          print(_currentPage);
-          print('refresh');
-          print(refresh);
-          print(loading);
-        }
-      });
-      await Future.delayed(Duration(milliseconds: 1000));
-      // if failed,use refreshFailed()
-
-      _refreshController.refreshCompleted();
-    } catch (e) {
-      _refreshController.refreshFailed();
-    }
-  }
-
-  void _onLoading() async {
-    try {
-      if (_currentPage < _lastPage) {
-        setState(() {
-          loading = refresh ? false : true;
-
-          if (loading) {
-            _currentPage++;
-
-          _initPurchaseHistory();
-          }
-        });
-      }
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      _refreshController.loadComplete();
-    } catch (e) {
-      _refreshController.loadFailed();
     }
   }
 
@@ -310,7 +180,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
         left: 5.0.w,
         top: index == 0 ? 16.0 : 0.0,
         right: 5.0.w,
-        bottom: index == _purchaseHistoryTemp.length - 1 ? 16.0 : 8.0,
+        bottom: index == _purchaseHistory.length - 1 ? 16.0 : 8.0,
       ),
       child: Container(
         padding: const EdgeInsets.only(
@@ -320,7 +190,9 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
           bottom: 8.0,
         ),
         decoration: BoxDecoration(
-          border: Border.all(color: Theme.of(context).primaryColor),
+          border: Border.all(color: Theme
+              .of(context)
+              .primaryColor),
           borderRadius: const BorderRadius.all(Radius.circular(5.0)),
         ),
         child: Column(
@@ -355,7 +227,9 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
                 _displayOfDetails[index]
                     ? Icons.expand_less
                     : Icons.expand_more,
-                color: Theme.of(context).primaryColor,
+                color: Theme
+                    .of(context)
+                    .primaryColor,
               ),
             ),
           ],
@@ -367,7 +241,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
   Property _purchaseId(int index) {
     return Property(
       property: 'شماره سفارش',
-      value: _purchaseHistoryTemp[index].id.toString(),
+      value: _purchaseHistory[index].id.toString(),
       valueInTheEnd: false,
       lastProperty: false,
     );
@@ -376,7 +250,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
   Property _purchasePrice(int index) {
     return Property(
       property: 'مبلغ سفارش',
-      value: _purchaseHistoryTemp[index].finalPrice,
+      value: _purchaseHistory[index].finalPrice,
       valueInTheEnd: false,
       lastProperty: false,
     );
@@ -385,7 +259,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
   Property _purchaseDate(int index) {
     return Property(
       property: 'تاریخ سفارش',
-      value: _purchaseHistoryTemp[index].date,
+      value: _purchaseHistory[index].date,
       valueInTheEnd: false,
       lastProperty: false,
     );
@@ -411,9 +285,9 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
               children: [
                 Flexible(
                   child: Text(
-                    _purchaseHistoryTemp[index].status.title!,
+                    _purchaseHistory[index].status.title!,
                     style: TextStyle(
-                      color: _purchaseHistoryTemp[index].status.color,
+                      color: _purchaseHistory[index].status.color,
                     ),
                   ),
                 ),
@@ -437,32 +311,34 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(
-              _purchaseHistoryTemp[index].books.length,
-              (bookIndex) => SizedBox(
-                width: 100.0.w - (2 * 5.0.w) - (2 * 18.0),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) {
-                          return BookIntroductionPage(
-                            bookIntroduction:
-                                _purchaseHistoryTemp[index].books[bookIndex],
-                          );
-                        },
+              _purchaseHistory[index].books.length,
+                  (bookIndex) =>
+                  SizedBox(
+                    width: 100.0.w - (2 * 5.0.w) - (2 * 18.0),
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return BookIntroductionPage(
+                                bookIntroduction:
+                                _purchaseHistory[index].books[bookIndex],
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${bookIndex + 1} - ${_purchaseHistory[index]
+                                .books[bookIndex].name}',
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${bookIndex + 1} - ${_purchaseHistoryTemp[index].books[bookIndex].name}',
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
             ),
           ),
           _paymentButton(index),
@@ -473,7 +349,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
 
   Visibility _paymentButton(int index) {
     return Visibility(
-      visible: _purchaseHistoryTemp[index].status == PurchaseStatus.waiting,
+      visible: _purchaseHistory[index].status == PurchaseStatus.waiting,
       child: SizedBox(
         width: 100.0.w - (2 * 18.0) - (2 * 5.0.w),
         child: ElevatedButton.icon(
@@ -488,7 +364,9 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage> {
   }
 
   void _payment(int index) {
-    Payment payment = Payment(amount: _purchaseHistoryTemp[index].finalPriceInt, callbackURL: PurchaseHistoryPage.routeName, description: 'description',);
+    Payment payment = Payment(amount: _purchaseHistory[index].finalPriceInt,
+      callbackURL: PurchaseHistoryPage.routeName,
+      description: 'description',);
 
     payment.startPayment();
   }

@@ -15,6 +15,7 @@ import '../../../main.dart';
 import '../../../model/book.dart';
 import '../../../model/book_introduction.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
+import '../../view_models/custom_smart_refresher.dart';
 import '../../view_models/no_internet_connection.dart';
 import '../category_page/subcategory_books_page.dart';
 import '/view/view_models/book_short_introduction.dart';
@@ -29,7 +30,7 @@ class MarkedPage extends StatefulWidget {
   _MarkedPageState createState() => _MarkedPageState();
 }
 
-class _MarkedPageState extends State<MarkedPage> with InternetConnection, LoadDataFromAPI, Load {
+class _MarkedPageState extends State<MarkedPage> with InternetConnection, LoadDataFromAPI, Refresher {
   late List<BookIntroduction> _markedBooks;
   late List<BookIntroduction> _markedBooksTemp;
 
@@ -176,8 +177,8 @@ class _MarkedPageState extends State<MarkedPage> with InternetConnection, LoadDa
             },
           ),
           controller: refreshController,
-          onRefresh: loading ? null : () {onRefresh(_initMarkedBooks());},
-          onLoading: refresh ? null : () {onLoading(_initMarkedBooks());},
+          onRefresh: loading ? null : () {onRefresh(() => _initMarkedBooks());},
+          onLoading: refresh ? null : () {onLoading(() => _initMarkedBooks());},
           child: ListView(
             children: List<BookShortIntroduction>.generate(_markedBooks.length, (index) => BookShortIntroduction(
               book: _markedBooks[index],

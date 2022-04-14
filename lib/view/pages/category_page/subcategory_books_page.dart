@@ -8,6 +8,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import '../../view_models/custom_smart_refresher.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/model/category.dart';
 import '../../../controller/custom_dio.dart';
@@ -30,7 +31,7 @@ class SubcategoryBooksPage extends StatefulWidget {
   _SubcategoryBooksPageState createState() => _SubcategoryBooksPageState();
 }
 
-class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with InternetConnection, LoadDataFromAPI, Load {
+class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with InternetConnection, LoadDataFromAPI, Refresher {
   // late RefreshController _refreshController;
   // late bool _refresh;
   // late bool _loading;
@@ -155,10 +156,10 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Intern
         return CustomSmartRefresher(
           refreshController: refreshController,
           onRefresh: () {
-            onRefresh(_initSubcategoryBooks());
+            onRefresh(() => _initSubcategoryBooks());
           },
           onLoading: () {
-            onLoading(_initSubcategoryBooks());
+            onLoading(() => _initSubcategoryBooks());
           },
             list: List<BookShortIntroduction>.generate(
               _subcategoryBooks.length,
@@ -166,6 +167,7 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Intern
                 book: _subcategoryBooks[index],
               ),
             ),
+          listType: 'کتاب',
             refresh: refresh,
             loading: loading,
             lastPage: lastPage,
@@ -253,173 +255,5 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Intern
         );*/
       }
     }
-  }
-}
-
-mixin Load<T extends StatefulWidget> on State<T> {
-  late RefreshController refreshController;
-  late bool refresh;
-  late bool loading;
-  late int lastPage;
-  late int currentPage;
-
-  @override
-  void initState() {
-    super.initState();
-
-    refreshController = RefreshController(initialRefresh: false);
-    refresh = false;
-    loading = false;
-    currentPage = 1;
-  }
-
-  void onRefresh(Future<dynamic> onRefresh) async {
-    try {
-      setState(() {
-        refresh = loading ? false : true;
-
-        if (refresh) {
-          currentPage = 1;
-
-          onRefresh;
-        }
-      });
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      refreshController.refreshCompleted();
-    } catch (e) {
-      refreshController.refreshFailed();
-    }
-  }
-
-  void onLoading(Future<dynamic> onLoading) async {
-    try {
-      if (currentPage < lastPage) {
-        setState(() {
-          loading = refresh ? false : true;
-
-          if (loading) {
-            currentPage++;
-
-            onLoading;
-          }
-        });
-      }
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      refreshController.loadComplete();
-    } catch (e) {
-      refreshController.loadFailed();
-    }
-  }
-}
-
-// ignore: must_be_immutable
-class CustomSmartRefresher extends StatefulWidget {
-  late RefreshController refreshController;
-  late Function onRefresh;
-  late Function onLoading;
-  late List<Widget> list;
-  late bool refresh;
-  late bool loading;
-  late int lastPage;
-  late int currentPage;
-  late bool dataIsLoading;
-
-  CustomSmartRefresher({
-    Key? key,
-    required this.refreshController,
-    required this.onRefresh,
-    required this.onLoading,
-    required this.list,
-    required this.refresh,
-    required this.loading,
-    required this.lastPage,
-    required this.currentPage,
-    required this.dataIsLoading,
-  }) : super(key: key);
-
-  @override
-  _CustomSmartRefresherState createState() => _CustomSmartRefresherState();
-}
-
-class _CustomSmartRefresherState extends State<CustomSmartRefresher> {
-  @override
-  Widget build(BuildContext context) {
-    return SmartRefresher(
-      controller: widget.refreshController,
-      onRefresh: widget.loading
-          ? null
-          : widget.onRefresh(),
-      onLoading: widget.refresh
-          ? null
-          : widget.onLoading(),
-      enablePullDown: true,
-      enablePullUp: true,
-      header: const MaterialClassicHeader(),
-      footer: CustomFooter(
-        builder: (BuildContext? context, LoadStatus? mode) {
-          Widget bar;
-
-          if ((mode == LoadStatus.idle) &&
-              (widget.currentPage == widget.lastPage) &&
-              (!widget.dataIsLoading)) {
-            bar = Text(
-              'کتاب دیگری یافت نشد.',
-              style: TextStyle(
-                color: Theme.of(context!).primaryColor,
-              ),
-            );
-          } else if (mode == LoadStatus.idle) {
-            bar = Text(
-              'لطفاً صفحه را بالا بکشید.',
-              style: TextStyle(
-                color: Theme.of(context!).primaryColor,
-              ),
-            );
-          } else if (mode == LoadStatus.loading) {
-            bar = Center(
-              child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
-              ),
-            );
-          } else if (mode == LoadStatus.failed) {
-            bar = Text(
-              'لطفاً دوباره امتحان کنید.',
-              style: TextStyle(
-                color: Theme.of(context!).primaryColor,
-              ),
-            );
-          } else if (mode == LoadStatus.canLoading) {
-            bar = Text(
-              'لطفاً صفحه را پایین بکشید.',
-              style: TextStyle(
-                color: Theme.of(context!).primaryColor,
-              ),
-            );
-          } else {
-            bar = Text(
-              'کتاب دیگری یافت نشد.',
-              style: TextStyle(
-                color: Theme.of(context!).primaryColor,
-              ),
-            );
-          }
-
-          return SizedBox(
-            height: 55.0,
-            child: Center(child: bar),
-          );
-        },
-      ),
-      child: ListView(
-        children: List<Widget>.generate(
-          widget.list.length,
-          (index) => widget.list[index],
-        ),
-      ),
-    );
   }
 }
