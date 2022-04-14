@@ -32,7 +32,7 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
           MaterialPageRoute(
             builder: (context) {
               return BookIntroductionPage(
-                bookIntroduction: widget.book,
+                book: widget.book,
               );
             },
           ),

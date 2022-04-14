@@ -48,13 +48,13 @@ class _CartPageState extends State<CartPage>
     if (dataIsLoading) {
       _bookCartTemp.clear();
 
-      for (int i = 0; i < cartSlug.length; ++i) {
-        customDio = await CustomDio.dio.post('books/${cartSlug[i]}');
+      for (int i = 0; i < bookCartSlug.length; ++i) {
+        customDio = await CustomDio.dio.post('books/${bookCartSlug[i]}');
 
         if (customDio.statusCode == 200) {
           customResponse = CustomResponse.fromJson(customDio.data);
 
-          _bookCartTemp[cartSlug[i]] = Book.fromJson(customResponse.data);
+          _bookCartTemp[bookCartSlug[i]] = Book.fromJson(customResponse.data);
         }
       }
 
@@ -74,7 +74,7 @@ class _CartPageState extends State<CartPage>
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
-      floatingActionButton: (cartSlug.isNotEmpty) &&
+      floatingActionButton: (bookCartSlug.isNotEmpty) &&
               (connectionStatus != ConnectivityResult.none) &&
               (!dataIsLoading)
           ? ((_purchaseInvoiceWasIssued)
@@ -103,7 +103,7 @@ class _CartPageState extends State<CartPage>
           onTap: () {
             setState(() {
               if (_purchaseInvoiceWasIssued) {
-                cartSlug.clear();
+                bookCartSlug.clear();
               }
 
               Navigator.of(context).pop();
@@ -153,7 +153,7 @@ class _CartPageState extends State<CartPage>
 
           return _initCart();
         },
-        child: cartSlug.isEmpty
+        child: bookCartSlug.isEmpty
             ? const Center(
                 child: Text('محصولی در سبد خرید شما وجود ندارد.'),
               )
@@ -239,7 +239,7 @@ class _CartPageState extends State<CartPage>
                   MaterialPageRoute(
                     builder: (context) {
                       return BookIntroductionPage(
-                        bookIntroduction: BookIntroduction(
+                        book: BookIntroduction(
                           id: _bookCart[index].id,
                           slug: _bookCart[index].slug,
                           name: _bookCart[index].name,
@@ -337,12 +337,12 @@ class _CartPageState extends State<CartPage>
 
   void _bookRemove(int index) async {
     setState(() {
-      cartSlug.remove(_bookCart[index].slug);
+      bookCartSlug.remove(_bookCart[index].slug);
 
       _bookCart.removeAt(index);
     });
 
-    await sharedPreferences.setStringList('cartSlug', cartSlug);
+    await sharedPreferences.setStringList('bookCartSlug', bookCartSlug);
   }
 
   Widget _prices() {

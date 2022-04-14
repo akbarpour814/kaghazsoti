@@ -1,23 +1,18 @@
 import 'dart:async';
-import 'dart:math';
 
-import 'package:audio_service/audio_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
-import '/view/pages/profile_page/marked_page.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
 import '/view/view_models/show_stars.dart';
-import 'package:zarinpal/zarinpal.dart';
 import '../../controller/custom_response.dart';
 import '../../model/book_introduction.dart';
 import 'books_page.dart';
 import '/main.dart';
 import '/model/book.dart';
-import '/view/pages/profile_page/cart_page.dart';
-import '/view/view_models/audiobook_player_page.dart';
 import '/view/view_models/books_list_view.dart';
 import '/view/view_models/property.dart';
 import 'package:sizer/sizer.dart';
@@ -26,43 +21,40 @@ import '/controller/custom_dio.dart';
 import 'custom_circular_progress_indicator.dart';
 import 'custom_snack_bar.dart';
 import 'no_internet_connection.dart';
-import 'player_bottom_navigation_bar.dart';
-import 'progress_bar/playOrPauseController.dart';
 
+// ignore: must_be_immutable
 class BookIntroductionPage extends StatefulWidget {
-  late BookIntroduction bookIntroduction;
+  late BookIntroduction book;
 
   BookIntroductionPage({
     Key? key,
-    required this.bookIntroduction,
+    required this.book,
   }) : super(key: key);
 
   @override
   _BookIntroductionPageState createState() => _BookIntroductionPageState();
 }
 
-class _BookIntroductionPageState extends State<BookIntroductionPage> with TickerProviderStateMixin {
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-  late bool _dataIsLoading;
+class _BookIntroductionPageState extends State<BookIntroductionPage>
+    with
+        TickerProviderStateMixin,
+        InternetConnection,
+        LoadDataFromAPI,
+        DisplayOfDetails {
   late Book _book;
-  TextEditingController _commentController = TextEditingController();
-  String? _commentError;
+
   late TabController _tabController;
   late int _tabIndex;
-  late List<bool> _displayOfDetails;
-  late int _previousIndex;
-  late int _numberOfStars;
-  late List<bool> _stars;
-  late bool _availableInCart;
 
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late TextEditingController _commentController;
+  String? _commentError;
+  late int _numberOfStarsForComment;
+  late List<bool> _starsForComment;
+  late bool _availableInBookCart;
 
   @override
   void initState() {
-    _dataIsLoading = true;
+    super.initState();
 
     _tabController = TabController(
       length: 3,
@@ -70,67 +62,32 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
     );
     _tabIndex = 0;
 
-    _previousIndex = -1;
-    _numberOfStars = 0;
-    _stars = List<bool>.generate(5, (index) => false);
-
-    super.initState();
-
-    initConnectivity();
-
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-
-  }
-
-  Future<void> initConnectivity() async {
-    late ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-    super.dispose();
+    _commentController = TextEditingController();
+    _numberOfStarsForComment = 0;
+    _starsForComment = List<bool>.generate(5, (index) => false);
   }
 
   Future _initBook() async {
-    _customDio =
-        await CustomDio.dio.post('books/${widget.bookIntroduction.slug}');
+    customDio = await CustomDio.dio.post('books/${widget.book.slug}');
 
-    if (_customDio.statusCode == 200) {
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
 
-      _book = Book.fromJson(_customResponse.data);
+      setState(() {
+        _book = Book.fromJson(customResponse.data);
 
-      _displayOfDetails = List<bool>.generate(_book.reviews.length, (index) => false);
-      print(_displayOfDetails);
+        dataIsLoading = false;
 
-      _availableInCart = cartSlug.contains(_book.slug);
+        _availableInBookCart = bookCartSlug.contains(_book.slug);
 
-      _dataIsLoading = false;
-
+        displayOfDetails = List<bool>.generate(
+          _book.reviews.length,
+          (index) => false,
+        );
+      });
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -144,23 +101,24 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
 
   AppBar _appBar() {
     return AppBar(
-      title: Text(widget.bookIntroduction.name),
+      title: Text(widget.book.name),
       leading: InkWell(
         child: Icon(
           Ionicons.bookmark_outline,
-          color: markedBooksId.contains(widget.bookIntroduction.id)
+          color: markedBooksId.contains(widget.book.id)
               ? Colors.pinkAccent
               : Colors.white,
         ),
         onTap: () {
-          if((!_dataIsLoading) && (_connectionStatus != ConnectivityResult.none)) {
+          if ((!dataIsLoading) &&
+              (connectionStatus != ConnectivityResult.none)) {
             setState(() {
               _setMarkedBooks();
 
-              if (markedBooksId.contains(widget.bookIntroduction.id)) {
-                markedBooksId.remove(widget.bookIntroduction.id);
+              if (markedBooksId.contains(widget.book.id)) {
+                markedBooksId.remove(widget.book.id);
               } else {
-                markedBooksId.add(widget.bookIntroduction.id);
+                markedBooksId.add(widget.book.id);
               }
             });
           }
@@ -183,38 +141,51 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
   }
 
   void _setMarkedBooks() async {
-    await CustomDio.dio
-        .post('dashboard/users/wish', data: {'book_id': _book.id});
+    await CustomDio.dio.post(
+      'dashboard/users/wish',
+      data: {'book_id': _book.id},
+    );
   }
 
   Widget _body() {
-    return _dataIsLoading
-        ? FutureBuilder(
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              return snapshot.hasData
-                  ? _innerBody()
-                  : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
-            },
-            future: _initBook(),
-          )
-        : _innerBody();
+    if (dataIsLoading) {
+      return FutureBuilder(
+        future: _initBook(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return _innerBody();
+          } else {
+            return Center(
+              child: CustomCircularProgressIndicator(
+                message: 'لطفاً شکیبا باشید.',
+              ),
+            );
+          }
+        },
+      );
+    } else {
+      return _innerBody();
+    }
   }
 
   Widget _innerBody() {
-    if(_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
-      return const Center(child: NoInternetConnection(),);
+      return const Center(
+        child: NoInternetConnection(),
+      );
     } else {
       return RefreshIndicator(
         onRefresh: () {
           setState(() {
-            _dataIsLoading = true;
+            dataIsLoading = true;
           });
 
-          return _initBook(); },
+          return _initBook();
+        },
         child: ListView(
           children: [
             Padding(
@@ -241,8 +212,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
       );
     }
   }
-
-  bool playDemo = false;
 
   Stack _bookCover() {
     return Stack(
@@ -272,51 +241,47 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
         Positioned(
           left: 2.5.w,
           bottom: 2.5.w,
-            child: !demoIsPlaying.of(context) || (demoInPlayId != _book.id) ?
-            FloatingActionButton(
-              child: const Icon(Ionicons.play_outline),
-              onPressed: () {
-                setState(() {
-                  demoIsPlaying.$ = true;
-                  demoInPlayId = _book.id;
-                  demoPlayer.setUrl(_book.demo);
-
-
-                  audioPlayerHandler.stop();
-
-                });
-              },
-            ) :
-            StreamBuilder<PlayerState>(
-            stream: demoPlayer.playerStateStream,
-            builder: (context, snapshot) {
-              final playerState = snapshot.data;
-              final processingState = playerState?.processingState;
-              final playing = playerState?.playing;
-
-
-              if (processingState == ProcessingState.loading || processingState == ProcessingState.buffering) {
-                return FloatingActionButton(
-                  onPressed: null,
-                  child: const CircularProgressIndicator(color: Colors.white,),
-                );
-
-              } else if (playing != true) {
-                return FloatingActionButton(
+          child: !demoIsPlaying.of(context) || (demoInPlayId != _book.id)
+              ? FloatingActionButton(
                   child: const Icon(Ionicons.play_outline),
-                  onPressed: demoPlayer.play,
-                );
+                  onPressed: () {
+                    setState(() {
+                      demoIsPlaying.$ = true;
+                      demoInPlayId = _book.id;
+                      demoPlayer.setUrl(_book.demo);
 
-              } else {
+                      audioPlayerHandler.stop();
+                    });
+                  },
+                )
+              : StreamBuilder<PlayerState>(
+                  stream: demoPlayer.playerStateStream,
+                  builder: (context, snapshot) {
+                    final playerState = snapshot.data;
+                    final processingState = playerState?.processingState;
+                    final playing = playerState?.playing;
 
-                return FloatingActionButton(
-                  child: const Icon(Ionicons.pause_outline),
-                  onPressed: demoPlayer.pause,
-                );
-              }
-
-            },
-          ),
+                    if ((processingState == ProcessingState.loading) ||
+                        (processingState == ProcessingState.buffering)) {
+                      return const FloatingActionButton(
+                        onPressed: null,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                        ),
+                      );
+                    } else if (playing != true) {
+                      return FloatingActionButton(
+                        child: const Icon(Ionicons.play_outline),
+                        onPressed: demoPlayer.play,
+                      );
+                    } else {
+                      return FloatingActionButton(
+                        child: const Icon(Ionicons.pause_outline),
+                        onPressed: demoPlayer.pause,
+                      );
+                    }
+                  },
+                ),
         ),
       ],
     );
@@ -364,12 +329,12 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
         height: 5.5.h,
         child: ElevatedButton.icon(
           onPressed: () {
-            _setCart();
+            _setBookCart();
           },
-          label:
-              Text(_availableInCart ? 'حذف از سبد خرید' : 'افزودن به سبد خرید'),
+          label: Text(
+              _availableInBookCart ? 'حذف از سبد خرید' : 'افزودن به سبد خرید'),
           icon: Icon(
-            _availableInCart
+            _availableInBookCart
                 ? Ionicons.bag_remove_outline
                 : Ionicons.bag_add_outline,
           ),
@@ -408,20 +373,20 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
     );
   }
 
-  void _setCart() async {
+  void _setBookCart() async {
     setState(() {
-      if (_availableInCart) {
-        cartSlug.remove(_book.slug);
+      if (_availableInBookCart) {
+        bookCartSlug.remove(_book.slug);
 
-        _availableInCart = false;
+        _availableInBookCart = false;
       } else {
-        cartSlug.add(_book.slug);
+        bookCartSlug.add(_book.slug);
 
-        _availableInCart = true;
+        _availableInBookCart = true;
       }
     });
 
-    await sharedPreferences.setStringList('cartSlug', cartSlug);
+    await sharedPreferences.setStringList('bookCartSlug', bookCartSlug);
   }
 
   Padding _tabsTopic() {
@@ -429,10 +394,9 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: Material(
         color: Theme.of(context).primaryColor,
-        borderRadius:
-            libraryId.contains(_book.id)
-                ? const BorderRadius.vertical(top: Radius.circular(5.0))
-                : null,
+        borderRadius: libraryId.contains(_book.id)
+            ? const BorderRadius.vertical(top: Radius.circular(5.0))
+            : null,
         child: DefaultTabController(
           length: 3,
           child: TabBar(
@@ -468,7 +432,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
       borderRadius: BorderRadius.circular(5.0),
     );
 
-    Container _bookSpecifications = Container(
+    Container _bookIntroduction = Container(
       padding: const EdgeInsets.all(18.0),
       decoration: BoxDecoration(
         border: Border.all(color: Theme.of(context).primaryColor),
@@ -659,21 +623,21 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                   (index) => InkWell(
                     onTap: () {
                       setState(() {
-                        if (_stars[index]) {
-                          _stars[index] = false;
+                        if (_starsForComment[index]) {
+                          _starsForComment[index] = false;
 
-                          _numberOfStars--;
+                          _numberOfStarsForComment--;
                         } else {
-                          _stars[index] = true;
+                          _starsForComment[index] = true;
 
-                          _numberOfStars++;
+                          _numberOfStarsForComment++;
                         }
                       });
                     },
                     child: Icon(
                       Icons.star,
                       size: 25.0.sp,
-                      color: _stars[index]
+                      color: _starsForComment[index]
                           ? Colors.amber
                           : Colors.amber.withOpacity(0.4),
                     ),
@@ -700,7 +664,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                 cursorWidth: 1.0,
                 onChanged: (String text) {
                   setState(() {
-                    if(_commentController.text.isEmpty) {
+                    if (_commentController.text.isEmpty) {
                       _commentError = null;
                     } else if (_commentController.text.length < 3) {
                       _commentError = 'نظر شما باید بیش از حرف داشته باشد.';
@@ -718,13 +682,15 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                   child: ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
-                        if ((_commentController.text.isEmpty) && (_numberOfStars == 0)) {
-                          _commentError = 'لطفاً نظر خود را به همراه رأی بنویسید.';
+                        if ((_commentController.text.isEmpty) &&
+                            (_numberOfStarsForComment == 0)) {
+                          _commentError =
+                              'لطفاً نظر خود را به همراه رأی بنویسید.';
                         } else if (_commentController.text.isEmpty) {
                           _commentError = 'لطفاً نظر خود را بنویسید.';
                         } else if (_commentController.text.length < 3) {
                           _commentError = 'نظر شما باید بیش از حرف داشته باشد.';
-                        } else if(_numberOfStars == 0) {
+                        } else if (_numberOfStarsForComment == 0) {
                           _commentError = 'لطفاً رأی هم بدهید.';
                         } else {
                           _commentError = null;
@@ -747,7 +713,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
     );
 
     late final List<Widget> _tabs = [
-      _bookSpecifications,
+      _bookIntroduction,
       _aboutBook,
       _comments,
     ];
@@ -756,41 +722,41 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
   }
 
   void _commentRegistration() async {
-    _customDio = await CustomDio.dio.post(
+    customDio = await CustomDio.dio.post(
       'dashboard/books/${_book.slug}/review',
       data: {
         'comment': _commentController.text,
-        'rate': _numberOfStars,
+        'rate': _numberOfStarsForComment,
       },
     );
 
-    setState(() {
-      if (_customDio.statusCode == 200) {
+    if (customDio.statusCode == 200) {
+      setState(() {
         _commentController = TextEditingController();
-        _numberOfStars = 0;
-        _stars = List<bool>.generate(5, (index) => false);
-        _dataIsLoading = true;
+        _numberOfStarsForComment = 0;
+        _starsForComment = List<bool>.generate(5, (index) => false);
+        dataIsLoading = true;
         _tabIndex = 2;
+      });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          customSnackBar(
-            context,
-            Ionicons.checkmark_done_outline,
-            'نظر شما با موفقیت ثبت شد.',
-            4,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          customSnackBar(
-            context,
-            Ionicons.refresh_outline,
-            'لطفاً دوباره امتحان کنید.',
-            4,
-          ),
-        );
-      }
-    });
+      ScaffoldMessenger.of(context).showSnackBar(
+        customSnackBar(
+          context,
+          Ionicons.checkmark_done_outline,
+          'نظر شما با موفقیت ثبت شد.',
+          4,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        customSnackBar(
+          context,
+          Ionicons.refresh_outline,
+          'لطفاً دوباره امتحان کنید.',
+          4,
+        ),
+      );
+    }
   }
 
   Visibility _otherPublisherBooks() {
@@ -835,12 +801,12 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                     ),
                     OutlinedButton(
                       onPressed: () {
-                        print(_book.slug);
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) {
                               return BooksPage(
-                                title: '$title${title.contains('مرتبط') ? ' با' : ''} کتاب ${_book.name}',
+                                title:
+                                    '$title${title.contains('مرتبط') ? ' با' : ''} کتاب ${_book.name}',
                                 books: books,
                               );
                             },
@@ -913,14 +879,14 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                                '${_book.reviews[index].id == userId ? 'نظر شما' : _book.reviews[index].name}'),
+                                _book.reviews[index].id == userId ? 'نظر شما' : _book.reviews[index].name),
                             ShowStars(
                               numberOfStars: _book.reviews[index].numberOfStars,
                             ),
                           ],
                         ),
                         Visibility(
-                          visible: _displayOfDetails[index],
+                          visible: displayOfDetails[index],
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -938,26 +904,9 @@ class _BookIntroductionPageState extends State<BookIntroductionPage> with Ticker
                           height: 24.0,
                         ),
                         InkWell(
-                          onTap: () {
-                            setState(() {
-                              if (index == _previousIndex &&
-                                  _displayOfDetails[index]) {
-                                _displayOfDetails[index] = false;
-                              } else if (index == _previousIndex &&
-                                  !_displayOfDetails[index]) {
-                                _displayOfDetails[index] = true;
-                              } else if (index != _previousIndex) {
-                                if (_previousIndex != -1) {
-                                  _displayOfDetails[_previousIndex] = false;
-                                }
-                                _displayOfDetails[index] = true;
-                              }
-
-                              _previousIndex = index;
-                            });
-                          },
+                          onTap: () => display(index),
                           child: Icon(
-                            _displayOfDetails[index]
+                            displayOfDetails[index]
                                 ? Icons.expand_less
                                 : Icons.expand_more,
                             color: Theme.of(context).primaryColor,

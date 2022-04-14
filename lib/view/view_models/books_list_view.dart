@@ -34,7 +34,7 @@ class BooksListView extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return BookIntroductionPage(bookIntroduction: books[index]);
+                      return BookIntroductionPage(book: books[index]);
                     },
                   ),
                 );

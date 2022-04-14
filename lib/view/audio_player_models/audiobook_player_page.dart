@@ -12,10 +12,10 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as INTL;
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/view/audio_player_models/audio_player_handler.dart';
+import 'package:kaghaze_souti/view/audio_player_models/progress_bar/custom_progress_bar.dart';
 import 'package:kaghaze_souti/view/audio_player_models/queue_state.dart';
 import 'package:kaghaze_souti/view/view_models/book_introduction_page.dart';
 import 'package:kaghaze_souti/view/view_models/custom_circular_progress_indicator.dart';
-import 'package:kaghaze_souti/view/view_models/progress_bar/custom_progress_bar.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../controller/custom_dio.dart';
@@ -114,7 +114,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
     _customDio = await CustomDio.dio
         .post('dashboard/books/${widget.audiobook.slug}/audio');
 
-    if (_customDio.statusCode == 200) {
+    if (_customDio.statusCode == 200 && widget.audiobook.id != audiobookInPlay.id) {
       if(widget.audiobook.id != previousAudiobookInPlayId) {
         setState(() {
           for (Map<String, dynamic> mediaItem in _customDio.data['data']) {
@@ -436,7 +436,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) {
-            return BookIntroductionPage(bookIntroduction: widget.audiobook);
+            return BookIntroductionPage(book: widget.audiobook);
           },
         ));
       },

@@ -44,8 +44,8 @@ class _SplashPageState extends State<SplashPage> {
 
     sharedPreferences = await SharedPreferences.getInstance();
 
-    cartSlug = sharedPreferences.getStringList('cartSlug') ?? [];
-    print(cartSlug);
+    bookCartSlug = sharedPreferences.getStringList('bookCartSlug') ?? [];
+    print(bookCartSlug);
 
     firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
     print(firstLogin);

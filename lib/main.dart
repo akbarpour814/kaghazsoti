@@ -48,7 +48,7 @@ String appLogoNet = 'https://kaghazsoti.com/img/logo.1e799436.jpeg';
 
 late List<int> markedBooksId = [];
 late List<int> libraryId = [];
-late List<String> cartSlug = [];
+late List<String> bookCartSlug = [];
 late int userId;
 
 

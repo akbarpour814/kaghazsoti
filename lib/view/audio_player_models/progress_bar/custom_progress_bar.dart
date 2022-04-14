@@ -1,10 +1,11 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import '/view/view_models/progress_bar/progress_bar_state.dart';
-import '/view/view_models/progress_bar/progress_notifier.dart';
+import 'package:kaghaze_souti/view/audio_player_models/progress_bar/progress_bar_state.dart';
+import 'package:kaghaze_souti/view/audio_player_models/progress_bar/progress_notifier.dart';
 
 import '../../../main.dart';
+
 
 
 

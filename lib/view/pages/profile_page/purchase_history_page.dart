@@ -290,7 +290,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
                       MaterialPageRoute(
                         builder: (context) {
                           return BookIntroductionPage(
-                            bookIntroduction:
+                            book:
                                 _purchaseHistory[index].books[bookIndex],
                           );
                         },

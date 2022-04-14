@@ -165,7 +165,7 @@ class _ProfilePageState extends State<ProfilePage> {
       onTap: () async {
         await sharedPreferences.setBool('firstLogin', true);
 
-        await sharedPreferences.setStringList('cartSlug', []);
+        await sharedPreferences.setStringList('bookCartSlug', []);
 
         Restart.restartApp();
       },
