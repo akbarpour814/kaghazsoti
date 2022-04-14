@@ -8,7 +8,6 @@ import '../../../controller/custom_response.dart';
 import '../../../controller/functions_for_checking_user_information_format.dart';
 import '../../view_models/custom_snack_bar.dart';
 import '../../view_models/persistent_bottom_navigation_bar.dart';
-import '/view/view_models/custom_text_field.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../main.dart';

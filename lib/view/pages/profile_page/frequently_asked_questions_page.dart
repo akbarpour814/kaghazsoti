@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
 import '../../../main.dart';
@@ -23,17 +24,14 @@ class FrequentlyAskedQuestionsPage extends StatefulWidget {
 
 class _FrequentlyAskedQuestionsPageState
     extends State<FrequentlyAskedQuestionsPage>
-    with InternetConnection, LoadDataFromAPI {
+    with InternetConnection, LoadDataFromAPI, DisplayOfDetails {
   late List<FrequentlyAskedQuestion> _frequentlyAskedQuestions;
-  late List<bool> _displayOfAnswers;
-  late int _previousIndex;
 
   @override
   void initState() {
     super.initState();
 
     _frequentlyAskedQuestions = [];
-    _previousIndex = -1;
   }
 
   Future _initFrequentlyAskedQuestions() async {
@@ -42,19 +40,20 @@ class _FrequentlyAskedQuestionsPageState
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 
-      for (Map<String, dynamic> frequentlyAskedQuestion
-          in customResponse.data) {
+      _frequentlyAskedQuestions.clear();
+
+      for (Map<String, dynamic> frequentlyAskedQuestion in customResponse.data) {
         _frequentlyAskedQuestions
             .add(FrequentlyAskedQuestion.fromJson(frequentlyAskedQuestion));
       }
 
       setState(() {
-        _displayOfAnswers = List<bool>.generate(
+        dataIsLoading = false;
+
+        displayOfDetails = List<bool>.generate(
           _frequentlyAskedQuestions.length,
           (index) => false,
         );
-
-        dataIsLoading = false;
       });
     }
 
@@ -154,7 +153,7 @@ class _FrequentlyAskedQuestionsPageState
       child: ListTile(
         title: Text(frequentlyAskedQuestion.question),
         subtitle: Visibility(
-          visible: _displayOfAnswers[index],
+          visible: displayOfDetails[index],
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -172,24 +171,9 @@ class _FrequentlyAskedQuestionsPageState
           ),
         ),
         trailing: InkWell(
-          onTap: () {
-            setState(() {
-              if (index == _previousIndex && _displayOfAnswers[index]) {
-                _displayOfAnswers[index] = false;
-              } else if (index == _previousIndex && !_displayOfAnswers[index]) {
-                _displayOfAnswers[index] = true;
-              } else if (index != _previousIndex) {
-                if (_previousIndex != -1) {
-                  _displayOfAnswers[_previousIndex] = false;
-                }
-                _displayOfAnswers[index] = true;
-              }
-
-              _previousIndex = index;
-            });
-          },
+          onTap: () => display(index),
           child: Icon(
-            _displayOfAnswers[index]
+            displayOfDetails[index]
                 ? Ionicons.chevron_up_outline
                 : Ionicons.chevron_down_outline,
           ),

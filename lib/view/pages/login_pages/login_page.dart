@@ -7,7 +7,6 @@ import '/controller/custom_response.dart';
 import '/view/pages/login_pages/password_recovery_page.dart';
 import '/view/pages/login_pages/registration_page.dart';
 import '/view/pages/login_pages/splash_page.dart';
-import '/view/view_models/custom_text_field.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../controller/functions_for_checking_user_information_format.dart';

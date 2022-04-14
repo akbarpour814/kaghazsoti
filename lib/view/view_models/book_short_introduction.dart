@@ -3,10 +3,10 @@ import '/view/view_models/show_stars.dart';
 import '../../main.dart';
 import '../../model/book_introduction.dart';
 import '../pages/search_page/search_page.dart';
-import '/model/book.dart';
 import '/view/view_models/book_introduction_page.dart';
 import 'package:sizer/sizer.dart';
 
+// ignore: must_be_immutable
 class BookShortIntroduction extends StatefulWidget {
   late BookIntroduction book;
   late SearchTopic? searchTopic;
