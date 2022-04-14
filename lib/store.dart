@@ -42,7 +42,6 @@ import '/view/pages/profile_page/marked_page.dart';
 import '/view/pages/profile_page/password_setting_page.dart';
 import '/view/pages/profile_page/profile_page.dart';
 import '/view/pages/profile_page/purchase_history_page.dart';
-import '/view/pages/profile_page/wallet_page.dart';
 
 //------/view/pages/search_page
 import '/view/pages/search_page/search_page.dart';

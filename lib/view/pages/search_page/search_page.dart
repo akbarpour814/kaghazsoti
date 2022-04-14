@@ -1,23 +1,20 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import 'package:kaghaze_souti/view/view_models/custom_smart_refresher.dart';
 import 'package:sizer/sizer.dart';
+import '../../../main.dart';
 import '../../view_models/no_internet_connection.dart';
-import '../category_page/subcategory_books_page.dart';
 import '/model/book_introduction.dart';
 
 import '../../../controller/custom_response.dart';
 import '../../../controller/custom_dio.dart';
-import '../../../main.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
-import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({Key? key}) : super(key: key);
@@ -26,109 +23,59 @@ class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
-  late bool _internetConnectionChecker;
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-  late bool _dataIsLoading;
-
-  final TextEditingController _textEditingController = TextEditingController();
-  late SearchTopic _searchTopic;
-  late List<BookIntroduction> _booksTemp;
+class _SearchPageState extends State<SearchPage>
+    with InternetConnection, LoadDataFromAPI, Refresher {
+  late TextEditingController _searchController;
+  String? _searchKey;
   late List<BookIntroduction> _books;
-
-  late String _searchKey = '';
-  late int _lastPage;
-  late int _currentPage;
-
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late List<BookIntroduction> _booksTemp;
+  late List<BookIntroduction> _booksFound;
+  late bool _dataIsLoadingToSearchForBooks;
+  late bool _noBooksFound;
 
   @override
   void initState() {
-    _dataIsLoading = true;
-    _searchTopic = SearchTopic.name;
-
-    _books = [];
-    _booksTemp = [];
-
-    _currentPage = 1;
-
     super.initState();
 
-    _refreshController = RefreshController(initialRefresh: false);
-
-    initConnectivity();
-
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _searchController = TextEditingController();
+    _books = [];
+    _booksTemp = [];
+    _booksFound = [];
+    _dataIsLoadingToSearchForBooks = false;
+    _noBooksFound = false;
   }
-
-  Future<void> initConnectivity() async {
-    late ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-    super.dispose();
-  }
-
 
   Future _initBooks() async {
-    _customDio = await CustomDio.dio.post(
+    customDio = await CustomDio.dio.post(
       'books',
-      queryParameters: {'page': _currentPage},
+      queryParameters: {'page': currentPage},
     );
 
-    if (_customDio.statusCode == 200) {
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
 
-      _lastPage = _customResponse.data['last_page'];
+      lastPage = customResponse.data['last_page'];
 
-      if (_currentPage == 1) {
-        _books.clear();
+      if (currentPage == 1) {
+        _booksTemp.clear();
       }
 
-      for (Map<String, dynamic> book in _customResponse.data['data']) {
-        BookIntroduction _book = BookIntroduction.fromJson(book);
-        _books.add(_book);
+      for (Map<String, dynamic> book in customResponse.data['data']) {
+        _booksTemp.add(BookIntroduction.fromJson(book));
       }
-
-      _booksTemp.clear();
-      _booksTemp.addAll(_books);
-
-      _dataIsLoading = false;
 
       setState(() {
+        dataIsLoading = false;
+
         refresh = false;
         loading = false;
 
-        print('load $loading');
-        print('refresh $refresh');
+        _books.clear();
+        _books.addAll(_booksTemp);
       });
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -137,7 +84,7 @@ class _SearchPageState extends State<SearchPage> {
       resizeToAvoidBottomInset: false,
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 
@@ -151,27 +98,35 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _body() {
-    return _dataIsLoading
-        ? FutureBuilder(
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              return snapshot.hasData
-                  ? _innerBody()
-                  : Center(
-                      child: CustomCircularProgressIndicator(
-                          message: 'لطفاً شکیبا باشید.'));
-            },
-            future: _initBooks(),
-          )
-        : _innerBody();
+    if (dataIsLoading) {
+      return FutureBuilder(
+        future: _initBooks(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return _innerBody();
+          } else {
+            return Center(
+              child: CustomCircularProgressIndicator(
+                message: 'لطفاً شکیبا باشید.',
+              ),
+            );
+          }
+        },
+      );
+    } else {
+      return _innerBody();
+    }
   }
 
   Widget _innerBody() {
-    if(_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
-      return const Center(child: NoInternetConnection(),);
+      return const Center(
+        child: NoInternetConnection(),
+      );
     } else {
       return Column(
         children: [
@@ -180,15 +135,7 @@ class _SearchPageState extends State<SearchPage> {
               vertical: 16.0,
               horizontal: 5.0.w,
             ),
-            child: Column(
-              children: [
-                /* _selectASearchTopic(),
-              const Divider(
-                height: 32.0,
-              ),*/
-                _searchTextField(),
-              ],
-            ),
+            child: _searchTextField(),
           ),
           const Divider(
             height: 0.0,
@@ -199,79 +146,31 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  Row _selectASearchTopic() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'جست و جو بر اساس: ${_searchTopic.title}',
-        ),
-        InkWell(
-          onTap: () {
-            showDialog(
-              context: context,
-              barrierDismissible: true,
-              builder: (BuildContext context) {
-                return WillPopScope(
-                  onWillPop: () async => true,
-                  child: SimpleDialog(
-                    children: List<InkWell>.generate(
-                      SearchTopic.values.length,
-                      (index) => InkWell(
-                        onTap: () {
-                          setState(() {
-                            _searchTopic = SearchTopic.values[index];
-
-                            _booksUpdate();
-
-                            Navigator.of(context).pop();
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text(SearchTopic.values[index].title!),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-          child: Icon(
-            Ionicons.ellipsis_vertical_outline,
-            color: Theme.of(context).primaryColor,
-          ),
-        ),
-      ],
-    );
-  }
-
   Padding _searchTextField() {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
         readOnly: false,
-        controller: _textEditingController,
+        controller: _searchController,
         keyboardType: TextInputType.text,
-        decoration: InputDecoration(
+        decoration: const InputDecoration(
           helperText: 'عبارت جست و جو',
           hintText: 'لطفاً عبارت مورد نظر را بنویسید.',
-          errorText: false ? '' : null,
-          suffixIcon: const Icon(Ionicons.search_outline),
+          suffixIcon: Icon(Ionicons.search_outline),
         ),
         onChanged: (String text) {
           setState(() {
-            if (_textEditingController.text.isEmpty) {
-              _x = null;
-
-              _booksTemp.clear();
-              _booksTemp.addAll(_books);
-              noKetab = false;
+            if (_searchController.text.isEmpty) {
+              _searchKey = null;
+              _books.clear();
+              _books.addAll(_booksTemp);
+              _dataIsLoadingToSearchForBooks = false;
+              _noBooksFound = false;
             } else {
-              _x = _textEditingController.text;
-              loadSearch = true;
-              _initSearch();
+              _searchKey = _searchController.text;
+              _dataIsLoadingToSearchForBooks = true;
+
+              _initBooksFound();
             }
           });
         },
@@ -279,94 +178,80 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  String? _x;
+  Widget _searchResults() {
+    if (_searchKey == null) {
+      return _notSearching();
+    } else {
+      if (_dataIsLoadingToSearchForBooks) {
+        return FutureBuilder(
+          future: _initBooksFound(),
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            if (snapshot.hasData) {
+              if ((_noBooksFound) && (_searchKey != null)) {
+                return Expanded(
+                  child: Center(
+                    child: Text(
+                        'کتابی با عبارت جست و جوی «$_searchKey» یافت نشد.'),
+                  ),
+                );
+              } else {
+                return _isSearching();
+              }
+            } else {
+              return Expanded(
+                child: Center(
+                  child: CustomCircularProgressIndicator(
+                    message: 'لطفاً شکیبا باشید.',
+                  ),
+                ),
+              );
+            }
+          },
+        );
+      } else {
+        return _isSearching();
+      }
+    }
+  }
 
-  List<BookIntroduction> _searchBook = [];
-
-  bool loadSearch = true;
-  Future _initSearch() async {
-    _customDio = await CustomDio.dio.post(
+  Future _initBooksFound() async {
+    customDio = await CustomDio.dio.post(
       'search',
-      data: {'q': _textEditingController.text},
+      data: {'q': _searchController.text},
     );
 
-    if (_customDio.statusCode == 200) {
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
 
       setState(() {
-        if (_customResponse.data['books'] == null) {
-          noKetab = true;
+        if (customResponse.data['books'] == null) {
+          _noBooksFound = true;
         } else {
-          _searchBook.clear();
+          _booksFound.clear();
 
-          for (Map<String, dynamic> book in _customResponse.data['books']) {
-            _searchBook.add(BookIntroduction.fromJson(book));
+          for (Map<String, dynamic> book in customResponse.data['books']) {
+            _booksFound.add(BookIntroduction.fromJson(book));
           }
 
-          _booksTemp.clear();
-          _booksTemp.addAll(_searchBook);
+          _books.clear();
+          _books.addAll(_booksFound);
 
-          loadSearch = false;
+          _dataIsLoadingToSearchForBooks = false;
         }
       });
     }
 
-    return _customDio;
+    return customDio;
   }
 
-  bool noKetab = false;
-
-  late RefreshController _refreshController;
-
-  Widget _searchResults() {
-    if (_x == null) {
-      return ghablSerch();
-    } else {
-      return loadSearch ? FutureBuilder(
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          return snapshot.hasData
-              ? ((noKetab) && (_x != null)
-              ? Expanded(child: Center(child: Text('کتابی با عبارت جست و جوی «$_x» یافت نشد.'),),)
-              : badSearch())
-              : Expanded(child: Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.')));
-        },
-        future: _initSearch(),
-      ) : badSearch();
-    }
-
-   /* if ((_booksTemp.isEmpty) && (_searchKey != '')) {
-      return Expanded(
-        child: Center(
-          child: Text('کتابی با ${_searchTopic.title} «$_searchKey» یافت نشد.'),
-        ),
-      );
-    } else {
-      return Expanded(
-        child: SingleChildScrollView(
-          child: Column(
-            children: List.generate(
-              _booksTemp.length,
-              (index) => BookShortIntroduction(
-                book: _booksTemp[index],
-                searchTopic: _searchTopic,
-                searchKey: _searchKey,
-              ),
-            ),
-          ),
-        ),
-      );
-    }*/
-  }
-
-  Widget badSearch() {
+  Widget _isSearching() {
     return Expanded(
       child: SingleChildScrollView(
         child: Column(
           children: List.generate(
-            _booksTemp.length,
-                (index) => BookShortIntroduction(
-              book: _booksTemp[index],
-              searchTopic: _searchTopic,
+            _books.length,
+            (index) => BookShortIntroduction(
+              book: _books[index],
               searchKey: _searchKey,
             ),
           ),
@@ -375,230 +260,27 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget ghablSerch() {
+  Widget _notSearching() {
     return Expanded(
-      child: SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: true,
-        header: const MaterialClassicHeader(),
-        footer: CustomFooter(
-          builder: (BuildContext? context, LoadStatus? mode) {
-            Widget body;
-            if ((mode == LoadStatus.idle && _currentPage == _lastPage && !_dataIsLoading) ||
-                _textEditingController.text.isNotEmpty) {
-              print('mod 1');
-
-              body = Text(
-                'کتاب دیگری یافت نشد.',
-                style: TextStyle(
-                  color: Theme.of(context!).primaryColor,
-                ),
-              );
-            } else if (mode == LoadStatus.idle) {
-              print('mod 2');
-
-
-              body = Text(
-                'لطفاً صفحه را بالا بکشید.',
-                style: TextStyle(
-                  color: Theme.of(context!).primaryColor,
-                ),
-              );
-
-            } else if (mode == LoadStatus.loading) {
-              print('mod 3');
-
-              body = Center(
-                  child: CustomCircularProgressIndicator(
-                      message: 'لطفاً شکیبا باشید.'));
-            } else if (mode == LoadStatus.failed) {
-              print('mod 4');
-
-              body = Center(
-                  child: CustomCircularProgressIndicator(
-                      message: 'لطفاً دوباره امتحان کنید.'));
-            } else if (mode == LoadStatus.canLoading) {
-              print('mod 5');
-
-              body = Center(
-                  child: CustomCircularProgressIndicator(
-                      message: 'لطفاً صفحه را پایین بکشید.'));
-            } else {
-              print('mod 6');
-
-              body = Text(
-                'کتاب دیگری یافت نشد.',
-                style: TextStyle(
-                  color: Theme.of(context!).primaryColor,
-                ),
-              );
-            }
-            return Container(
-              height: 55.0,
-              child: Center(child: body),
-            );
-          },
-        ),
-        controller: _refreshController,
-        onRefresh: loading ? null : _onRefresh,
-        onLoading: refresh ? null : _onLoading,
-        child: ListView.builder(
-          itemBuilder: (BuildContext context, int index) =>
-              BookShortIntroduction(
-            book: _booksTemp[index],
-            searchTopic: _searchTopic,
+      child: CustomSmartRefresher(
+        refreshController: refreshController,
+        onRefresh: () => onRefresh(() => _initBooks()),
+        onLoading: () => onLoading(() => _initBooks()),
+        list: List<BookShortIntroduction>.generate(
+          _books.length,
+          (index) => BookShortIntroduction(
+            book: _books[index],
             searchKey: _searchKey,
           ),
-          itemCount: _booksTemp.length,
-          itemExtent: 15.8.h,
         ),
+        listType: 'کتاب',
+        refresh: refresh,
+        loading: loading,
+        lastPage: lastPage,
+        currentPage: currentPage,
+        dataIsLoading: dataIsLoading,
       ),
     );
-  }
-
-  bool refresh = false;
-  bool loading = false;
-
-
-  void _onRefresh() async {
-    if (_textEditingController.text.isEmpty) {
-      try {
-        // monitor network fetch
-        setState(() {
-          refresh = loading ? false : true;
-          if (refresh) {
-            _currentPage = 1;
-
-            _initBooks();
-
-            print(_currentPage);
-            print('refresh');
-            print(refresh);
-            print(loading);
-          }
-        });
-        await Future.delayed(Duration(milliseconds: 1000));
-        // if failed,use refreshFailed()
-
-        _refreshController.refreshCompleted();
-      } catch (e) {
-        _refreshController.refreshFailed();
-      }
-    } else {
-      try {
-        // monitor network fetch
-        setState(() {
-          refresh = loading ? false : true;
-          if (refresh) {
-            _initSearch();
-          }
-        });
-        await Future.delayed(Duration(milliseconds: 1000));
-        // if failed,use refreshFailed()
-
-        _refreshController.refreshCompleted();
-      } catch (e) {
-        _refreshController.refreshFailed();
-      }
-    }
-  }
-
-  void _onLoading() async {
-    if (_textEditingController.text.isEmpty) {
-      try {
-        print('${_currentPage} xxxx');
-
-        if (_currentPage < _lastPage) {
-          setState(() {
-            loading = refresh ? false : true;
-            print('$loading xxxx');
-            if (loading) {
-              _currentPage++;
-
-              print('xxxx');
-              _initBooks();
-
-              print(_currentPage);
-              print('load');
-              print(loading);
-              print(refresh);
-            }
-          });
-        }
-        await Future.delayed(Duration(milliseconds: 1000));
-        // if failed,use loadFailed(),if no data return,use LoadNodata()
-
-        // if(mounted)
-        //   setState(() {
-        //
-        //   });
-        _refreshController.loadComplete();
-      } catch (e) {
-        _refreshController.loadFailed();
-      }
-    } else {
-      try {
-        setState(() {
-          loading = refresh ? false : true;
-
-          if (loading) {
-            _initSearch();
-          }
-        });
-        await Future.delayed(Duration(milliseconds: 1000));
-        // if failed,use loadFailed(),if no data return,use LoadNodata()
-
-        // if(mounted)
-        //   setState(() {
-        //
-        //   });
-        _refreshController.loadComplete();
-      } catch (e) {
-        _refreshController.loadFailed();
-      }
-    }
-  }
-
-  void _booksUpdate() {
-    setState(() {
-      _searchKey = _textEditingController.text;
-
-      if (_searchKey == '') {
-        _booksTemp.clear();
-
-        _booksTemp.addAll(_books);
-      } else {
-        switch (_searchTopic) {
-          case SearchTopic.name:
-            {
-              _booksTemp.clear();
-
-              _booksTemp.addAll(
-                  _books.where((element) => element.name.contains(_searchKey)));
-
-              break;
-            }
-          case SearchTopic.author:
-            {
-              _booksTemp.clear();
-
-              _booksTemp.addAll(_books
-                  .where((element) => element.author.contains(_searchKey)));
-
-              break;
-            }
-          case SearchTopic.publisherOfPrintedVersion:
-            {
-              _booksTemp.clear();
-
-              _booksTemp.addAll(_books.where((element) =>
-                  element.publisherOfPrintedVersion.contains(_searchKey)));
-
-              break;
-            }
-        }
-      }
-    });
   }
 }
 
