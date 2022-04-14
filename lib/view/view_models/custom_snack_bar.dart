@@ -21,7 +21,7 @@ SnackBar customSnackBar(BuildContext context, IconData contentIcon, String conte
         ),
         Text(
           contentText,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontFamily: fontFamily,
           ),
