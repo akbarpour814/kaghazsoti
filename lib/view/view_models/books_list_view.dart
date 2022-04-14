@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '/model/book.dart';
 import '/view/view_models/book_introduction_page.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../main.dart';
 import '../../model/book_introduction.dart';
 
+// ignore: must_be_immutable
 class BooksListView extends StatelessWidget {
   late List<BookIntroduction> books;
 
@@ -65,9 +65,8 @@ class BooksListView extends StatelessWidget {
     );
   }
 
-  Container _bookCover(int index) {
-    return Container(
-      //color: Colors.white,
+  SizedBox _bookCover(int index) {
+    return SizedBox(
       width: 150.0,
       height: 18.0.h,
       child: ClipRRect(
