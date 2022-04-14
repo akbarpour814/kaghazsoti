@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../../view_models/no_internet_connection.dart';
@@ -29,12 +31,8 @@ class ContactUsPage extends StatefulWidget {
   _ContactUsPageState createState() => _ContactUsPageState();
 }
 
-class _ContactUsPageState extends State<ContactUsPage> {
-  late bool _internetConnectionChecker;
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
+class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, LoadDataFromAPI {
   TextEditingController _textEditingController = TextEditingController();
-  late bool _dataIsLoading;
   String? _topic;
   String? _errorText;
   late List<Topic> _topics;
@@ -43,13 +41,10 @@ class _ContactUsPageState extends State<ContactUsPage> {
   late int _previousIndex;
   late List<CommentData> _comments;
 
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
 
   @override
   void initState() {
-    _dataIsLoading = true;
     _topics = Topic.values;
     _commentPosted = false;
     _previousIndex = -1;
@@ -57,56 +52,26 @@ class _ContactUsPageState extends State<ContactUsPage> {
 
     super.initState();
 
-    initConnectivity();
 
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
-  Future<void> initConnectivity() async {
-    late ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-    super.dispose();
-  }
 
   Future _initComments() async {
-    _customDio = await CustomDio.dio.get('dashboard/tickets');
+    customDio = await CustomDio.dio.get('dashboard/tickets');
 
-    if (_customDio.statusCode == 200) {
+    if (customDio.statusCode == 200) {
       _comments.clear();
 
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+      customResponse = CustomResponse.fromJson(customDio.data);
 
-      _comments.add(CommentData.fromJson(_customResponse.data['data'][0]));
+      _comments.add(CommentData.fromJson(customResponse.data['data'][0]));
 
       _displayOfDetails = List<bool>.generate(_comments.length, (index) => false);
 
-      _dataIsLoading = false;
+      dataIsLoading = false;
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -142,7 +107,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
   }
 
   Widget _body() {
-    return _dataIsLoading
+    return dataIsLoading
         ? FutureBuilder(
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
               return snapshot.hasData
@@ -157,9 +122,9 @@ class _ContactUsPageState extends State<ContactUsPage> {
   }
 
   Widget _innerBody() {
-    if (_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
       return const Center(
@@ -361,7 +326,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
   }
 
   void _commentRegistration() async {
-    _customDio = await CustomDio.dio.post(
+    customDio = await CustomDio.dio.post(
       'dashboard/tickets',
       data: {
         'title': _topic,
@@ -370,10 +335,10 @@ class _ContactUsPageState extends State<ContactUsPage> {
     );
 
     setState(() {
-      if (_customDio.statusCode == 200) {
+      if (customDio.statusCode == 200) {
         _topic = null;
         _textEditingController = TextEditingController();
-        _dataIsLoading = true;
+        dataIsLoading = true;
 
         ScaffoldMessenger.of(context).showSnackBar(
           customSnackBar(

@@ -1,18 +1,16 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:html/parser.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
 import '../../../main.dart';
 import '../../../model/text_format.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 import '../../view_models/no_internet_connection.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
 
 class FrequentlyAskedQuestionsPage extends StatefulWidget {
@@ -24,80 +22,43 @@ class FrequentlyAskedQuestionsPage extends StatefulWidget {
 }
 
 class _FrequentlyAskedQuestionsPageState
-    extends State<FrequentlyAskedQuestionsPage> {
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-  late bool _dataIsLoading;
-
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
+    extends State<FrequentlyAskedQuestionsPage>
+    with InternetConnection, LoadDataFromAPI {
   late List<FrequentlyAskedQuestion> _frequentlyAskedQuestions;
   late List<bool> _displayOfAnswers;
   late int _previousIndex;
 
   @override
   void initState() {
-    _dataIsLoading = true;
-    _frequentlyAskedQuestions = [];
-
-    _previousIndex = -1;
-
     super.initState();
 
-    initConnectivity();
-
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-  }
-
-  Future<void> initConnectivity() async {
-    late ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-    super.dispose();
+    _frequentlyAskedQuestions = [];
+    _previousIndex = -1;
   }
 
   Future _initFrequentlyAskedQuestions() async {
-    _customDio = await CustomDio.dio.get('faq');
+    customDio = await CustomDio.dio.get('faq');
 
-    if (_customDio.statusCode == 200) {
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
 
       for (Map<String, dynamic> frequentlyAskedQuestion
-          in _customResponse.data) {
+          in customResponse.data) {
         _frequentlyAskedQuestions
             .add(FrequentlyAskedQuestion.fromJson(frequentlyAskedQuestion));
       }
 
-      _displayOfAnswers = List<bool>.generate(
-          _frequentlyAskedQuestions.length, (index) => false);
-      _dataIsLoading = false;
+      setState(() {
+        _displayOfAnswers = List<bool>.generate(
+          _frequentlyAskedQuestions.length,
+          (index) => false,
+        );
+
+        dataIsLoading = false;
+      });
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -133,24 +94,30 @@ class _FrequentlyAskedQuestionsPageState
   }
 
   Widget _body() {
-    return _dataIsLoading
-        ? FutureBuilder(
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              return snapshot.hasData
-                  ? _innerBody()
-                  : Center(
-                      child: CustomCircularProgressIndicator(
-                          message: 'لطفاً شکیبا باشید.'));
-            },
-            future: _initFrequentlyAskedQuestions(),
-          )
-        : _innerBody();
+    if (dataIsLoading) {
+      return FutureBuilder(
+        future: _initFrequentlyAskedQuestions(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return _innerBody();
+          } else {
+            return Center(
+              child: CustomCircularProgressIndicator(
+                message: 'لطفاً شکیبا باشید.',
+              ),
+            );
+          }
+        },
+      );
+    } else {
+      return _innerBody();
+    }
   }
 
   Widget _innerBody() {
-    if (_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
       return const Center(
@@ -160,30 +127,32 @@ class _FrequentlyAskedQuestionsPageState
       return RefreshIndicator(
         onRefresh: () {
           setState(() {
-            _dataIsLoading = true;
+            dataIsLoading = true;
           });
 
           return _initFrequentlyAskedQuestions();
         },
-        child: ListView.builder(
-          itemCount: _frequentlyAskedQuestions.length,
-          itemBuilder: (BuildContext context, int index) => _questionAndAnswer(
-            _frequentlyAskedQuestions[index].question,
-            _frequentlyAskedQuestions[index].answer,
-            index,
+        child: ListView(
+          children: List<Card>.generate(
+            _frequentlyAskedQuestions.length,
+            (index) => _questionAndAnswer(
+              _frequentlyAskedQuestions[index],
+              index,
+            ),
           ),
         ),
       );
     }
   }
 
-  Widget _questionAndAnswer(String question, String answer, int index) {
+  Card _questionAndAnswer(
+      FrequentlyAskedQuestion frequentlyAskedQuestion, int index) {
     return Card(
       color: Colors.transparent,
       elevation: 0.0,
       shape: Theme.of(context).cardTheme.shape,
       child: ListTile(
-        title: Text(question),
+        title: Text(frequentlyAskedQuestion.question),
         subtitle: Visibility(
           visible: _displayOfAnswers[index],
           child: Column(
@@ -193,7 +162,7 @@ class _FrequentlyAskedQuestionsPageState
                 height: 4.0.h,
               ),
               Text(
-                answer,
+                frequentlyAskedQuestion.answer,
                 textAlign: TextAlign.justify,
               ),
               SizedBox(
