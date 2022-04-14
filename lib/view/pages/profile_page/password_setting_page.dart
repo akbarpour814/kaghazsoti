@@ -1,16 +1,11 @@
-import 'dart:async';
-import 'dart:math';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 import '/view/view_models/custom_snack_bar.dart';
-import '/view/view_models/custom_text_field.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_response.dart';
@@ -24,72 +19,35 @@ class PasswordSettingPage extends StatefulWidget {
   _PasswordSettingPageState createState() => _PasswordSettingPageState();
 }
 
-class _PasswordSettingPageState extends State<PasswordSettingPage> {
-  TextEditingController _previousPasswordController = TextEditingController();
-  TextEditingController _newPasswordController = TextEditingController();
-  TextEditingController _repeatNewPasswordController = TextEditingController();
-
+class _PasswordSettingPageState extends State<PasswordSettingPage>
+    with InternetConnection, LoadDataFromAPI {
+  late TextEditingController _previousPasswordController;
+  String? _previousPasswordError;
+  late TextEditingController _newPasswordController = TextEditingController();
+  String? _newPasswordError;
+  late TextEditingController _repeatNewPasswordController =
+      TextEditingController();
+  String? _repeatNewPasswordError;
   late bool _newPasswordRegistered;
   late bool _obscureText;
 
-  String? _previousPasswordError;
-  String? _newPasswordError;
-  String? _repeatNewPasswordError;
-
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
   @override
   void initState() {
-    _newPasswordRegistered = false;
-    _obscureText = true;
-
     super.initState();
 
-    initConnectivity();
-
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-
+    _previousPasswordController = TextEditingController();
+    _newPasswordController = TextEditingController();
+    _repeatNewPasswordController = TextEditingController();
+    _newPasswordRegistered = false;
+    _obscureText = true;
   }
-
-  Future<void> initConnectivity() async {
-    late ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-    super.dispose();
-  }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
-      bottomNavigationBar: const PlayerBottomNavigationBar(),
+      bottomNavigationBar: playerBottomNavigationBar,
     );
   }
 
@@ -117,8 +75,10 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
   }
 
   Widget _body() {
-    if(_connectionStatus == ConnectivityResult.none) {
-      return const Center(child: NoInternetConnection(),);
+    if (connectionStatus == ConnectivityResult.none) {
+      return const Center(
+        child: NoInternetConnection(),
+      );
     } else {
       return Center(
         child: SingleChildScrollView(
@@ -191,7 +151,10 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         onChanged: (String text) {
           setState(() {
             _previousPasswordError =
-                UserInformationFormatCheck.checkPasswordFormat(_previousPasswordController, null);
+                UserInformationFormatCheck.checkPasswordFormat(
+              _previousPasswordController,
+              null,
+            );
           });
         },
       ),
@@ -214,7 +177,10 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _newPasswordError = UserInformationFormatCheck.checkPasswordFormat(_newPasswordController, null);
+            _newPasswordError = UserInformationFormatCheck.checkPasswordFormat(
+              _newPasswordController,
+              null,
+            );
           });
         },
       ),
@@ -238,7 +204,10 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
         onChanged: (String text) {
           setState(() {
             _repeatNewPasswordError =
-                UserInformationFormatCheck.checkPasswordFormat(_repeatNewPasswordController, null);
+                UserInformationFormatCheck.checkPasswordFormat(
+              _repeatNewPasswordController,
+              null,
+            );
           });
         },
       ),
@@ -254,17 +223,17 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
           child: ElevatedButton.icon(
             onPressed: () {
               setState(() {
-                if(_newPasswordController.text != _repeatNewPasswordController.text) {
-                  _repeatNewPasswordError = 'لطفاً رمز عبور جدید را تکرار کنید.';
+                if (_newPasswordController.text !=
+                    _repeatNewPasswordController.text) {
+                  _repeatNewPasswordError =
+                      'لطفاً رمز عبور جدید را تکرار کنید.';
                 } else {
                   _newPasswordRegistration();
                 }
               });
             },
             label: const Text('ثبت رمز عبور جدید'),
-            icon: const Icon(
-              Ionicons.checkmark_outline
-            ),
+            icon: const Icon(Ionicons.checkmark_outline),
           ),
         ),
       ),
@@ -273,29 +242,44 @@ class _PasswordSettingPageState extends State<PasswordSettingPage> {
 
   void _newPasswordRegistration() async {
     try {
-      _previousPasswordError = UserInformationFormatCheck.checkPasswordFormat(_previousPasswordController, 'لطفاً رمز عبور قبلی را وارد کنید.',);
-      _newPasswordError = UserInformationFormatCheck.checkPasswordFormat(_newPasswordController, 'لطفاً رمز عبور جدید را وارد کنید.',);
-      _repeatNewPasswordError = UserInformationFormatCheck.checkPasswordFormat(_repeatNewPasswordController, 'لطفاً رمز عبور جدید را تکرار کنید.',);
+      _previousPasswordError = UserInformationFormatCheck.checkPasswordFormat(
+        _previousPasswordController,
+        'لطفاً رمز عبور قبلی را وارد کنید.',
+      );
+      _newPasswordError = UserInformationFormatCheck.checkPasswordFormat(
+        _newPasswordController,
+        'لطفاً رمز عبور جدید را وارد کنید.',
+      );
+      _repeatNewPasswordError = UserInformationFormatCheck.checkPasswordFormat(
+        _repeatNewPasswordController,
+        'لطفاً رمز عبور جدید را تکرار کنید.',
+      );
 
-      if(_previousPasswordError == null && _newPasswordError == null && _repeatNewPasswordError == null) {
-        Response<dynamic> httpsResponse = await CustomDio.dio.post(
+      if (_previousPasswordError == null &&
+          _newPasswordError == null &&
+          _repeatNewPasswordError == null) {
+        customDio = await CustomDio.dio.post(
           'dashboard/user/password',
           data: {
             'old_password': _previousPasswordController.text,
             'password': _newPasswordController.text,
-            'password_confirmation': _repeatNewPasswordController.text
+            'password_confirmation': _repeatNewPasswordController.text,
           },
         );
 
-        CustomResponse customResponse =
-        CustomResponse.fromJson(httpsResponse.data);
+        customResponse = CustomResponse.fromJson(customDio.data);
 
         setState(() {
           _newPasswordRegistered = customResponse.success;
 
           if (_newPasswordRegistered) {
             ScaffoldMessenger.of(context).showSnackBar(
-              customSnackBar(context, Ionicons.checkmark_done_outline, 'رمز عبور جدید ثبت شد.', 4,),
+              customSnackBar(
+                context,
+                Ionicons.checkmark_done_outline,
+                'رمز عبور جدید ثبت شد.',
+                4,
+              ),
             );
           }
 
