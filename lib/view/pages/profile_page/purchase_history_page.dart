@@ -120,7 +120,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
           } else {
             return Center(
               child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
+
               ),
             );
           }

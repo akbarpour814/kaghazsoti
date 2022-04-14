@@ -205,7 +205,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage> {
             builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
               return snapshot.hasData
                   ? _innerBody()
-                  : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
+                  : Center(child: CustomCircularProgressIndicator());
               },
             future: _initMediaItems(),
           )

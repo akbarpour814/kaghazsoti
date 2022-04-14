@@ -120,7 +120,7 @@ class _SplashPageState extends State<SplashPage> {
                 ],
               ),
             ),
-            FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.')); }, future: _loginStep(),),
+            FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return Center(child: CustomCircularProgressIndicator()); }, future: _loginStep(),),
           ],
         ),
       ),

@@ -23,7 +23,9 @@ class BooksListView extends StatelessWidget {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: List.generate(
-          books.length >= numberOfChildren + 4 ? numberOfChildren + 4 : books.length,
+          books.length >= numberOfChildren + 4
+              ? numberOfChildren + 4
+              : books.length,
           (index) => Padding(
             padding: EdgeInsets.only(
               left: 20.0,

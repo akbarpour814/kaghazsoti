@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+// ignore: must_be_immutable
 class CustomCircularProgressIndicator extends StatefulWidget {
-  late String message;
-
-  CustomCircularProgressIndicator({Key? key, required this.message,}) : super(key: key);
+  const CustomCircularProgressIndicator({Key? key}) : super(key: key);
 
   @override
   _CustomCircularProgressIndicatorState createState() => _CustomCircularProgressIndicatorState();
@@ -25,7 +24,7 @@ class _CustomCircularProgressIndicatorState extends State<CustomCircularProgress
           ),
         ),
         Text(
-          widget.message,
+          'لطفاً شکیبا باشید.',
           style: TextStyle(
             color: Theme.of(context).primaryColor,
           ),

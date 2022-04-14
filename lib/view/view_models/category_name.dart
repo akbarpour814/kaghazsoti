@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 
+// ignore: must_be_immutable
 class CategoryName extends StatefulWidget {
   late IconData? iconData;
   late String title;
@@ -60,14 +61,16 @@ class _CategoryNameState extends State<CategoryName> {
         shape: widget.lastCategory
             ? const Border()
             : Theme.of(context).cardTheme.shape,
-        child: widget.iconData == null ? ListTile(
-          title: _title,
-          trailing: _trailing,
-        ) : ListTile(
-          leading: _leading,
-          title: _title,
-          trailing: _trailing,
-        ),
+        child: widget.iconData == null
+            ? ListTile(
+                title: _title,
+                trailing: _trailing,
+              )
+            : ListTile(
+                leading: _leading,
+                title: _title,
+                trailing: _trailing,
+              ),
       ),
     );
   }
