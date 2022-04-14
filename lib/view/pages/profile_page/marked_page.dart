@@ -14,6 +14,7 @@ import '../../../model/book.dart';
 import '../../../model/book_introduction.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 import '../../view_models/no_internet_connection.dart';
+import '../category_page/subcategory_books_page.dart';
 import '/view/view_models/book_short_introduction.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 
@@ -182,6 +183,20 @@ class _MarkedPageState extends State<MarkedPage> {
           child: Text('شما تا کنون کتابی را نشان نکرده اید.'),
         );
       } else {
+        return CustomSmartRefresher(
+          updateList: _initMarkedBooks(),
+          list: List<BookShortIntroduction>.generate(
+            _markedBooksTemp.length,
+                (index) => BookShortIntroduction(
+              book: _markedBooksTemp[index],
+            ),
+          ),
+          refresh: refresh,
+          loading: loading,
+          lastPage: _lastPage,
+          currentPage: _currentPage,
+          dataIsLoading: _dataIsLoading,
+        );
         return SmartRefresher(
           enablePullDown: true,
           enablePullUp: true,

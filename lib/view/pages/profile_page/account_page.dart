@@ -7,12 +7,9 @@ import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/view/view_models/custom_circular_progress_indicator.dart';
-import '/view/view_models/custom_text_field.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_dio.dart';
-import '../../../controller/custom_response.dart';
 import '../../../controller/functions_for_checking_user_information_format.dart';
 import '../../../main.dart';
 import '../../view_models/custom_snack_bar.dart';
@@ -25,47 +22,47 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  late bool _internetConnectionChecker;
+  late ConnectivityResult _connectionStatus;
+  late Connectivity _connectivity;
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   late Response<dynamic> _customDio;
-  late TextEditingController _firstAndLastNameController;
-  late TextEditingController _emailController;
-  late TextEditingController _phoneNumberController;
-
-  String? _firstAndLastNameError;
-  String? _emailError;
-  String? _phoneNumberError;
-
   late bool _dataIsLoading;
+
+  late TextEditingController _firstAndLastNameController;
+  String? _firstAndLastNameError;
+  late TextEditingController _emailController;
+  String? _emailError;
+  late TextEditingController _phoneNumberController;
+  String? _phoneNumberError;
   late bool _permissionToEdit;
   late bool _registeredInformation;
 
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
   @override
   void initState() {
-    _dataIsLoading = true;
-    _permissionToEdit = false;
-    _registeredInformation = false;
-
     super.initState();
 
-    initConnectivity();
-
+    _connectionStatus = ConnectivityResult.none;
+    _connectivity = Connectivity();
+    _initConnectivity();
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+
+    _dataIsLoading = true;
+
+    _permissionToEdit = false;
+    _registeredInformation = false;
   }
 
-  Future<void> initConnectivity() async {
+  Future<void> _initConnectivity() async {
     late ConnectivityResult result;
+
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
       return;
     }
+
     if (!mounted) {
       return Future.value(null);
     }
@@ -82,6 +79,7 @@ class _AccountPageState extends State<AccountPage> {
   @override
   void dispose() {
     _connectivitySubscription.cancel();
+
     super.dispose();
   }
 
@@ -89,13 +87,16 @@ class _AccountPageState extends State<AccountPage> {
     _customDio = await CustomDio.dio.get('user');
 
     if (_customDio.statusCode == 200) {
-      _firstAndLastNameController =
-          TextEditingController(text: _customDio.data['name']);
-      _emailController = TextEditingController(text: _customDio.data['email']);
-      _phoneNumberController =
-          TextEditingController(text: _customDio.data['mobile']);
+      setState(() {
+        _firstAndLastNameController =
+            TextEditingController(text: _customDio.data['name']);
+        _emailController =
+            TextEditingController(text: _customDio.data['email']);
+        _phoneNumberController =
+            TextEditingController(text: _customDio.data['mobile']);
 
-     _dataIsLoading = false;
+        _dataIsLoading = false;
+      });
     }
 
     return _customDio;
@@ -134,16 +135,24 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Widget _body() {
-    return _dataIsLoading
-        ? FutureBuilder(
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              return snapshot.hasData
-                  ? _innerBody()
-                  : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
-            },
-            future: _initUserInformation(),
-          )
-        : _innerBody();
+    if (_dataIsLoading) {
+      return FutureBuilder(
+        future: _initUserInformation(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return _innerBody();
+          } else {
+            return Center(
+              child: CustomCircularProgressIndicator(
+                message: 'لطفاً شکیبا باشید.',
+              ),
+            );
+          }
+        },
+      );
+    } else {
+      return _innerBody();
+    }
   }
 
   Widget _innerBody() {
@@ -152,7 +161,8 @@ class _AccountPageState extends State<AccountPage> {
         _dataIsLoading = true;
       });
 
-      return const Center(child: NoInternetConnection(),
+      return const Center(
+        child: NoInternetConnection(),
       );
     } else {
       return Center(
@@ -309,10 +319,13 @@ class _AccountPageState extends State<AccountPage> {
             });
           },
           label: Text(
-              _registeredInformation ? 'اطلاعات ویرایش شد' : 'ویرایش اطلاعات'),
-          icon: Icon(_registeredInformation
-              ? Ionicons.checkmark_done_outline
-              : Ionicons.checkmark_outline),
+            _registeredInformation ? 'اطلاعات ویرایش شد' : 'ویرایش اطلاعات',
+          ),
+          icon: Icon(
+            _registeredInformation
+                ? Ionicons.checkmark_done_outline
+                : Ionicons.checkmark_outline,
+          ),
         ),
       ),
     );
