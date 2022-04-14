@@ -1,21 +1,16 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/view/pages/category_page/subcategory_books_page.dart';
 import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sizer/sizer.dart';
 import '../../../model/payment.dart';
 import '../../view_models/custom_smart_refresher.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/model/purchase.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 import '/view/view_models/property.dart';
 
 import '../../../controller/custom_dio.dart';
@@ -66,22 +61,24 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
       }
 
       setState(() {
-        _purchaseHistory.clear();
-        _purchaseHistory.addAll(_purchaseHistoryTemp);
-
         dataIsLoading = false;
+
         refresh = false;
         loading = false;
 
-        displayOfDetails =
-        List<bool>.generate(_purchaseHistory.length, (index) => false);
+        _purchaseHistory.clear();
+        _purchaseHistory.addAll(_purchaseHistoryTemp);
+
+        displayOfDetails = List<bool>.generate(
+          _purchaseHistory.length,
+          (index) => false,
+        );
       });
     }
 
     return customDio;
   }
 
-  // late RefreshController _refreshController;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,18 +112,24 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   }
 
   Widget _body() {
-    return dataIsLoading
-        ? FutureBuilder(
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? _innerBody()
-            : Center(
-            child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.'));
-      },
-      future: _initPurchaseHistory(),
-    )
-        : _innerBody();
+    if (dataIsLoading) {
+      return FutureBuilder(
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return _innerBody();
+          } else {
+            return Center(
+              child: CustomCircularProgressIndicator(
+                message: 'لطفاً شکیبا باشید.',
+              ),
+            );
+          }
+        },
+        future: _initPurchaseHistory(),
+      );
+    } else {
+      return _innerBody();
+    }
   }
 
   Widget _innerBody() {
@@ -145,21 +148,19 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
         );
       } else {
         return CustomSmartRefresher(
-            refreshController: refreshController,
-            onRefresh: () {
-              onRefresh(() => _initPurchaseHistory());
-            },
-          onLoading: () {
-            onLoading(() => _initPurchaseHistory());
-          },
-            list: List.generate(
-                _purchaseHistory.length, (index) => _purchaseInvoice(index)),
+          refreshController: refreshController,
+          onRefresh: () => onRefresh(() => _initPurchaseHistory()),
+          onLoading: () => onLoading(() => _initPurchaseHistory()),
+          list: List.generate(
+            _purchaseHistory.length,
+            (index) => _purchaseInvoice(index),
+          ),
           listType: 'فاکتور خرید',
-            refresh: refresh,
-            loading: loading,
-            lastPage: lastPage,
-            currentPage: currentPage,
-            dataIsLoading: dataIsLoading,
+          refresh: refresh,
+          loading: loading,
+          lastPage: lastPage,
+          currentPage: currentPage,
+          dataIsLoading: dataIsLoading,
         );
       }
     }
@@ -181,9 +182,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
           bottom: 8.0,
         ),
         decoration: BoxDecoration(
-          border: Border.all(color: Theme
-              .of(context)
-              .primaryColor),
+          border: Border.all(color: Theme.of(context).primaryColor),
           borderRadius: const BorderRadius.all(Radius.circular(5.0)),
         ),
         child: Column(
@@ -199,12 +198,8 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
             InkWell(
               onTap: () => display(index),
               child: Icon(
-                displayOfDetails[index]
-                    ? Icons.expand_less
-                    : Icons.expand_more,
-                color: Theme
-                    .of(context)
-                    .primaryColor,
+                displayOfDetails[index] ? Icons.expand_less : Icons.expand_more,
+                color: Theme.of(context).primaryColor,
               ),
             ),
           ],
@@ -287,33 +282,31 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(
               _purchaseHistory[index].books.length,
-                  (bookIndex) =>
-                  SizedBox(
-                    width: 100.0.w - (2 * 5.0.w) - (2 * 18.0),
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return BookIntroductionPage(
-                                bookIntroduction:
+              (bookIndex) => SizedBox(
+                width: 100.0.w - (2 * 5.0.w) - (2 * 18.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return BookIntroductionPage(
+                            bookIntroduction:
                                 _purchaseHistory[index].books[bookIndex],
-                              );
-                            },
-                          ),
-                        );
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${bookIndex + 1} - ${_purchaseHistory[index]
-                                .books[bookIndex].name}',
-                          ),
-                        ],
+                          );
+                        },
                       ),
-                    ),
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${bookIndex + 1} - ${_purchaseHistory[index].books[bookIndex].name}',
+                      ),
+                    ],
                   ),
+                ),
+              ),
             ),
           ),
           _paymentButton(index),
@@ -339,9 +332,11 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   }
 
   void _payment(int index) {
-    Payment payment = Payment(amount: _purchaseHistory[index].finalPriceInt,
+    Payment payment = Payment(
+      amount: _purchaseHistory[index].finalPriceInt,
       callbackURL: PurchaseHistoryPage.routeName,
-      description: 'description',);
+      description: 'description',
+    );
 
     payment.startPayment();
   }
