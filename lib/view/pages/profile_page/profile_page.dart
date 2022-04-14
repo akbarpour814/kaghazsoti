@@ -4,14 +4,12 @@ import 'package:restart_app/restart_app.dart';
 import '/main.dart';
 import '/view/pages/profile_page/about_us_page.dart';
 import '/view/pages/profile_page/account_page.dart';
-import '/view/pages/profile_page/wallet_page.dart';
 import '/view/pages/profile_page/cart_page.dart';
 import '/view/pages/profile_page/purchase_history_page.dart';
 import '/view/pages/profile_page/marked_page.dart';
 import '/view/pages/profile_page/password_setting_page.dart';
 import '/view/pages/profile_page/frequently_asked_questions_page.dart';
 import '/view/view_models/category_name.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 
 import 'contact_us_page.dart';
 
@@ -46,11 +44,9 @@ class _ProfilePageState extends State<ProfilePage> {
       child: Column(
         children: [
           _navigatorToAccountPage(),
-          //_navigatorToWalletPage(),
           _navigatorToCartPage(),
           _navigatorToPurchaseHistoryPage(),
           _navigatorToMarkedPage(),
-          //_navigatorToGiftPage(),
           _navigatorToPasswordSettingPage(),
           _navigatorToFrequentlyAskedQuestionsPage(),
           _navigatorToContactUsPage(),
@@ -70,15 +66,6 @@ class _ProfilePageState extends State<ProfilePage> {
       page: const AccountPage(),
     );
   }
-
-  // CategoryName _navigatorToWalletPage() {
-  //   return CategoryName(
-  //     iconData: Ionicons.wallet_outline,
-  //     title: 'اعتبار من',
-  //     lastCategory: false,
-  //     page: const WalletPage(),
-  //   );
-  // }
 
   CategoryName _navigatorToCartPage() {
     return CategoryName(
@@ -147,7 +134,6 @@ class _ProfilePageState extends State<ProfilePage> {
     return Card(
       color: Colors.transparent,
       elevation: 0.0,
-
       child: ListTile(
         leading: Icon(
           MyApp.themeNotifier.value == ThemeMode.light
@@ -163,9 +149,9 @@ class _ProfilePageState extends State<ProfilePage> {
         trailing: Switch(
           onChanged: (value) {
             MyApp.themeNotifier.value =
-            MyApp.themeNotifier.value == ThemeMode.light
-                ? ThemeMode.dark
-                : ThemeMode.light;
+                MyApp.themeNotifier.value == ThemeMode.light
+                    ? ThemeMode.dark
+                    : ThemeMode.light;
           },
           value: MyApp.themeNotifier.value == ThemeMode.dark,
           activeColor: Theme.of(context).primaryColor,
@@ -197,9 +183,5 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
-  }
-
-  void xxx() async {
-
   }
 }
