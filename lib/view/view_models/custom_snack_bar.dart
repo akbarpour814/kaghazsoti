@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../main.dart';
 
-SnackBar customSnackBar(BuildContext context, IconData contentIcon, String contentText, int duration) {
+SnackBar customSnackBar(BuildContext context, IconData contentIcon,
+    String contentText, int duration) {
   return SnackBar(
     backgroundColor: Theme.of(context).primaryColor,
     shape: const Border(

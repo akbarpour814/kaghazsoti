@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class ShowStars extends StatelessWidget {
   late int numberOfStars;
-  ShowStars({Key? key, required this.numberOfStars,}) : super(key: key);
+
+  ShowStars({
+    Key? key,
+    required this.numberOfStars,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -10,8 +15,8 @@ class ShowStars extends StatelessWidget {
       TextSpan(
         text: ''.padLeft(5 - numberOfStars, '\u2605'),
         style: Theme.of(context).textTheme.caption?.copyWith(
-          color: Colors.amber.withOpacity(0.4),
-        ),
+              color: Colors.amber.withOpacity(0.4),
+            ),
         children: <InlineSpan>[
           TextSpan(
             text: ''.padLeft(numberOfStars, '\u2605'),

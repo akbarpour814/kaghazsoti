@@ -3,7 +3,6 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:kaghaze_souti/test_1.dart';
 import '../audio_player_models/audiobook_player_page.dart';
 import '../audio_player_models/common.dart';
 import '../audio_player_models/progress_bar/custom_progress_bar.dart';

@@ -19,7 +19,10 @@ class _NoInternetConnectionState extends State<NoInternetConnection> {
           child: SizedBox(
             width: 5.0.w,
             height: 5.0.w,
-            child: Icon(Icons.wifi_off_rounded, color: Theme.of(context).primaryColor,),
+            child: Icon(
+              Icons.wifi_off_rounded,
+              color: Theme.of(context).primaryColor,
+            ),
           ),
         ),
         Text(

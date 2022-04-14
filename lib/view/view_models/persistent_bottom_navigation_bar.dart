@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 
 import '../pages/category_page/category_page.dart';
 import '../pages/home_page/home_page.dart';
@@ -13,10 +12,12 @@ class PersistentBottomNavigationBar extends StatefulWidget {
   const PersistentBottomNavigationBar({Key? key}) : super(key: key);
 
   @override
-  State<PersistentBottomNavigationBar> createState() => _PersistentBottomNavigationBarState();
+  State<PersistentBottomNavigationBar> createState() =>
+      _PersistentBottomNavigationBarState();
 }
 
-class _PersistentBottomNavigationBarState extends State<PersistentBottomNavigationBar> {
+class _PersistentBottomNavigationBarState
+    extends State<PersistentBottomNavigationBar> {
   late PersistentTabController _persistentTabController;
   late List<Widget> _pages;
 

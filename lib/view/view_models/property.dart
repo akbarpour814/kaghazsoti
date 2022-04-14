@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class Property extends StatelessWidget {
   late String property;
   late String value;
   late bool valueInTheEnd;
   late bool lastProperty;
 
-  Property({Key? key, required this.property, required this.value, required this.valueInTheEnd, required this.lastProperty,}) : super(key: key);
+  Property({
+    Key? key,
+    required this.property,
+    required this.value,
+    required this.valueInTheEnd,
+    required this.lastProperty,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
