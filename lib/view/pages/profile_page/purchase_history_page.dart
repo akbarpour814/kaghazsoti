@@ -118,10 +118,8 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
           if (snapshot.hasData) {
             return _innerBody();
           } else {
-            return Center(
-              child: CustomCircularProgressIndicator(
-
-              ),
+            return const Center(
+              child: CustomCircularProgressIndicator(),
             );
           }
         },
@@ -290,8 +288,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
                       MaterialPageRoute(
                         builder: (context) {
                           return BookIntroductionPage(
-                            book:
-                                _purchaseHistory[index].books[bookIndex],
+                            book: _purchaseHistory[index].books[bookIndex],
                           );
                         },
                       ),

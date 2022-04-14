@@ -8,6 +8,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:kaghaze_souti/view/audio_player_models/audiobook_player_page.dart';
+import 'package:kaghaze_souti/view/view_models/custom_smart_refresher.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../view_models/no_internet_connection.dart';
@@ -26,24 +27,14 @@ class MyLibraryPage extends StatefulWidget {
   _MyLibraryPageState createState() => _MyLibraryPageState();
 }
 
-class _MyLibraryPageState extends State<MyLibraryPage> with InternetConnection, LoadDataFromAPI {
-  late RefreshController _refreshController;
-  late bool _refresh;
-  late bool _loading;
-  late int _lastPage;
-  late int _currentPage;
-
+class _MyLibraryPageState extends State<MyLibraryPage>
+    with InternetConnection, LoadDataFromAPI, Refresher {
   late List<BookIntroduction> _myBooks;
   late List<BookIntroduction> _myBooksTemp;
 
   @override
   void initState() {
     super.initState();
-
-    _refreshController = RefreshController(initialRefresh: false);
-    _refresh = false;
-    _loading = false;
-    _currentPage = 1;
 
     _myBooks = [];
     _myBooksTemp = [];
@@ -52,15 +43,15 @@ class _MyLibraryPageState extends State<MyLibraryPage> with InternetConnection, 
   Future _initMyBooks() async {
     customDio = await CustomDio.dio.get(
       'dashboard/my_books',
-      queryParameters: {'page': _currentPage},
+      queryParameters: {'page': currentPage},
     );
 
     if (customDio.statusCode == 200) {
       Map<String, dynamic> data = customDio.data;
 
-      _lastPage = data['last_page'];
+      lastPage = data['last_page'];
 
-      if (_currentPage == 1) {
+      if (currentPage == 1) {
         _myBooksTemp.clear();
       }
 
@@ -71,8 +62,8 @@ class _MyLibraryPageState extends State<MyLibraryPage> with InternetConnection, 
       setState(() {
         dataIsLoading = false;
 
-        _refresh = false;
-        _loading = false;
+        refresh = false;
+        loading = false;
 
         _myBooks.clear();
         _myBooks.addAll(_myBooksTemp);
@@ -105,10 +96,8 @@ class _MyLibraryPageState extends State<MyLibraryPage> with InternetConnection, 
       future: _initMyBooks(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CustomCircularProgressIndicator(
-
-            ),
+          return const Center(
+            child: CustomCircularProgressIndicator(),
           );
         } else {
           if (connectionStatus == ConnectivityResult.none) {
@@ -138,120 +127,24 @@ class _MyLibraryPageState extends State<MyLibraryPage> with InternetConnection, 
           child: Text('کتابی در کتابخانه شما موجود نمی باشد.'),
         );
       } else {
-        return SmartRefresher(
-          controller: _refreshController,
-          onRefresh: _loading ? null : _onRefresh,
-          onLoading: _refresh ? null : _onLoading,
-          enablePullDown: true,
-          enablePullUp: true,
-          header: const MaterialClassicHeader(),
-          footer: CustomFooter(
-            builder: (BuildContext? context, LoadStatus? mode) {
-              Widget bar;
-
-              if ((mode == LoadStatus.idle) &&
-                  (_currentPage == _lastPage) &&
-                  (!dataIsLoading)) {
-                bar = Text(
-                  'کتاب دیگری یافت نشد.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              } else if (mode == LoadStatus.idle) {
-                bar = Text(
-                  'لطفاً صفحه را بالا بکشید.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              } else if (mode == LoadStatus.loading) {
-                bar = Center(
-                  child: CustomCircularProgressIndicator(
-
-                  ),
-                );
-              } else if (mode == LoadStatus.failed) {
-                bar = Text(
-                  'لطفاً دوباره امتحان کنید.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              } else if (mode == LoadStatus.canLoading) {
-                bar = Text(
-                  'لطفاً صفحه را پایین بکشید.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              } else {
-                bar = Text(
-                  'کتاب دیگری یافت نشد.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              }
-
-              return SizedBox(
-                height: 55.0,
-                child: Center(child: bar),
-              );
-            },
-          ),
-          child: ListView(
-            children: List<MyBook>.generate(
-              _myBooks.length,
-              (index) => MyBook(
-                book: _myBooks[index],
-              ),
+        return CustomSmartRefresher(
+          refreshController: refreshController,
+          onRefresh: () => onRefresh(() => _initMyBooks()),
+          onLoading: () => onLoading(() => _initMyBooks()),
+          list: List<MyBook>.generate(
+            _myBooks.length,
+                (index) => MyBook(
+              book: _myBooks[index],
             ),
           ),
+          listType: 'کتاب',
+          refresh: refresh,
+          loading: loading,
+          lastPage: lastPage,
+          currentPage: currentPage,
+          dataIsLoading: dataIsLoading,
         );
       }
-    }
-  }
-
-  void _onRefresh() async {
-    try {
-      setState(() {
-        _refresh = _loading ? false : true;
-
-        if (_refresh) {
-          _currentPage = 1;
-
-          _initMyBooks();
-        }
-      });
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      _refreshController.refreshCompleted();
-    } catch (e) {
-      _refreshController.refreshFailed();
-    }
-  }
-
-  void _onLoading() async {
-    try {
-      if (_currentPage < _lastPage) {
-        setState(() {
-          _loading = _refresh ? false : true;
-
-          if (_loading) {
-            _currentPage++;
-
-            _initMyBooks();
-          }
-        });
-      }
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      _refreshController.loadComplete();
-    } catch (e) {
-      _refreshController.loadFailed();
     }
   }
 }

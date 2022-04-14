@@ -129,23 +129,6 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
     }
   }
 
-  Flexible _stopDemoPlayer() {
-    return Flexible(
-      child: InkWell(
-        onTap: () {
-          setState(() {
-
-          });
-        },
-        child: const Icon(
-          Ionicons.close_outline,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-
   Stream<Duration> get _bufferedPositionStream =>
       audioPlayerHandler.playbackState
           .map((state) => state.bufferedPosition)
@@ -241,29 +224,6 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
           ),
         ),
       ],
-    );
-  }
-
-  SizedBox _progressBar() {
-    return SizedBox(
-      width: 75.0.w,
-      /*child: CustomProgressBar(
-        audioPlayer: demoIsPlaying.of(context) ? demoPlayer : audioPlayer,
-        timeLabelLocation: TimeLabelLocation.none,
-        baseBarColor: Colors.white,
-        progressBarColor: const Color(0xFF55929C),
-        bufferedBarColor: const Color(0xFFC6DADE),
-        thumbColor: const Color(0xFF55929C),
-        thumbGlowColor: const Color(0xFF55929C).withOpacity(0.6),
-      ),*/
-      child: Text('CustomProgressBar'),
-    );
-  }
-
-  Flexible _playOrPauseButton() {
-    return Flexible(
-      /*child: PlayOrPauseController(audioPlayer: player, playerBottomNavigationBar: true,),*/
-      child: Text('PlayOrPauseController'),
     );
   }
 }

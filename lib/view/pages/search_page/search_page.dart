@@ -198,7 +198,7 @@ class _SearchPageState extends State<SearchPage>
                 return _isSearching();
               }
             } else {
-              return Expanded(
+              return const Expanded(
                 child: Center(
                   child: CustomCircularProgressIndicator(
 
