@@ -8,6 +8,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:kaghaze_souti/view/pages/category_page/subcategory_books_page.dart';
+import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sizer/sizer.dart';
 import '../../../model/payment.dart';
@@ -33,26 +34,16 @@ class PurchaseHistoryPage extends StatefulWidget {
 }
 
 class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
-    with InternetConnection, LoadDataFromAPI, Refresher {
+    with InternetConnection, LoadDataFromAPI, Refresher, DisplayOfDetails {
   late List<Purchase> _purchaseHistory;
   late List<Purchase> _purchaseHistoryTemp;
 
-  late List<bool> _displayOfDetails;
-  late int _previousIndex;
-
-
   @override
   void initState() {
-
-
-
-
     super.initState();
 
     _purchaseHistory = [];
     _purchaseHistoryTemp = [];
-
-    _previousIndex = -1;
   }
 
   Future _initPurchaseHistory() async {
@@ -82,7 +73,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
         refresh = false;
         loading = false;
 
-        _displayOfDetails =
+        displayOfDetails =
         List<bool>.generate(_purchaseHistory.length, (index) => false);
       });
     }
@@ -207,24 +198,11 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
             ),
             InkWell(
               onTap: () {
-                setState(() {
-                  if (index == _previousIndex && _displayOfDetails[index]) {
-                    _displayOfDetails[index] = false;
-                  } else if (index == _previousIndex &&
-                      !_displayOfDetails[index]) {
-                    _displayOfDetails[index] = true;
-                  } else if (index != _previousIndex) {
-                    if (_previousIndex != -1) {
-                      _displayOfDetails[_previousIndex] = false;
-                    }
-                    _displayOfDetails[index] = true;
-                  }
 
-                  _previousIndex = index;
-                });
+                display(index);
               },
               child: Icon(
-                _displayOfDetails[index]
+                displayOfDetails[index]
                     ? Icons.expand_less
                     : Icons.expand_more,
                 color: Theme
@@ -301,7 +279,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
 
   Visibility _books(int index) {
     return Visibility(
-      visible: _displayOfDetails[index],
+      visible: displayOfDetails[index],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
