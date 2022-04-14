@@ -1,17 +1,16 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import '../../../controller/load_data_from_api.dart';
 import '../../../model/payment.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 import '/model/book.dart';
 import '/model/book_introduction.dart';
 import '/model/purchase.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 import '/view/view_models/property.dart';
 import 'package:sizer/sizer.dart';
 
@@ -29,90 +28,44 @@ class CartPage extends StatefulWidget {
   _CartPageState createState() => _CartPageState();
 }
 
-class _CartPageState extends State<CartPage> {
-  late ConnectivityResult _connectionStatus;
-  late Connectivity _connectivity;
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-  late bool _dataIsLoading;
-
+class _CartPageState extends State<CartPage>
+    with InternetConnection, LoadDataFromAPI {
   late List<Book> _bookCart;
+  late Map<String, Book> _bookCartTemp;
   late bool _purchaseInvoiceWasIssued;
   Purchase? _purchaseInvoice;
-
 
   @override
   void initState() {
     super.initState();
 
-    _connectionStatus = ConnectivityResult.none;
-    _connectivity = Connectivity();
-    _initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-
-    _dataIsLoading = true;
-
     _bookCart = [];
+    _bookCartTemp = {};
     _purchaseInvoiceWasIssued = false;
-
   }
 
-  Future<void> _initConnectivity() async {
-    late ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
-
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-    super.dispose();
-  }
-
-
-  Map<String, Book> cart = {};
   Future _initCart() async {
-
-    if(_dataIsLoading) {
-      cart.clear();
+    if (dataIsLoading) {
+      _bookCartTemp.clear();
 
       for (int i = 0; i < cartSlug.length; ++i) {
-        _customDio = await CustomDio.dio.post('books/${cartSlug[i]}');
+        customDio = await CustomDio.dio.post('books/${cartSlug[i]}');
 
-        if (_customDio.statusCode == 200) {
-          _customResponse = CustomResponse.fromJson(_customDio.data);
+        if (customDio.statusCode == 200) {
+          customResponse = CustomResponse.fromJson(customDio.data);
 
-          cart.addAll({cartSlug[i] : Book.fromJson(_customResponse.data)});
+          _bookCartTemp[cartSlug[i]] = Book.fromJson(customResponse.data);
         }
       }
 
-     setState(() {
-       _dataIsLoading = false;
+      setState(() {
+        dataIsLoading = false;
 
-       _bookCart = cart.values.toList();
-     });
+        _bookCart = _bookCartTemp.values.toList();
+      });
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
@@ -121,7 +74,13 @@ class _CartPageState extends State<CartPage> {
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
-      floatingActionButton: cartSlug.isNotEmpty && _connectionStatus != ConnectivityResult.none && !_dataIsLoading ? (_purchaseInvoiceWasIssued ? _paymentButton() : _issuanceOfPurchaseInvoiceButton())  : null,
+      floatingActionButton: (cartSlug.isNotEmpty) &&
+              (connectionStatus != ConnectivityResult.none) &&
+              (!dataIsLoading)
+          ? ((_purchaseInvoiceWasIssued)
+              ? _paymentButton()
+              : _issuanceOfPurchaseInvoiceButton())
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -143,7 +102,7 @@ class _CartPageState extends State<CartPage> {
           ),
           onTap: () {
             setState(() {
-              if(_purchaseInvoiceWasIssued) {
+              if (_purchaseInvoiceWasIssued) {
                 cartSlug.clear();
               }
 
@@ -156,61 +115,67 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _body() {
-    if (cartSlug.isEmpty) {
-      return const Center(
-        child: Text('محصولی در سبد خرید شما وجود ندارد.'),
+    if (dataIsLoading) {
+      return FutureBuilder(
+        future: _initCart(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return _innerBody();
+          } else {
+            return Center(
+              child: CustomCircularProgressIndicator(
+                message: 'لطفاً شکیبا باشید.',
+              ),
+            );
+          }
+        },
       );
     } else {
-      return _dataIsLoading
-          ? FutureBuilder(
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                return snapshot.hasData
-                    ? _innerBody()
-                    : Center(child: CustomCircularProgressIndicator(message: 'لطفاً شکیبا باشید.'));
-              },
-              future: _initCart(),
-            )
-          : _innerBody();
+      return _innerBody();
     }
   }
 
   Widget _innerBody() {
-    if(_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
-      return const Center(child: NoInternetConnection(),);
+      return const Center(
+        child: NoInternetConnection(),
+      );
     } else {
-
-
       return RefreshIndicator(
         onRefresh: () {
           setState(() {
-            _dataIsLoading = true;
+            dataIsLoading = true;
           });
 
           return _initCart();
-          },
-        child: ListView(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(
-                left: 5.0.w,
-                top: 16.0,
-                right: 5.0.w,
-                bottom: _purchaseInvoiceWasIssued ? 8.0.h : 16.0,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        },
+        child: cartSlug.isEmpty
+            ? const Center(
+                child: Text('محصولی در سبد خرید شما وجود ندارد.'),
+              )
+            : ListView(
                 children: [
-                  _books(),
-                  _prices(),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: 5.0.w,
+                      top: 16.0,
+                      right: 5.0.w,
+                      bottom: _purchaseInvoiceWasIssued ? 8.0.h : 16.0,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _books(),
+                        _prices(),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
-        ),
       );
     }
   }
@@ -268,29 +233,31 @@ class _CartPageState extends State<CartPage> {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: InkWell(
-        onTap: (!_purchaseInvoiceWasIssued) ? () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return BookIntroductionPage(
-                  bookIntroduction: BookIntroduction(
-                    id: _bookCart[index].id,
-                    slug: _bookCart[index].slug,
-                    name: _bookCart[index].name,
-                    author: _bookCart[index].author,
-                    publisherOfPrintedVersion:
-                    _bookCart[index].publisherOfPrintedVersion,
-                    duration: _bookCart[index].duration,
-                    price: _bookCart[index].price,
-                    numberOfVotes: _bookCart[index].numberOfVotes,
-                    numberOfStars: _bookCart[index].numberOfStars,
-                    bookCoverPath: _bookCart[index].bookCoverPath,
+        onTap: (!_purchaseInvoiceWasIssued)
+            ? () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return BookIntroductionPage(
+                        bookIntroduction: BookIntroduction(
+                          id: _bookCart[index].id,
+                          slug: _bookCart[index].slug,
+                          name: _bookCart[index].name,
+                          author: _bookCart[index].author,
+                          publisherOfPrintedVersion:
+                              _bookCart[index].publisherOfPrintedVersion,
+                          duration: _bookCart[index].duration,
+                          price: _bookCart[index].price,
+                          numberOfVotes: _bookCart[index].numberOfVotes,
+                          numberOfStars: _bookCart[index].numberOfStars,
+                          bookCoverPath: _bookCart[index].bookCoverPath,
+                        ),
+                      );
+                    },
                   ),
                 );
-              },
-            ),
-          );
-        } : null,
+              }
+            : null,
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -379,53 +346,57 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _prices() {
-    return _purchaseInvoice == null ? Container() : Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Container(
-            padding: const EdgeInsets.all(18.0),
-            decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).primaryColor),
-              borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Property(
-                  property: 'قیمت کتاب ها',
-                  value: _purchaseInvoice!.totalPrice,
-                  valueInTheEnd: true,
-                  lastProperty: false,
-                ),
-                Property(
-                  property: 'تخفیف',
-                  value: _purchaseInvoice!.couponDiscount,
-                  valueInTheEnd: true,
-                  lastProperty: true,
-                ),
-              ],
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Container(
-            padding: const EdgeInsets.all(18.0),
-            decoration: BoxDecoration(
-              border: Border.all(color: Theme.of(context).primaryColor),
-              borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-            ),
-            child: Property(
-              property: 'مبلغ قابل پرداخت',
-              value: _purchaseInvoice!.finalPrice,
-              valueInTheEnd: true,
-              lastProperty: true,
+    if (_purchaseInvoice == null) {
+      return Container();
+    } else {
+      return Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Container(
+              padding: const EdgeInsets.all(18.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).primaryColor),
+                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Property(
+                    property: 'قیمت کتاب ها',
+                    value: _purchaseInvoice!.totalPrice,
+                    valueInTheEnd: true,
+                    lastProperty: false,
+                  ),
+                  Property(
+                    property: 'تخفیف',
+                    value: _purchaseInvoice!.couponDiscount,
+                    valueInTheEnd: true,
+                    lastProperty: true,
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
-    );
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Container(
+              padding: const EdgeInsets.all(18.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).primaryColor),
+                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+              ),
+              child: Property(
+                property: 'مبلغ قابل پرداخت',
+                value: _purchaseInvoice!.finalPrice,
+                valueInTheEnd: true,
+                lastProperty: true,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
   }
 
   SizedBox _issuanceOfPurchaseInvoiceButton() {
@@ -433,7 +404,7 @@ class _CartPageState extends State<CartPage> {
       width: 100.0.w - (2 * 5.0.w),
       child: ElevatedButton.icon(
         onPressed: () {
-          if(!_dataIsLoading) {
+          if (!dataIsLoading) {
             _issuanceOfPurchaseInvoice();
           }
         },
@@ -444,20 +415,21 @@ class _CartPageState extends State<CartPage> {
   }
 
   void _issuanceOfPurchaseInvoice() async {
-    List<String> booksId = List<String>.generate(_bookCart.length, (index) => _bookCart[index].id.toString());
-
-    _customDio = await CustomDio.dio.post(
-      'dashboard/invoices/create',
-      data: {
-        'id': booksId.toString(),
-      },
+    List<String> booksId = List<String>.generate(
+      _bookCart.length,
+      (index) => _bookCart[index].id.toString(),
     );
 
-    if (_customDio.statusCode == 200) {
-      _customResponse = CustomResponse.fromJson(_customDio.data);
+    customDio = await CustomDio.dio.post(
+      'dashboard/invoices/create',
+      data: {'id': booksId.toString()},
+    );
+
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
 
       setState(() {
-        _purchaseInvoice = Purchase.fromJson(_customResponse.data);
+        _purchaseInvoice = Purchase.fromJson(customResponse.data);
 
         _purchaseInvoiceWasIssued = true;
       });
@@ -471,8 +443,8 @@ class _CartPageState extends State<CartPage> {
       width: 100.0.w - (2 * 5.0.w),
       child: ElevatedButton.icon(
         onPressed: () {
-          if(!_dataIsLoading) {
-           _payment();
+          if (!dataIsLoading) {
+            _payment();
           }
         },
         label: const Text('ادامه خرید'),
@@ -482,7 +454,11 @@ class _CartPageState extends State<CartPage> {
   }
 
   void _payment() {
-    Payment payment = Payment(amount: _purchaseInvoice!.finalPriceInt, callbackURL: CartPage.routeName, description: 'description',);
+    Payment payment = Payment(
+      amount: _purchaseInvoice!.finalPriceInt,
+      callbackURL: CartPage.routeName,
+      description: 'description',
+    );
 
     payment.startPayment();
   }

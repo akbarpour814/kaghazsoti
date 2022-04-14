@@ -9,6 +9,17 @@ mixin InternetConnection<T extends StatefulWidget> on State<T> {
   late Connectivity _connectivity;
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
+  @override
+  void initState() {
+    super.initState();
+
+    connectionStatus = ConnectivityResult.none;
+    _connectivity = Connectivity();
+    _initConnectivity();
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
   Future<void> _initConnectivity() async {
     late ConnectivityResult result;
 
@@ -29,17 +40,6 @@ mixin InternetConnection<T extends StatefulWidget> on State<T> {
     setState(() {
       connectionStatus = result;
     });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    connectionStatus = ConnectivityResult.none;
-    _connectivity = Connectivity();
-    _initConnectivity();
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
   @override
