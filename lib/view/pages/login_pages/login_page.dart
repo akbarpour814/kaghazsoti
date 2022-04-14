@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '/controller/custom_dio.dart';
 import '/controller/custom_response.dart';
 import '/view/pages/login_pages/password_recovery_page.dart';
 import '/view/pages/login_pages/registration_page.dart';
