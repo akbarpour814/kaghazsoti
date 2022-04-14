@@ -200,7 +200,9 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
 
   Flexible _numberOfStars(BuildContext context) {
     return Flexible(
-      child: ShowStars(numberOfStars: widget.book.numberOfStars,),
+      child: ShowStars(
+        numberOfStars: widget.book.numberOfStars,
+      ),
     );
   }
 

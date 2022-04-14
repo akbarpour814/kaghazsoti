@@ -107,7 +107,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> with InternetConnection, 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CustomCircularProgressIndicator(
-              message: 'لطفاً شکیبا باشید.',
+
             ),
           );
         } else {
@@ -168,7 +168,7 @@ class _MyLibraryPageState extends State<MyLibraryPage> with InternetConnection, 
               } else if (mode == LoadStatus.loading) {
                 bar = Center(
                   child: CustomCircularProgressIndicator(
-                    message: 'لطفاً شکیبا باشید.',
+
                   ),
                 );
               } else if (mode == LoadStatus.failed) {

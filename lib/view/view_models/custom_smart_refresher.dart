@@ -39,12 +39,8 @@ class _CustomSmartRefresherState extends State<CustomSmartRefresher> {
   Widget build(BuildContext context) {
     return SmartRefresher(
       controller: widget.refreshController,
-      onRefresh: widget.loading
-          ? null
-          : widget.onRefresh,
-      onLoading: widget.refresh
-          ? null
-          : widget.onLoading,
+      onRefresh: widget.loading ? null : widget.onRefresh,
+      onLoading: widget.refresh ? null : widget.onLoading,
       enablePullDown: true,
       enablePullUp: true,
       header: const MaterialClassicHeader(),
@@ -69,10 +65,8 @@ class _CustomSmartRefresherState extends State<CustomSmartRefresher> {
               ),
             );
           } else if (mode == LoadStatus.loading) {
-            bar = Center(
-              child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
-              ),
+            bar = const Center(
+              child: CustomCircularProgressIndicator(),
             );
           } else if (mode == LoadStatus.failed) {
             bar = Text(
@@ -106,7 +100,7 @@ class _CustomSmartRefresherState extends State<CustomSmartRefresher> {
       child: ListView(
         children: List<Widget>.generate(
           widget.list.length,
-              (index) => widget.list[index],
+          (index) => widget.list[index],
         ),
       ),
     );
@@ -130,7 +124,7 @@ mixin Refresher<T extends StatefulWidget> on State<T> {
     currentPage = 1;
   }
 
-  void onRefresh(Future<dynamic>Function() onRefresh) async {
+  void onRefresh(Future<dynamic> Function() onRefresh) async {
     try {
       setState(() {
         refresh = loading ? false : true;

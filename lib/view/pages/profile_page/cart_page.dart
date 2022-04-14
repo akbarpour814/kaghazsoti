@@ -124,7 +124,6 @@ class _CartPageState extends State<CartPage>
           } else {
             return Center(
               child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
               ),
             );
           }

@@ -102,7 +102,7 @@ class _FrequentlyAskedQuestionsPageState
           } else {
             return Center(
               child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
+
               ),
             );
           }

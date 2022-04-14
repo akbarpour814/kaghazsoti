@@ -114,7 +114,7 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
                   ? _innerBody()
                   : Center(
                       child: CustomCircularProgressIndicator(
-                          message: 'لطفاً شکیبا باشید.'));
+                          ));
             },
             future: _initComments(),
           )
@@ -667,7 +667,7 @@ class _CommentsPageState extends State<CommentsPage> {
             ? _innerBody()
             : Center(
             child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.'));
+                ));
       },
       future: _initComments(),
     ) : _innerBody();
@@ -707,13 +707,13 @@ class _CommentsPageState extends State<CommentsPage> {
                     style: TextStyle(color: Theme.of(context!).primaryColor));
               } else if (mode == LoadStatus.loading) {
                 bar = CustomCircularProgressIndicator(
-                    message: 'لطفاً شکیبا باشید.');
+                   );
               } else if (mode == LoadStatus.failed) {
                 bar = CustomCircularProgressIndicator(
-                    message: 'لطفاً دوباره امتحان کنید.');
+                    );
               } else if (mode == LoadStatus.canLoading) {
                 bar = CustomCircularProgressIndicator(
-                    message: 'لطفاً صفحه را پایین بکشید.');
+                    );
               } else {
                 bar = Text(
                   'نظر دیگری یافت نشد.',

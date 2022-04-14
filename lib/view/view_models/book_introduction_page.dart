@@ -157,7 +157,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
           } else {
             return Center(
               child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
+
               ),
             );
           }

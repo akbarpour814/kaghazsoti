@@ -89,7 +89,6 @@ class _CategoryPageState extends State<CategoryPage> with InternetConnection, Lo
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CustomCircularProgressIndicator(
-              message: 'لطفاً شکیبا باشید.',
             ),
           );
         } else {

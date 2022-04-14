@@ -102,7 +102,7 @@ class _AboutUsPageState extends State<AboutUsPage> with InternetConnection, Load
           } else {
             return Center(
               child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
+
               ),
             );
           }

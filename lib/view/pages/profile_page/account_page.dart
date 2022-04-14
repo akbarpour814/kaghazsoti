@@ -102,7 +102,7 @@ class _AccountPageState extends State<AccountPage> with InternetConnection, Load
           } else {
             return Center(
               child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
+
               ),
             );
           }

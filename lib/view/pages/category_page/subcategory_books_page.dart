@@ -127,7 +127,7 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Intern
           } else {
             return Center(
               child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
+
               ),
             );
           }

@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import '../../main.dart';
 import '../../model/book_introduction.dart';
-import '/model/book.dart';
 import '/view/view_models/book_short_introduction.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
 
-
+// ignore: must_be_immutable
 class BooksPage extends StatefulWidget {
   late String title;
   late List<BookIntroduction> books;
-  BooksPage({Key? key, required this.title, required this.books,}) : super(key: key);
+
+  BooksPage({
+    Key? key,
+    required this.title,
+    required this.books,
+  }) : super(key: key);
 
   @override
   _BooksPageState createState() => _BooksPageState();
@@ -36,7 +39,7 @@ class _BooksPageState extends State<BooksPage> {
           child: const Padding(
             padding: EdgeInsets.all(18.0),
             child: Icon(
-                Ionicons.chevron_back_outline,
+              Ionicons.chevron_back_outline,
             ),
           ),
           onTap: () {
@@ -52,7 +55,9 @@ class _BooksPageState extends State<BooksPage> {
       child: Column(
         children: List<BookShortIntroduction>.generate(
           widget.books.length,
-              (index) => BookShortIntroduction(book: widget.books[index],),
+          (index) => BookShortIntroduction(
+            book: widget.books[index],
+          ),
         ),
       ),
     );

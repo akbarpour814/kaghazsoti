@@ -110,7 +110,7 @@ class _HomePageState extends State<HomePage> with InternetConnection, LoadDataFr
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
             child: CustomCircularProgressIndicator(
-              message: 'لطفاً شکیبا باشید.',
+
             ),
           );
         } else {

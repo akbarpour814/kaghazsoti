@@ -116,7 +116,7 @@ class _MarkedPageState extends State<MarkedPage> with InternetConnection, LoadDa
             ? _innerBody()
             : Center(
             child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.'));
+                ));
       },
       future: _initMarkedBooks(),
     ) : _innerBody();
@@ -156,13 +156,13 @@ class _MarkedPageState extends State<MarkedPage> with InternetConnection, LoadDa
                     style: TextStyle(color: Theme.of(context!).primaryColor));
               } else if (mode == LoadStatus.loading) {
                 bar = CustomCircularProgressIndicator(
-                    message: 'لطفاً شکیبا باشید.');
+                   );
               } else if (mode == LoadStatus.failed) {
                 bar = CustomCircularProgressIndicator(
-                    message: 'لطفاً دوباره امتحان کنید.');
+                    );
               } else if (mode == LoadStatus.canLoading) {
                 bar = CustomCircularProgressIndicator(
-                    message: 'لطفاً صفحه را پایین بکشید.');
+                    );
               } else {
                 bar = Text(
                   'کتاب دیگری یافت نشد.',

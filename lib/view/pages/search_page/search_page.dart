@@ -107,7 +107,7 @@ class _SearchPageState extends State<SearchPage>
           } else {
             return Center(
               child: CustomCircularProgressIndicator(
-                message: 'لطفاً شکیبا باشید.',
+
               ),
             );
           }
@@ -201,7 +201,7 @@ class _SearchPageState extends State<SearchPage>
               return Expanded(
                 child: Center(
                   child: CustomCircularProgressIndicator(
-                    message: 'لطفاً شکیبا باشید.',
+
                   ),
                 ),
               );
