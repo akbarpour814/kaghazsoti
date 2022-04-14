@@ -44,10 +44,10 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Intern
   void initState() {
     super.initState();
 
-    _refreshController = RefreshController(initialRefresh: false);
-    _refresh = false;
-    _loading = false;
-    _currentPage = 1;
+    refreshController = RefreshController(initialRefresh: false);
+    refresh = false;
+    loading = false;
+    currentPage = 1;
 
     _subcategoryBooks = [];
     _subcategoryBooksTemp = [];
@@ -56,15 +56,15 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Intern
   Future _initSubcategoryBooks() async {
     customDio = await CustomDio.dio.post(
       'categories/${widget.subcategory.slug}',
-      queryParameters: {'page': _currentPage},
+      queryParameters: {'page': currentPage},
     );
 
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 
-      _lastPage = customResponse.data['last_page'];
+      lastPage = customResponse.data['last_page'];
 
-      if (_currentPage == 1) {
+      if (currentPage == 1) {
         _subcategoryBooksTemp.clear();
       }
 
@@ -75,8 +75,8 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Intern
       setState(() {
         dataIsLoading = false;
 
-        _refresh = false;
-        _loading = false;
+        refresh = false;
+        loading = false;
 
         _subcategoryBooks.clear();
         _subcategoryBooks.addAll(_subcategoryBooksTemp);
@@ -153,17 +153,23 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Intern
         );
       } else {
         return CustomSmartRefresher(
-            updateList: _initSubcategoryBooks(),
+          refreshController: refreshController,
+          onRefresh: () {
+            onRefresh(_initSubcategoryBooks());
+          },
+          onLoading: () {
+            onLoading(_initSubcategoryBooks());
+          },
             list: List<BookShortIntroduction>.generate(
               _subcategoryBooks.length,
                   (index) => BookShortIntroduction(
                 book: _subcategoryBooks[index],
               ),
             ),
-            refresh: _refresh,
-            loading: _loading,
-            lastPage: _lastPage,
-            currentPage: _currentPage,
+            refresh: refresh,
+            loading: loading,
+            lastPage: lastPage,
+            currentPage: currentPage,
             dataIsLoading: dataIsLoading,
         );
         /*return SmartRefresher(
@@ -251,19 +257,29 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage> with Intern
 }
 
 mixin Load<T extends StatefulWidget> on State<T> {
-  late RefreshController _refreshController;
-  late bool _refresh;
-  late bool _loading;
-  late int _lastPage;
-  late int _currentPage;
+  late RefreshController refreshController;
+  late bool refresh;
+  late bool loading;
+  late int lastPage;
+  late int currentPage;
 
-  void _onRefresh(Future<dynamic> onRefresh) async {
+  @override
+  void initState() {
+    super.initState();
+
+    refreshController = RefreshController(initialRefresh: false);
+    refresh = false;
+    loading = false;
+    currentPage = 1;
+  }
+
+  void onRefresh(Future<dynamic> onRefresh) async {
     try {
       setState(() {
-        _refresh = _loading ? false : true;
+        refresh = loading ? false : true;
 
-        if (_refresh) {
-          _currentPage = 1;
+        if (refresh) {
+          currentPage = 1;
 
           onRefresh;
         }
@@ -271,20 +287,20 @@ mixin Load<T extends StatefulWidget> on State<T> {
 
       await Future.delayed(const Duration(milliseconds: 1000));
 
-      _refreshController.refreshCompleted();
+      refreshController.refreshCompleted();
     } catch (e) {
-      _refreshController.refreshFailed();
+      refreshController.refreshFailed();
     }
   }
 
-  void _onLoading(Future<dynamic> onLoading) async {
+  void onLoading(Future<dynamic> onLoading) async {
     try {
-      if (_currentPage < _lastPage) {
+      if (currentPage < lastPage) {
         setState(() {
-          _loading = _refresh ? false : true;
+          loading = refresh ? false : true;
 
-          if (_loading) {
-            _currentPage++;
+          if (loading) {
+            currentPage++;
 
             onLoading;
           }
@@ -293,16 +309,18 @@ mixin Load<T extends StatefulWidget> on State<T> {
 
       await Future.delayed(const Duration(milliseconds: 1000));
 
-      _refreshController.loadComplete();
+      refreshController.loadComplete();
     } catch (e) {
-      _refreshController.loadFailed();
+      refreshController.loadFailed();
     }
   }
 }
 
 // ignore: must_be_immutable
 class CustomSmartRefresher extends StatefulWidget {
-  late Future<dynamic> updateList;
+  late RefreshController refreshController;
+  late Function onRefresh;
+  late Function onLoading;
   late List<Widget> list;
   late bool refresh;
   late bool loading;
@@ -312,7 +330,9 @@ class CustomSmartRefresher extends StatefulWidget {
 
   CustomSmartRefresher({
     Key? key,
-    required this.updateList,
+    required this.refreshController,
+    required this.onRefresh,
+    required this.onLoading,
     required this.list,
     required this.refresh,
     required this.loading,
@@ -326,29 +346,16 @@ class CustomSmartRefresher extends StatefulWidget {
 }
 
 class _CustomSmartRefresherState extends State<CustomSmartRefresher> {
-  late RefreshController _refreshController;
-
-  @override
-  void initState() {
-    _refreshController = RefreshController(initialRefresh: false);
-
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return SmartRefresher(
-      controller: _refreshController,
+      controller: widget.refreshController,
       onRefresh: widget.loading
           ? null
-          : () {
-              _onRefresh(widget.updateList);
-            },
+          : widget.onRefresh(),
       onLoading: widget.refresh
           ? null
-          : () {
-              _onLoading(widget.updateList);
-            },
+          : widget.onLoading(),
       enablePullDown: true,
       enablePullUp: true,
       header: const MaterialClassicHeader(),
@@ -414,47 +421,5 @@ class _CustomSmartRefresherState extends State<CustomSmartRefresher> {
         ),
       ),
     );
-  }
-
-  void _onRefresh(Future<dynamic> onRefresh) async {
-    try {
-      setState(() {
-        widget.refresh = widget.loading ? false : true;
-
-        if (widget.refresh) {
-          widget.currentPage = 1;
-
-          onRefresh;
-        }
-      });
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      _refreshController.refreshCompleted();
-    } catch (e) {
-      _refreshController.refreshFailed();
-    }
-  }
-
-  void _onLoading(Future<dynamic> onLoading) async {
-    try {
-      if (widget.currentPage < widget.lastPage) {
-        setState(() {
-          widget.loading = widget.refresh ? false : true;
-
-          if (widget.loading) {
-            widget.currentPage++;
-
-            onLoading;
-          }
-        });
-      }
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      _refreshController.loadComplete();
-    } catch (e) {
-      _refreshController.loadFailed();
-    }
   }
 }

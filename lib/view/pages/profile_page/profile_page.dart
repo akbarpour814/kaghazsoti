@@ -8,7 +8,6 @@ import '/view/pages/profile_page/wallet_page.dart';
 import '/view/pages/profile_page/cart_page.dart';
 import '/view/pages/profile_page/purchase_history_page.dart';
 import '/view/pages/profile_page/marked_page.dart';
-import '/view/pages/profile_page/gift_page.dart';
 import '/view/pages/profile_page/password_setting_page.dart';
 import '/view/pages/profile_page/frequently_asked_questions_page.dart';
 import '/view/view_models/category_name.dart';
@@ -105,15 +104,6 @@ class _ProfilePageState extends State<ProfilePage> {
       title: 'نشان شده ها',
       lastCategory: false,
       page: const MarkedPage(),
-    );
-  }
-
-  CategoryName _navigatorToGiftPage() {
-    return CategoryName(
-      iconData: Ionicons.gift_outline,
-      title: 'هدیه',
-      lastCategory: false,
-      page: const GiftPage(),
     );
   }
 

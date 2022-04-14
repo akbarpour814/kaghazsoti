@@ -214,14 +214,14 @@ class Book {
   }
 
   void setRelatedBooks(List<dynamic> relatedBooksAsMap) {
-    for(Map<String, dynamic> bookIntroduction in relatedBooksAsMap) {
-      relatedBooks.add(BookIntroduction.fromJson(bookIntroduction));
+    for(Map<String, dynamic> book in relatedBooksAsMap) {
+      relatedBooks.add(BookIntroduction.fromJson(book));
     }
   }
 
   void setOtherBooksByThePublisher(List<dynamic> otherBooksByThePublisherAsMap) {
-    for(Map<String, dynamic> bookIntroduction in otherBooksByThePublisherAsMap) {
-      otherBooksByThePublisher.add(BookIntroduction.fromJson(bookIntroduction));
+    for(Map<String, dynamic> book in otherBooksByThePublisherAsMap) {
+      otherBooksByThePublisher.add(BookIntroduction.fromJson(book));
     }
   }
 }
