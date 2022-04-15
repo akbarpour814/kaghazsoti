@@ -8,6 +8,11 @@ import 'package:uni_links/uni_links.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:zarinpal/zarinpal.dart';
 
+import 'package:http/http.dart' as http;
+
+import '../controller/custom_dio.dart';
+import '../view/pages/login_pages/splash_page.dart';
+
 PaymentRequest paymentRequest = PaymentRequest();
 bool initialUriIsHandled = false;
 class Payment extends State with LoadDataFromAPI {
@@ -17,6 +22,7 @@ class Payment extends State with LoadDataFromAPI {
   late String callbackURL;
   late String description;
 
+
   Payment({required this.amount, required this.callbackURL, required this.description}) {
     paymentRequest.setIsSandBox(false);
     paymentRequest.setMerchantID(merchantID);
@@ -25,18 +31,30 @@ class Payment extends State with LoadDataFromAPI {
     paymentRequest.setDescription(description);
   }
 
-  void startPayment() {
+  int? statuss;
+  void startPayment(String idFactor) {
     String paymentUrl;
 
     ZarinPal().startPayment(paymentRequest,
             (int? status, String? paymentGatewayUri) async {
           if (status == 100) {
+
+
+            customDio = await CustomDio.dio.post(
+              'dashboard/invoice_and_pay/pay',
+              data: {'transaction_id' : paymentRequest.authority!, 'id': idFactor},
+            );
+
+            statuss = status;
+            print('1 ${customDio.data}');
+            print('1 ${paymentRequest.authority}');
+
+
             paymentUrl = paymentGatewayUri!;
+
             await launch(paymentUrl);
           }
         });
-
-
   }
 
 

@@ -354,21 +354,24 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
     );
   }
 
-  void _payment(int index) {
+  late  Payment payment;
+  void _payment(int index) async {
     String description = '';
 
     for(int i = 0; i < _purchaseHistory[index].books.length; ++i) {
       description += '${i + 1}- ${_purchaseHistory[index].books[i].name} \n';
     }
 
-    Payment payment = Payment(
+    payment = Payment(
       amount: _purchaseHistory[index].finalPriceInt,
       callbackURL: PurchaseHistoryPage.routeName,
       description: description,
     );
 
 
-    payment.startPayment();
+
+
+    payment.startPayment(_purchaseHistory[index].id.toString());
 
   }
 
@@ -392,16 +395,18 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
             ) {
           if (isPaymentSuccess) {
             print('111111111');
+            print('2 ${paymentRequest.authority}');
             setState(() {
               status = PaymentStatus.OK;
 
               _paymentGateway = false;
 
-              _tayyd(paymentRequest.authority!);
+              _tayyd(paymentRequest.authority!, payment.statuss!);
             });
 
           } else {
             print('222222222');
+            print('3 ${paymentRequest.authority}');
             setState(() {
               status = PaymentStatus.NOK;
 
@@ -420,17 +425,39 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
     }
   }
 
-  void _tayyd(String authority) async {
+  void _tayyd(String authority, int status) async {
     var client = http.Client();
-    Map<String, String> _headers = {'authority' : authority};
-    _headers.addAll(headers);
-    http.Response response = await client.get(Uri.parse('https://kaghazsoti.uage.ir/dashboard/financial/invoice_and_pay/callback'), headers: _headers,);
+    customDio = await CustomDio.dio.get(
+      'dashboard/invoice_and_pay/callback',
+      queryParameters: {'Authority' : authority, 'Status': status,},
+    );
 
+
+    if(customDio.statusCode == 200) {
+      showDialog(
+          context: context,
+          builder: (builder) {
+            return AlertDialog(
+              title: Text(
+                customDio.data.toString(),
+                style: TextStyle(color: Colors.greenAccent),
+              ),
+              actions: [
+                TextButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          });
+    }
 
     print(authority);
 
 
-    print(response.body);
+    print(customDio.data);
   }
 
   Future<void> _handleInitialUri() async {
