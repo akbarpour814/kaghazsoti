@@ -45,7 +45,7 @@ class _ContactUsPageState extends State<ContactUsPage>
   }
 
   Future _initFirstTicket() async {
-    customDio = await CustomDio.dio.get('dashboard/tickets');
+    customDio = await CustomDio.dio.post('dashboard/tickets');
 
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
@@ -336,7 +336,7 @@ class _ContactUsPageState extends State<ContactUsPage>
 
   void _ticketRegistration() async {
     customDio = await CustomDio.dio.post(
-      'dashboard/tickets',
+      'dashboard/tickets/store',
       data: {
         'title': _topic,
         'body': _ticketController.text,
@@ -416,7 +416,7 @@ class _TicketsPageState extends State<TicketsPage>
   }
 
   Future _initTickets() async {
-    customDio = await CustomDio.dio.get(
+    customDio = await CustomDio.dio.post(
       'dashboard/tickets',
       queryParameters: {'page': currentPage},
     );

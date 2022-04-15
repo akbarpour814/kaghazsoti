@@ -6,9 +6,7 @@ import 'package:kaghaze_souti/view/audio_player_models/progress_bar/progress_not
 
 import '../../../main.dart';
 
-
-
-
+// ignore: must_be_immutable
 class CustomProgressBar extends StatefulWidget {
   late AudioPlayer audioPlayer;
   late TimeLabelLocation timeLabelLocation;
@@ -105,164 +103,9 @@ class _CustomProgressBarState extends State<CustomProgressBar> {
       },
     );
   }
-
- /*Widget _buildWidgetContainerControlAudioPlayer(MediaQueryData mediaQuery) {
-    return Center(
-      child: Column(
-        children: [
-          SizedBox(height: mediaQuery.size.height / 11.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              StreamBuilder<SequenceState?>(
-                stream: audioPlayer.sequenceStateStream,
-                builder: (_, __) {
-                  return _buildWidgetOfPreviousButton();
-                },
-              ),
-              StreamBuilder<PlayerState>(
-                stream: audioPlayer.playerStateStream,
-                builder: (_, snapshot) {
-                  final PlayerState? playerState = snapshot.data;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.grey),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: _buildWidgetOfPlayOrPauseButton(playerState),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
-              StreamBuilder<SequenceState?>(
-                stream: audioPlayer.sequenceStateStream,
-                builder: (_, __) {
-                  return _buildWidgetOfNextButton();
-                },
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 50.0,
-          ),
-          Visibility(
-            visible: _connectionStatus == ConnectivityResult.none,
-            child: const Text(
-              'لطفاً از اتصال شبکه اینترنت خود مطمئن شوید',
-              style: TextStyle(
-                color: Color(0xFF7D9AFF),
-                fontSize: 30.0,
-                fontFamily: 'Narenj',
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  IconButton _buildWidgetOfPreviousButton() {
-    return IconButton(
-      onPressed: () async {
-        if (indexOfAudioPlayed != 0) {
-          setState(() {
-            indexOfAudioPlayed--;
-          });
-
-          audioPlayer.setUrl(currentSection!.audios[indexOfAudioPlayed].path);
-          audioPlayer.play();
-        }
-      },
-      icon: Icon(
-        Icons.fast_rewind,
-        color: ((indexOfAudioPlayed != 0) ? Colors.black : Colors.grey),
-      ),
-    );
-  }
-
-  Widget _buildWidgetOfPlayOrPauseButton(PlayerState? playerState) {
-    late final ProcessingState processingState;
-
-    if (playerState != null) {
-      processingState = playerState.processingState;
-
-      if (_connectionStatus == ConnectivityResult.none) {
-        return IconButton(
-          icon: const Icon(Icons.wifi_off),
-          iconSize: 44.0,
-          onPressed: audioPlayer.stop,
-        );
-      } else if ((processingState == ProcessingState.loading) && loading) {
-        return IconButton(
-          icon: const Icon(Icons.sync),
-          iconSize: 44.0,
-          onPressed: audioPlayer.play,
-        );
-      } else if (audioPlayer.playing != true &&
-          processingState != ProcessingState.completed) {
-        tempPlaylistOfTheCurrentSectionIsFinished =
-            playlistOfTheCurrentSectionIsFinished;
-        playlistOfTheCurrentSectionIsFinished = false;
-
-        return IconButton(
-            icon: Icon(tempPlaylistOfTheCurrentSectionIsFinished!
-                ? Icons.repeat
-                : Icons.play_arrow),
-            iconSize: 44.0,
-            onPressed: audioPlayer.play);
-      } else if (processingState != ProcessingState.completed) {
-        return IconButton(
-          icon: const Icon(Icons.pause),
-          iconSize: 44.0,
-          onPressed: audioPlayer.pause,
-        );
-      } else if (processingState == ProcessingState.completed &&
-          indexOfAudioPlayed != currentSection!.numberOfAudios - 1) {
-      } else {
-        playlistOfTheCurrentSectionIsFinished = true;
-      }
-    }
-
-    return IconButton(
-      icon: const Icon(Icons.pause),
-      iconSize: 44.0,
-      onPressed: audioPlayer.play,
-    );
-  }
-
-  IconButton _buildWidgetOfNextButton() {
-    return IconButton(
-      onPressed: () async {
-        if (indexOfAudioPlayed != currentSection!.numberOfAudios - 1) {
-          setState(() {
-            indexOfAudioPlayed++;
-          });
-
-          audioPlayer.setUrl(currentSection!.audios[indexOfAudioPlayed].path);
-          audioPlayer.play();
-        }
-      },
-      icon: Icon(
-        Icons.fast_forward,
-        color: ((indexOfAudioPlayed != currentSection!.numberOfAudios - 1)
-            ? Colors.black
-            : Colors.grey),
-      ),
-    );
-  }*/
 }
 
+// ignore: must_be_immutable
 class CustomProgressBarBottom extends StatefulWidget {
   late AudioPlayer audioPlayer;
   late TimeLabelLocation timeLabelLocation;
