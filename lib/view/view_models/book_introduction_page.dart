@@ -532,7 +532,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
           ),
           Visibility(
-            visible: _book.numberOfPages != '0',
+            visible: _book.numberOfPages != '',
             child: Property(
               property: 'تعداد صفحات',
               value: _book.numberOfPages.toString(),

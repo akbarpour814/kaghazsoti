@@ -1,15 +1,23 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
 import 'package:sizer/sizer.dart';
+import 'package:uni_links/uni_links.dart';
+import 'package:zarinpal/zarinpal.dart';
 import '../../../model/payment.dart';
 import '../../view_models/custom_smart_refresher.dart';
+import '../../view_models/custom_snack_bar.dart';
 import '../../view_models/no_internet_connection.dart';
+import '../login_pages/splash_page.dart';
 import '/model/purchase.dart';
 import '/view/view_models/property.dart';
 
@@ -18,6 +26,9 @@ import '../../../controller/custom_response.dart';
 import '../../../main.dart';
 import '../../view_models/book_introduction_page.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
+
+import 'package:http/http.dart' as http;
+
 
 class PurchaseHistoryPage extends StatefulWidget {
   static const routeName = '/purchaseHistoryPage';
@@ -32,14 +43,22 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
     with InternetConnection, LoadDataFromAPI, Refresher, DisplayOfDetails {
   late List<Purchase> _purchaseHistory;
   late List<Purchase> _purchaseHistoryTemp;
+  late bool _paymentGateway;
 
   @override
   void initState() {
     super.initState();
+    _handleIncomingLinks();
+    _handleInitialUri();
+
 
     _purchaseHistory = [];
     _purchaseHistoryTemp = [];
+    _paymentGateway = false;
+
+
   }
+
 
   Future _initPurchaseHistory() async {
     customDio = await CustomDio.dio.post(
@@ -124,6 +143,10 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
           }
         },
         future: _initPurchaseHistory(),
+      );
+    } else if(_paymentGateway) {
+      return const Center(
+        child: CustomCircularProgressIndicator(),
       );
     } else {
       return _innerBody();
@@ -295,10 +318,13 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
                     );
                   },
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                   mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text(
-                        '${bookIndex + 1} - ${_purchaseHistory[index].books[bookIndex].name}',
+                      Flexible(
+                        child: Text(
+                          '${bookIndex + 1}- ${_purchaseHistory[index].books[bookIndex].name}',
+                          style: TextStyle(overflow: TextOverflow.ellipsis),
+                        ),
                       ),
                     ],
                   ),
@@ -329,12 +355,107 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   }
 
   void _payment(int index) {
+    String description = '';
+
+    for(int i = 0; i < _purchaseHistory[index].books.length; ++i) {
+      description += '${i + 1}- ${_purchaseHistory[index].books[i].name} \n';
+    }
+
     Payment payment = Payment(
       amount: _purchaseHistory[index].finalPriceInt,
       callbackURL: PurchaseHistoryPage.routeName,
-      description: 'description',
+      description: description,
     );
 
+
     payment.startPayment();
+
   }
+
+  PaymentStatus? status;
+  StreamSubscription? _sub;
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+
+  void _handleIncomingLinks() {
+    if (!kIsWeb) {
+      _sub = uriLinkStream.listen((Uri? uri) {
+        ZarinPal().verificationPayment(
+            "OK", paymentRequest.authority!, paymentRequest, (
+            isPaymentSuccess,
+            refID,
+            paymentRequest,
+            ) {
+          if (isPaymentSuccess) {
+            print('111111111');
+            setState(() {
+              status = PaymentStatus.OK;
+
+              _paymentGateway = false;
+
+              _tayyd(paymentRequest.authority!);
+            });
+
+          } else {
+            print('222222222');
+            setState(() {
+              status = PaymentStatus.NOK;
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                customSnackBar(
+                  context,
+                  Ionicons.refresh_outline,
+                  'پرداخت موفقیت آمیز نبود. لطفاً دوباره امتحان کنید.',
+                  4,
+                ),
+              );
+            });
+          }
+        });
+      });
+    }
+  }
+
+  void _tayyd(String authority) async {
+    var client = http.Client();
+    Map<String, String> _headers = {'authority' : authority};
+    _headers.addAll(headers);
+    http.Response response = await client.get(Uri.parse('https://kaghazsoti.uage.ir/dashboard/financial/invoice_and_pay/callback'), headers: _headers,);
+
+
+    print(authority);
+
+
+    print(response.body);
+  }
+
+  Future<void> _handleInitialUri() async {
+    if (!initialUriIsHandled) {
+      initialUriIsHandled = true;
+      try {
+        final uri = await getInitialUri();
+        if (uri == null) {
+          print('no initial uri');
+        } else {
+          print('got initial uri: $uri');
+        }
+        if (!mounted) return;
+      } on PlatformException {
+        print('failed to get initial uri');
+      } on FormatException catch (err) {
+        if (!mounted) return;
+        print('malformed initial uri, $err');
+      }
+    }
+  }
+
+  late String amount;
+
+
+
+
 }
