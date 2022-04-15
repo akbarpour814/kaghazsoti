@@ -57,12 +57,12 @@ int previousAudiobookInPlayId = -1;
 
 
 int audiobookInPlayId = -1;
-SharedValue<bool> audioIsPlaying = SharedValue(value: false);
+SharedValue<bool> audiobookIsPlaying = SharedValue(value: false);
 late BookIntroduction audiobookInPlay;
 late AudioPlayerHandler audioPlayerHandler;
 
 
-SharedValue<bool> demoIsPlaying = SharedValue(value: false);
+SharedValue<bool> demoOfBookIsPlaying = SharedValue(value: false);
 int demoInPlayId = -1;
 
 

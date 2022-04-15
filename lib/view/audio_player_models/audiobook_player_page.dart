@@ -65,7 +65,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
 
     dataIsLoading = widget.audiobook.id != previousAudiobookInPlayId;
 
-    audioIsPlaying.$ = true;
+    audiobookIsPlaying.$ = true;
   }
 
   Future _initMediaItems() async {
@@ -180,7 +180,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
           onTap: () {
             setState(() {
               audiobookInPlayId = -1;
-              audioIsPlaying.$ = false;
+              audiobookIsPlaying.$ = false;
               audioPlayerHandler.updateQueue([]);
               audioPlayerHandler.stop();
               audioPlayerHandler.onTaskRemoved();
@@ -403,7 +403,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
             onPressed: () {
               setState(() {
                 demoPlayer.stop();
-                demoIsPlaying.$ = false;
+                demoOfBookIsPlaying.$ = false;
                 demoInPlayId = -1;
               });
 

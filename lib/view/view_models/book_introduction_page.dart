@@ -241,12 +241,12 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         Positioned(
           left: 2.5.w,
           bottom: 2.5.w,
-          child: !demoIsPlaying.of(context) || (demoInPlayId != _book.id)
+          child: !demoOfBookIsPlaying.of(context) || (demoInPlayId != _book.id)
               ? FloatingActionButton(
                   child: const Icon(Ionicons.play_outline),
                   onPressed: () {
                     setState(() {
-                      demoIsPlaying.$ = true;
+                      demoOfBookIsPlaying.$ = true;
                       demoInPlayId = _book.id;
                       demoPlayer.setUrl(_book.demo);
 

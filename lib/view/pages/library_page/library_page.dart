@@ -169,7 +169,7 @@ class _MyBookState extends State<MyBook> {
       onTap: () {
         setState(() {
           if (widget.book.id != previousAudiobookInPlayId) {
-            demoIsPlaying.$ = false;
+            demoOfBookIsPlaying.$ = false;
             demoInPlayId = -1;
             demoPlayer.stop();
 
