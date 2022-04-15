@@ -350,29 +350,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     );
   }
 
-  Visibility _addToLibraryButton() {
-    return Visibility(
-      visible:
-          (!libraryId.contains(_book.id)) && (_book.price.contains('رایگان')),
-      child: SizedBox(
-        width: 100.0.w - (2 * 5.0.w),
-        height: 5.5.h,
-        child: ElevatedButton.icon(
-          onPressed: () {},
-          label: const Text('افزودن به کتابخانه'),
-          icon: const Icon(Ionicons.library_outline),
-          style: ButtonStyle(
-            shape: MaterialStateProperty.all(
-              const RoundedRectangleBorder(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   void _setBookCart() async {
     setState(() {
       if (_availableInBookCart) {
@@ -387,6 +364,46 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     });
 
     await sharedPreferences.setStringList('bookCartSlug', bookCartSlug);
+  }
+
+  Visibility _addToLibraryButton() {
+    return Visibility(
+      visible:
+          (!libraryId.contains(_book.id)) && (_book.price.contains('رایگان')),
+      child: SizedBox(
+        width: 100.0.w - (2 * 5.0.w),
+        height: 5.5.h,
+        child: ElevatedButton.icon(
+          onPressed: () {
+            _addToLibrary();
+          },
+          label: const Text('افزودن به کتابخانه'),
+          icon: const Icon(Ionicons.library_outline),
+          style: ButtonStyle(
+            shape: MaterialStateProperty.all(
+              const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(5.0)),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _addToLibrary() async {
+    customDio = await CustomDio.dio.post('dashboard/free/add', data: {'id': _book.id},);
+
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
+
+      setState(() {
+        libraryId.add(_book.id);
+
+        dataIsLoading = true;
+      });
+    }
+
   }
 
   Padding _tabsTopic() {
