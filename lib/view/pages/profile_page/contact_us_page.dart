@@ -1,25 +1,20 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:persian_number_utility/persian_number_utility.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:kaghaze_souti/view/view_models/custom_smart_refresher.dart';
+import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
-import '/model/comment_data.dart';
-import '/view/view_models/player_bottom_navigation_bar.dart';
+import '/model/ticket_data.dart';
 import '/view/view_models/property.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../controller/custom_dio.dart';
 
-//import '../../../controller/database.dart';
 import '../../../controller/custom_response.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 import '../../view_models/custom_snack_bar.dart';
@@ -31,44 +26,35 @@ class ContactUsPage extends StatefulWidget {
   _ContactUsPageState createState() => _ContactUsPageState();
 }
 
-class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, LoadDataFromAPI {
-  TextEditingController _textEditingController = TextEditingController();
-  String? _topic;
+class _ContactUsPageState extends State<ContactUsPage>
+    with InternetConnection, LoadDataFromAPI {
+  late TextEditingController _ticketController;
   String? _errorText;
   late List<Topic> _topics;
-  late bool _commentPosted;
-  late List<bool> _displayOfDetails;
-  late int _previousIndex;
-  late List<CommentData> _comments;
-
-
+  String? _topic;
+  TicketData? _firstTicket;
+  late bool _displayFirstTicket;
 
   @override
   void initState() {
-    _topics = Topic.values;
-    _commentPosted = false;
-    _previousIndex = -1;
-    _comments = [];
-
     super.initState();
 
-
+    _ticketController = TextEditingController();
+    _topics = Topic.values;
+    _displayFirstTicket = false;
   }
 
-
-  Future _initComments() async {
+  Future _initFirstTicket() async {
     customDio = await CustomDio.dio.get('dashboard/tickets');
 
     if (customDio.statusCode == 200) {
-      _comments.clear();
-
       customResponse = CustomResponse.fromJson(customDio.data);
 
-      _comments.add(CommentData.fromJson(customResponse.data['data'][0]));
+      setState(() {
+        dataIsLoading = false;
 
-      _displayOfDetails = List<bool>.generate(_comments.length, (index) => false);
-
-      dataIsLoading = false;
+        _firstTicket = TicketData.fromJson(customResponse.data['data'][0]);
+      });
     }
 
     return customDio;
@@ -107,18 +93,20 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
   }
 
   Widget _body() {
-    return dataIsLoading
-        ? FutureBuilder(
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              return snapshot.hasData
-                  ? _innerBody()
-                  : Center(
-                      child: CustomCircularProgressIndicator(
-                          ));
-            },
-            future: _initComments(),
-          )
-        : _innerBody();
+    if (dataIsLoading) {
+      return FutureBuilder(
+        future: _initFirstTicket(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return _innerBody();
+          } else {
+            return Center(child: CustomCircularProgressIndicator());
+          }
+        },
+      );
+    } else {
+      return _innerBody();
+    }
   }
 
   Widget _innerBody() {
@@ -135,37 +123,49 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _selectACommentTopic(),
-            _commentTextField(),
-            _commentRegistrationButton(),
+            _selectATicketTopic(),
+            _ticketTextField(),
+            _ticketRegistrationButton(),
             const Divider(
               height: 0.0,
             ),
             Padding(
-              padding: EdgeInsets.only(left: 5.0.w, top: 0.0, right: 5.0.w, bottom: 16.0),
+              padding: EdgeInsets.only(
+                left: 5.0.w,
+                top: 0.0,
+                right: 5.0.w,
+                bottom: 16.0,
+              ),
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0,),
+                    padding: const EdgeInsets.only(
+                      top: 8.0,
+                      bottom: 8.0,
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'نظرات شما',
-                          style: TextStyle(color: Theme.of(context).primaryColor),
+                          style:
+                              TextStyle(color: Theme.of(context).primaryColor),
                         ),
-                        OutlinedButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return CommentsPage(comments: _comments,);
-                                },
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            'نمایش همه',
+                        Visibility(
+                          visible: customResponse.data['data'].length >= 2,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return TicketsPage();
+                                  },
+                                ),
+                              );
+                            },
+                            child: const Text(
+                              'نمایش همه',
+                            ),
                           ),
                         ),
                       ],
@@ -177,7 +177,7 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
                       height: 0.0,
                     ),
                   ),
-                  _userComments(),
+                  _firstTicketView(),
                 ],
               ),
             ),
@@ -187,9 +187,14 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
     }
   }
 
-  Padding _selectACommentTopic() {
+  Padding _selectATicketTopic() {
     return Padding(
-      padding: EdgeInsets.only(left: 5.0.w, top: 16.0, right: 5.0.w, bottom: 0.0,),
+      padding: EdgeInsets.only(
+        left: 5.0.w,
+        top: 16.0,
+        right: 5.0.w,
+        bottom: 0.0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -251,7 +256,7 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
     );
   }
 
-  Padding _commentTextField() {
+  Padding _ticketTextField() {
     OutlineInputBorder _outlineInputBorder = OutlineInputBorder(
       borderSide: BorderSide(
         color: Theme.of(context).primaryColor,
@@ -260,9 +265,14 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
     );
 
     return Padding(
-      padding: EdgeInsets.only(left: 5.0.w, top: 0.0, right: 5.0.w, bottom: 16.0),
+      padding: EdgeInsets.only(
+        left: 5.0.w,
+        top: 0.0,
+        right: 5.0.w,
+        bottom: 16.0,
+      ),
       child: TextField(
-        controller: _textEditingController,
+        controller: _ticketController,
         decoration: InputDecoration(
           errorText: _errorText,
           hintText: 'لطفاً نظر خود را بنویسید.',
@@ -278,9 +288,9 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
         cursorWidth: 1.0,
         onChanged: (String text) {
           setState(() {
-            if (_textEditingController.text.isEmpty) {
+            if (_ticketController.text.isEmpty) {
               _errorText = null;
-            } else if (_textEditingController.text.length < 3) {
+            } else if (_ticketController.text.length < 3) {
               _errorText = 'نظر شما باید بیش از حرف داشته باشد.';
             } else {
               _errorText = null;
@@ -291,53 +301,52 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
     );
   }
 
-  Padding _commentRegistrationButton() {
+  Padding _ticketRegistrationButton() {
     return Padding(
-      padding: EdgeInsets.only(left: 5.0.w, top: 0.0, right: 5.0.w, bottom: 16.0),
+      padding:
+          EdgeInsets.only(left: 5.0.w, top: 0.0, right: 5.0.w, bottom: 16.0),
       child: SizedBox(
         width: 100.0.w - (2 * 5.0.w),
         child: ElevatedButton.icon(
           onPressed: () {
             setState(() {
-              if ((_topic == null) && (_textEditingController.text.isEmpty)) {
+              if ((_topic == null) && (_ticketController.text.isEmpty)) {
                 _errorText = 'لطفاً نظر خود را به همراه موضوع بنویسید.';
               } else if (_topic == null) {
                 _errorText = 'لطفاً موضوع را انتخاب کنید.';
-              } else if (_textEditingController.text.isEmpty) {
+              } else if (_ticketController.text.isEmpty) {
                 _errorText = 'لطفاً نظر خود را بنویسید.';
-              } else if (_textEditingController.text.length < 3) {
+              } else if (_ticketController.text.length < 3) {
                 _errorText = 'نظر شما باید بیش از حرف داشته باشد.';
               } else {
                 _errorText = null;
 
-                _commentRegistration();
+                _ticketRegistration();
               }
             });
           },
           label: Text(
-            _commentPosted ? 'نظر شما ثبت شد' : 'ثبت نظر',
+            'ثبت نظر',
           ),
-          icon: Icon(_commentPosted
-              ? Ionicons.checkmark_done_outline
-              : Ionicons.checkmark_outline),
+          icon: Icon(Ionicons.checkmark_outline),
         ),
       ),
     );
   }
 
-  void _commentRegistration() async {
+  void _ticketRegistration() async {
     customDio = await CustomDio.dio.post(
       'dashboard/tickets',
       data: {
         'title': _topic,
-        'body': _textEditingController.text,
+        'body': _ticketController.text,
       },
     );
 
     setState(() {
       if (customDio.statusCode == 200) {
         _topic = null;
-        _textEditingController = TextEditingController();
+        _ticketController = TextEditingController();
         dataIsLoading = true;
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -361,8 +370,8 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
     });
   }
 
-  Widget _userComments() {
-    if (_comments.isEmpty) {
+  Widget _firstTicketView() {
+    if (_firstTicket == null) {
       return Expanded(
         child: Center(
           child: Text(
@@ -372,264 +381,80 @@ class _ContactUsPageState extends State<ContactUsPage> with InternetConnection, 
         ),
       );
     } else {
-
-
-      return Column(
-        children: List.generate(
-          _comments.length,
-          (index) => Padding(
-            padding: EdgeInsets.only(
-              top: 0.0,
-              bottom: index == _comments.length - 1 ? 0.0 : 8.0,
-            ),
-            child: Container(
-              padding: const EdgeInsets.only(
-                left: 18.0,
-                top: 18.0,
-                right: 18.0,
-                bottom: 8.0,
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(color: Theme.of(context).primaryColor),
-                borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-              ),
-              child: Column(
-                children: [
-                  Property(
-                    property: 'موضوع',
-                    value: _comments[index].topic.title!,
-                    valueInTheEnd: false,
-                    lastProperty: false,
-                  ),
-                  Property(
-                    property: 'تاریخ ارسال',
-                    value: _comments[index].sentDate,
-                    valueInTheEnd: false,
-                    lastProperty: false,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 0.0,
-                      top: 0.0,
-                      right: 0.0,
-                      bottom: 8.0,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        const Expanded(
-                          child: Text('وضعیت:'),
-                        ),
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  _comments[index].status.title!,
-                                  style: TextStyle(
-                                    color: _comments[index].status.color,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Visibility(
-                    visible: _displayOfDetails[index],
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Divider(
-                          height: 24.0,
-                        ),
-                        Property(
-                          property: 'دیدگاه شما',
-                          value: '',
-                          valueInTheEnd: false,
-                          lastProperty: false,
-                        ),
-                        Text(
-                          '- ${_comments[index].text}',
-                          textAlign: TextAlign.justify,
-                        ),
-                        Visibility(
-                          visible:
-                              _comments[index].status == CommentStatus.answered,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Divider(
-                                height: 24.0,
-                              ),
-                              Property(
-                                property: 'پاسخ ما',
-                                value: '',
-                                valueInTheEnd: false,
-                                lastProperty: false,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: List<Text>.generate(
-                                  _comments[index].answers.length,
-                                  (commentIndex) => Text(
-                                    '${commentIndex + 1}- ${_comments[index].answers[commentIndex]}',
-                                    textAlign: TextAlign.start,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Divider(
-                    height: 24.0,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        if (index == _previousIndex &&
-                            _displayOfDetails[index]) {
-                          _displayOfDetails[index] = false;
-                        } else if (index == _previousIndex &&
-                            !_displayOfDetails[index]) {
-                          _displayOfDetails[index] = true;
-                        } else if (index != _previousIndex) {
-                          if (_previousIndex != -1) {
-                            _displayOfDetails[_previousIndex] = false;
-                          }
-                          _displayOfDetails[index] = true;
-                        }
-
-                        _previousIndex = index;
-                      });
-                    },
-                    child: Icon(
-                      _displayOfDetails[index]
-                          ? Icons.expand_less
-                          : Icons.expand_more,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+      return TicketView(
+        ticketData: _firstTicket!,
+        display: _displayFirstTicket,
+        onTap: () {
+          setState(() {
+            _displayFirstTicket = _displayFirstTicket ? false : true;
+          });
+        },
       );
     }
   }
 }
 
-class CommentsPage extends StatefulWidget {
-  late List<CommentData> comments;
-  CommentsPage({Key? key, required this.comments,}) : super(key: key);
+// ignore: must_be_immutable
+class TicketsPage extends StatefulWidget {
+  const TicketsPage({Key? key}) : super(key: key);
 
   @override
-  _CommentsPageState createState() => _CommentsPageState();
+  _TicketsPageState createState() => _TicketsPageState();
 }
 
-class _CommentsPageState extends State<CommentsPage> {
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-  late bool _dataIsLoading;
-  late int _lastPage;
-  late int _currentPage;
-  late List<CommentData> _commentsTemp;
-  late List<CommentData> _comments;
-  late List<bool> _displayOfDetails;
-  late int _previousIndex;
-
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
-  late RefreshController _refreshController;
+class _TicketsPageState extends State<TicketsPage>
+    with InternetConnection, LoadDataFromAPI, Refresher, DisplayOfDetails {
+  late List<TicketData> _tickets;
+  late List<TicketData> _ticketsTemp;
 
   @override
   void initState() {
-    _dataIsLoading = true;
-    _previousIndex = -1;
-    _commentsTemp = [];
-    _comments = [];
-    _currentPage = 1;
-
     super.initState();
-    _refreshController = RefreshController(initialRefresh: false);
 
-    initConnectivity();
-
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _tickets = [];
+    _ticketsTemp = [];
   }
 
-  Future<void> initConnectivity() async {
-    late ConnectivityResult result;
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      // ignore: avoid_print
-      print(e.toString());
-      return;
-    }
-    if (!mounted) {
-      return Future.value(null);
-    }
+  Future _initTickets() async {
+    customDio = await CustomDio.dio.get(
+      'dashboard/tickets',
+      queryParameters: {'page': currentPage},
+    );
 
-    return _updateConnectionStatus(result);
-  }
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
 
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-  }
+      lastPage = customResponse.data['last_page'];
 
-  @override
-  void dispose() {
-    _connectivitySubscription.cancel();
-    super.dispose();
-  }
-
-  Future _initComments() async {
-    _customDio = await CustomDio.dio.get('dashboard/tickets', queryParameters: {'page': _currentPage},);
-
-    if (_customDio.statusCode == 200) {
-      _customResponse = CustomResponse.fromJson(_customDio.data);
-
-      _lastPage = _customResponse.data['last_page'];
-
-      if(_currentPage == 1) {
-        _comments.clear();
+      if (currentPage == 1) {
+        _ticketsTemp.clear();
       }
 
-      for (Map<String, dynamic> comment in _customResponse.data['data']) {
-        _comments.add(CommentData.fromJson(comment));
+      for (Map<String, dynamic> ticket in customResponse.data['data']) {
+        _ticketsTemp.add(TicketData.fromJson(ticket));
       }
 
       setState(() {
-        _commentsTemp.clear();
-        _commentsTemp.addAll(_comments);
+        dataIsLoading = false;
 
-        _displayOfDetails = List<bool>.generate(_commentsTemp.length, (index) => false);
-
-        _dataIsLoading = false;
         refresh = false;
         loading = false;
+
+        _tickets.clear();
+        _tickets.addAll(_ticketsTemp);
+
+        displayOfDetails = List<bool>.generate(
+          _tickets.length,
+          (index) => false,
+        );
       });
     }
 
-    return _customDio;
+    return customDio;
   }
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: _appBar(),
       body: _body(),
@@ -661,277 +486,205 @@ class _CommentsPageState extends State<CommentsPage> {
   }
 
   Widget _body() {
-    return _dataIsLoading ? FutureBuilder(
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        return snapshot.hasData
-            ? _innerBody()
-            : Center(
-            child: CustomCircularProgressIndicator(
-                ));
-      },
-      future: _initComments(),
-    ) : _innerBody();
+    if (dataIsLoading) {
+      return FutureBuilder(
+        future: _initTickets(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return _innerBody();
+          } else {
+            return Center(child: CustomCircularProgressIndicator());
+          }
+        },
+      );
+    } else {
+      return _innerBody();
+    }
   }
 
   Widget _innerBody() {
-
-    if(_connectionStatus == ConnectivityResult.none) {
+    if (connectionStatus == ConnectivityResult.none) {
       setState(() {
-        _dataIsLoading = true;
+        dataIsLoading = true;
       });
 
-      return const Center(child: NoInternetConnection(),);
+      return const Center(
+        child: NoInternetConnection(),
+      );
     } else {
-      if (_commentsTemp.isEmpty) {
+      if (_tickets.isEmpty) {
         return const Center(
           child: Text('شما تا کنون نظری به ثبت نرسانده اید.'),
         );
       } else {
-        return SmartRefresher(
-          enablePullDown: true,
-          enablePullUp: true,
-          header: const MaterialClassicHeader(),
-          footer: CustomFooter(
-            builder: (BuildContext? context, LoadStatus? mode) {
-              Widget bar;
-
-              if ((mode == LoadStatus.idle) && (_currentPage == _lastPage) && (!_dataIsLoading)) {
-                bar = Text(
-                  'نظر دیگری یافت نشد.',
-                  style: TextStyle(
-                    color: Theme.of(context!).primaryColor,
-                  ),
-                );
-              } else if (mode == LoadStatus.idle) {
-                bar = Text('لطفاً صفحه را بالا بکشید.',
-                    style: TextStyle(color: Theme.of(context!).primaryColor));
-              } else if (mode == LoadStatus.loading) {
-                bar = CustomCircularProgressIndicator(
-                   );
-              } else if (mode == LoadStatus.failed) {
-                bar = CustomCircularProgressIndicator(
-                    );
-              } else if (mode == LoadStatus.canLoading) {
-                bar = CustomCircularProgressIndicator(
-                    );
-              } else {
-                bar = Text(
-                  'نظر دیگری یافت نشد.',
-                  style: TextStyle(color: Theme.of(context!).primaryColor),
-                );
-              }
-
-              return SizedBox(
-                height: 55.0,
-                child: Center(child: bar),
-              );
-            },
-          ),
-          controller: _refreshController,
-          onRefresh: loading ? null : _onRefresh,
-          onLoading: refresh ? null : _onLoading,
-          child: ListView(
-            children: List.generate(_commentsTemp.length, (index) =>  Padding(
+        return CustomSmartRefresher(
+          refreshController: refreshController,
+          onRefresh: () => onRefresh(() => _initTickets()),
+          onLoading: () => onLoading(() => _initTickets()),
+          list: List<Padding>.generate(
+            _tickets.length,
+            (index) => Padding(
               padding: EdgeInsets.only(
                 left: 5.0.w,
                 top: index == 0 ? 16.0 : 0.0,
                 right: 5.0.w,
-                bottom: index == _commentsTemp.length - 1 ? 0.0 : 16.0,
+                bottom: index == _tickets.length - 1 ? 0.0 : 16.0,
               ),
-              child: Container(
-                padding: const EdgeInsets.only(
-                  left: 18.0,
-                  top: 18.0,
-                  right: 18.0,
-                  bottom: 8.0,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).primaryColor),
-                  borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-                ),
-                child: Column(
-                  children: [
-                    Property(
-                      property: 'موضوع',
-                      value: _commentsTemp[index].topic.title!,
-                      valueInTheEnd: false,
-                      lastProperty: false,
-                    ),
-                    Property(
-                      property: 'تاریخ ارسال',
-                      value: _commentsTemp[index].sentDate,
-                      valueInTheEnd: false,
-                      lastProperty: false,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 0.0,
-                        top: 0.0,
-                        right: 0.0,
-                        bottom: 8.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          const Expanded(
-                            child: Text('وضعیت:'),
-                          ),
-                          Expanded(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    _commentsTemp[index].status.title!,
-                                    style: TextStyle(
-                                      color: _commentsTemp[index].status.color,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Visibility(
-                      visible: _displayOfDetails[index],
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Divider(
-                            height: 24.0,
-                          ),
-                          Property(
-                            property: 'دیدگاه شما',
-                            value: '',
-                            valueInTheEnd: false,
-                            lastProperty: false,
-                          ),
-                          Text(
-                            '- ${_commentsTemp[index].text}',
-                            textAlign: TextAlign.justify,
-                          ),
-                          Visibility(
-                            visible:
-                            _commentsTemp[index].status == CommentStatus.answered,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Divider(
-                                  height: 24.0,
-                                ),
-                                Property(
-                                  property: 'پاسخ ما',
-                                  value: '',
-                                  valueInTheEnd: false,
-                                  lastProperty: false,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: List<Text>.generate(
-                                    _commentsTemp[index].answers.length,
-                                        (commentIndex) => Text(
-                                      '${commentIndex + 1}- ${_commentsTemp[index].answers[commentIndex]}',
-                                      textAlign: TextAlign.start,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Divider(
-                      height: 24.0,
-                    ),
-                    InkWell(
-                      onTap: () {
-                        setState(() {
-                          if (index == _previousIndex &&
-                              _displayOfDetails[index]) {
-                            _displayOfDetails[index] = false;
-                          } else if (index == _previousIndex &&
-                              !_displayOfDetails[index]) {
-                            _displayOfDetails[index] = true;
-                          } else if (index != _previousIndex) {
-                            if (_previousIndex != -1) {
-                              _displayOfDetails[_previousIndex] = false;
-                            }
-                            _displayOfDetails[index] = true;
-                          }
-
-                          _previousIndex = index;
-                        });
-                      },
-                      child: Icon(
-                        _displayOfDetails[index]
-                            ? Icons.expand_less
-                            : Icons.expand_more,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
+              child: TicketView(
+                ticketData: _tickets[index],
+                display: displayOfDetails[index],
+                onTap: () => display(index),
               ),
-            ),),
+            ),
           ),
-
+          listType: 'نظر',
+          refresh: refresh,
+          loading: loading,
+          lastPage: lastPage,
+          currentPage: currentPage,
+          dataIsLoading: dataIsLoading,
         );
       }
     }
-
-
   }
+}
 
+// ignore: must_be_immutable
+class TicketView extends StatefulWidget {
+  late TicketData ticketData;
+  late bool display;
+  late void Function() onTap;
 
-  bool refresh = false;
-  bool loading = false;
-  void _onRefresh() async {
-    try {
-      // monitor network fetch
-      setState(() {
-        refresh = loading ? false : true;
-        if (refresh) {
-          _currentPage = 1;
+  TicketView({
+    Key? key,
+    required this.ticketData,
+    required this.display,
+    required this.onTap,
+  }) : super(key: key);
 
-          _initComments();
+  @override
+  _TicketViewState createState() => _TicketViewState();
+}
 
-          print(_currentPage);
-          print('refresh');
-          print(refresh);
-          print(loading);
-        }
-      });
-      await Future.delayed(Duration(milliseconds: 1000));
-      // if failed,use refreshFailed()
-
-      _refreshController.refreshCompleted();
-    } catch (e) {
-      _refreshController.refreshFailed();
-    }
-  }
-
-  void _onLoading() async {
-    try {
-      if (_currentPage < _lastPage) {
-        setState(() {
-          loading = refresh ? false : true;
-
-          if (loading) {
-            _currentPage++;
-
-            _initComments();
-          }
-        });
-      }
-
-      await Future.delayed(const Duration(milliseconds: 1000));
-
-      _refreshController.loadComplete();
-    } catch (e) {
-      _refreshController.loadFailed();
-    }
+class _TicketViewState extends State<TicketView> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(
+        left: 18.0,
+        top: 18.0,
+        right: 18.0,
+        bottom: 8.0,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).primaryColor),
+        borderRadius: const BorderRadius.all(Radius.circular(5.0)),
+      ),
+      child: Column(
+        children: [
+          Property(
+            property: 'موضوع',
+            value: widget.ticketData.topic.title!,
+            valueInTheEnd: false,
+            lastProperty: false,
+          ),
+          Property(
+            property: 'تاریخ ارسال',
+            value: widget.ticketData.sentDate,
+            valueInTheEnd: false,
+            lastProperty: false,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: 0.0,
+              top: 0.0,
+              right: 0.0,
+              bottom: 8.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Expanded(
+                  child: Text('وضعیت:'),
+                ),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          widget.ticketData.status.title!,
+                          style: TextStyle(
+                            color: widget.ticketData.status.color,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Visibility(
+            visible: widget.display,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Divider(
+                  height: 24.0,
+                ),
+                Property(
+                  property: 'دیدگاه شما',
+                  value: '',
+                  valueInTheEnd: false,
+                  lastProperty: false,
+                ),
+                Text(
+                  '- ${widget.ticketData.text}',
+                  textAlign: TextAlign.justify,
+                ),
+                Visibility(
+                  visible: widget.ticketData.status == TicketStatus.answered,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Divider(
+                        height: 24.0,
+                      ),
+                      Property(
+                        property: 'پاسخ ما',
+                        value: '',
+                        valueInTheEnd: false,
+                        lastProperty: false,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List<Text>.generate(
+                          widget.ticketData.answers.length,
+                          (commentIndex) => Text(
+                            '${commentIndex + 1}- ${widget.ticketData.answers[commentIndex]}',
+                            textAlign: TextAlign.start,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Divider(
+            height: 24.0,
+          ),
+          InkWell(
+            onTap: widget.onTap,
+            child: Icon(
+              widget.display ? Icons.expand_less : Icons.expand_more,
+              color: Theme.of(context).primaryColor,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
