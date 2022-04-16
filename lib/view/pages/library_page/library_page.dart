@@ -60,13 +60,13 @@ class _MyLibraryPageState extends State<MyLibraryPage>
       }
 
       setState(() {
-        dataIsLoading = false;
-
         refresh = false;
         loading = false;
 
         _myBooks.clear();
         _myBooks.addAll(_myBooksTemp);
+
+        dataIsLoading = false;
       });
     }
 
@@ -91,25 +91,21 @@ class _MyLibraryPageState extends State<MyLibraryPage>
     );
   }
 
-  FutureBuilder _body() {
-    return FutureBuilder(
-      future: _initMyBooks(),
-      builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CustomCircularProgressIndicator(),
-          );
-        } else {
-          if (connectionStatus == ConnectivityResult.none) {
-            return const Center(
-              child: NoInternetConnection(),
-            );
-          } else {
+  Widget _body() {
+    if (dataIsLoading) {
+      return FutureBuilder(
+        future: _initMyBooks(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if(snapshot.hasData) {
             return _innerBody();
+          } else {
+            return const Center(child: CustomCircularProgressIndicator());
           }
-        }
-      },
-    );
+        },
+      );
+    } else {
+      return _innerBody();
+    }
   }
 
   Widget _innerBody() {
@@ -167,27 +163,34 @@ class _MyBookState extends State<MyBook> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        setState(() {
-          if (widget.book.id != previousAudiobookInPlayId) {
-            demoOfBookIsPlaying.$ = false;
-            demoInPlayId = -1;
-            demoPlayer.stop();
+        if (widget.book.id != previousAudiobookInPlayId) {
+          print('xxxxxxxxxxx');
+          print(widget.book.id);
+          print(previousAudiobookInPlayId);
+          audioPlayerHandler.onTaskRemoved();
+          audioPlayerHandler.seek(Duration(microseconds: 0));
 
-            audioPlayerHandler.updateQueue([]);
-            audiobookInPlay = widget.book;
-            audiobookInPlayId = widget.book.id;
-          }
+          demoOfBookIsPlaying.$ = false;
+          demoInPlayId = -1;
+          demoPlayer.stop();
+          audioPlayerHandler.stop();
 
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return AudiobookPlayerPage(audiobook: widget.book);
-              },
-            ),
-          );
-        });
+          mediaItems.clear();
+
+          audioPlayerHandler.updateQueue([]);
+          audiobookInPlay = widget.book;
+          audiobookInPlayId = widget.book.id;
+        }
+
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) {
+              return AudiobookPlayerPage(audiobook: widget.book);
+            },
+          ),
+        );
       },
-      child: Card(
+      child:  Card(
         color: Colors.transparent,
         elevation: 0.0,
         shape: Theme.of(context).cardTheme.shape,
@@ -234,9 +237,11 @@ class _MyBookState extends State<MyBook> {
       child: ListTile(
         title: Text(
           widget.book.name,
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
-          '${widget.book.author}\n\n${widget.book.duration}',
+          widget.book.author,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );

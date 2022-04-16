@@ -59,9 +59,9 @@ class _CartPageState extends State<CartPage>
       }
 
       setState(() {
-        dataIsLoading = false;
-
         _bookCart = _bookCartTemp.values.toList();
+
+        dataIsLoading = false;
       });
     }
 

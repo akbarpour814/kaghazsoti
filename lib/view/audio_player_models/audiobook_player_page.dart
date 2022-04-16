@@ -74,6 +74,10 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
 
     if (customDio.statusCode == 200) {
       if (widget.audiobook.id != previousAudiobookInPlayId) {
+        print('yyyyyyyy');
+        print(widget.audiobook.id);
+        print(previousAudiobookInPlayId);
+
         setState(() {
           for (Map<String, dynamic> mediaItem in customDio.data['data']) {
             mediaItems.add(
@@ -95,60 +99,21 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
             );
           }
 
-          audioPlayerHandler.updateQueue(mediaItems);
 
-          dataIsLoading = false;
 
           previousAudiobookInPlayId = widget.audiobook.id;
+
+          dataIsLoading = false;
         });
+
+        await audioPlayerHandler.updateQueue(mediaItems);
       }
     }
+
 
     return customDio;
   }
 
-  /* Future _initMediaItems() async {
-    customDio = await CustomDio.dio
-        .post('dashboard/books/${widget.audiobook.slug}/audio');
-
-    if ((customDio.statusCode == 200) && (widget.audiobook.id != audiobookInPlay.id)) {
-      if(widget.audiobook.id != previousAudiobookInPlayId) {
-        setState(() {
-          for (Map<String, dynamic> mediaItem in customDio.data['data']) {
-            mediaItems.add(
-              MediaItem(
-                id: 'https://kaghazsoti.uage.ir/storage/book-files/${mediaItem['url']}',
-                album: widget.audiobook.name,
-                title: mediaItem['name'] ?? '',
-                artist: widget.audiobook.author,
-                duration: Duration(
-                  milliseconds: INTL.DateFormat('HH:mm:ss')
-                      .parse(
-                    mediaItem['timer'],
-                    true,
-                  )
-                      .millisecondsSinceEpoch,
-                ),
-                artUri: Uri.parse(widget.audiobook.bookCoverPath),
-              ),
-            );
-          }
-
-          audioPlayerHandler.updateQueue(mediaItems);
-
-          dataIsLoading = false;
-
-          previousAudiobookInPlayId = widget.audiobook.id;
-        });
-      }
-    } else {
-      setState(() {
-        dataIsLoading = false;
-      });
-    }
-
-    return customDio;
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -178,15 +143,17 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
       actions: [
         InkWell(
           onTap: () {
-            setState(() {
+            setState(() async {
               audiobookInPlayId = -1;
               audiobookIsPlaying.$ = false;
-              audioPlayerHandler.updateQueue([]);
+              await audioPlayerHandler.updateQueue([]);
               audioPlayerHandler.stop();
               audioPlayerHandler.onTaskRemoved();
               audioPlayerHandler.seek(Duration(microseconds: 0));
-              Navigator.of(context).pop();
               previousAudiobookInPlayId = -1;
+              mediaItems.clear();
+              Navigator.of(context).pop();
+
             });
           },
           child: const Padding(
@@ -201,7 +168,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   }
 
   Widget _body() {
-    if (dataIsLoading) {
+    if ((dataIsLoading) && (widget.audiobook.id != previousAudiobookInPlayId)) {
       return FutureBuilder(
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           if (snapshot.hasData) {
@@ -213,7 +180,16 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
         future: _initMediaItems(),
       );
     } else {
-      return _innerBody();
+      if(demoOfBookIsPlaying.of(context)) {
+        return _innerBody();
+      } else {
+        return FutureBuilder(
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            return _innerBody();
+          },
+          future: audioPlayerHandler.play(),
+        );
+      }
     }
   }
 

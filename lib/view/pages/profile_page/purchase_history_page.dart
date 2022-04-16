@@ -66,6 +66,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
       queryParameters: {'page': currentPage},
     );
 
+    print('11111111111111111111111');
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 
@@ -80,8 +81,6 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
       }
 
       setState(() {
-        dataIsLoading = false;
-
         refresh = false;
         loading = false;
 
@@ -92,6 +91,8 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
           _purchaseHistory.length,
           (index) => false,
         );
+
+        dataIsLoading = false;
       });
     }
 
@@ -369,7 +370,9 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
     );
 
 
-
+    // setState(() {
+    //   _paymentGateway = true;
+    // });
 
     payment.startPayment(_purchaseHistory[index].id.toString());
 
@@ -387,78 +390,47 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   void _handleIncomingLinks() {
     if (!kIsWeb) {
       _sub = uriLinkStream.listen((Uri? uri) {
-        ZarinPal().verificationPayment(
-            "OK", paymentRequest.authority!, paymentRequest, (
-            isPaymentSuccess,
-            refID,
-            paymentRequest,
-            ) {
-          if (isPaymentSuccess) {
-            print('111111111');
-            print('2 ${paymentRequest.authority}');
-            setState(() {
-              status = PaymentStatus.OK;
-
-              _paymentGateway = false;
-
-              _tayyd(paymentRequest.authority!, payment.statuss!);
-            });
-
-          } else {
-            print('222222222');
-            print('3 ${paymentRequest.authority}');
-            setState(() {
-              status = PaymentStatus.NOK;
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                customSnackBar(
-                  context,
-                  Ionicons.refresh_outline,
-                  'پرداخت موفقیت آمیز نبود. لطفاً دوباره امتحان کنید.',
-                  4,
-                ),
-              );
-            });
-          }
-        });
+        print(uri);
+        _tyayd(uri!.queryParameters);
       });
     }
   }
 
-  void _tayyd(String authority, int status) async {
-    var client = http.Client();
+  void _tyayd(Map<String, String> status) async {
     customDio = await CustomDio.dio.get(
       'dashboard/invoice_and_pay/callback',
-      queryParameters: {'Authority' : authority, 'Status': status,},
+      queryParameters: status,
     );
 
-
     if(customDio.statusCode == 200) {
-      showDialog(
-          context: context,
-          builder: (builder) {
-            return AlertDialog(
-              title: Text(
-                customDio.data.toString(),
-                style: TextStyle(color: Colors.greenAccent),
-              ),
-              actions: [
-                TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
-          });
+      customResponse = CustomResponse.fromJson(customDio.data);
+
+      setState(() {
+        dataIsLoading = true;
+      });
+
+      if(customResponse.data['data']['level'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          customSnackBar(
+            context,
+            Ionicons.checkmark_done_outline,
+            'پرداخت شما با موفقیت انجام شد.',
+            4,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          customSnackBar(
+            context,
+            Ionicons.refresh_outline,
+            'پرداخت شما با موفقیت انجام نشد.',
+            4,
+          ),
+        );
+      }
     }
-
-    print(authority);
-
-
-    print(customDio.data);
   }
+
 
   Future<void> _handleInitialUri() async {
     if (!initialUriIsHandled) {

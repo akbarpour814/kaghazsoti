@@ -64,13 +64,13 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage>
       }
 
       setState(() {
-        dataIsLoading = false;
-
         refresh = false;
         loading = false;
 
         _subcategoryBooks.clear();
         _subcategoryBooks.addAll(_subcategoryBooksTemp);
+
+        dataIsLoading = false;
       });
     }
 

@@ -48,12 +48,12 @@ class _FrequentlyAskedQuestionsPageState
       }
 
       setState(() {
-        dataIsLoading = false;
-
         displayOfDetails = List<bool>.generate(
           _frequentlyAskedQuestions.length,
           (index) => false,
         );
+
+        dataIsLoading = false;
       });
     }
 

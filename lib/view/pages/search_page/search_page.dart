@@ -65,13 +65,13 @@ class _SearchPageState extends State<SearchPage>
       }
 
       setState(() {
-        dataIsLoading = false;
-
         refresh = false;
         loading = false;
 
         _books.clear();
         _books.addAll(_booksTemp);
+
+        dataIsLoading = false;
       });
     }
 

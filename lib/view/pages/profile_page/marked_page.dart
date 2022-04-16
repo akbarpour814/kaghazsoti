@@ -54,13 +54,13 @@ class _MarkedPageState extends State<MarkedPage>
       }
 
       setState(() {
-        dataIsLoading = false;
-
         refresh = false;
         loading = false;
 
         _markedBooks.clear();
         _markedBooks.addAll(_markedBooksTemp);
+
+        dataIsLoading = false;
       });
     }
 

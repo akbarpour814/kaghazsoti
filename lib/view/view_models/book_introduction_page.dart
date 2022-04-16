@@ -76,14 +76,14 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
       setState(() {
         _book = Book.fromJson(customResponse.data);
 
-        dataIsLoading = false;
-
         _availableInBookCart = bookCartSlug.contains(_book.slug);
 
         displayOfDetails = List<bool>.generate(
           _book.reviews.length,
           (index) => false,
         );
+
+        dataIsLoading = false;
       });
     }
 

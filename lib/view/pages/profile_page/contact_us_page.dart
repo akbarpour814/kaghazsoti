@@ -51,9 +51,9 @@ class _ContactUsPageState extends State<ContactUsPage>
       customResponse = CustomResponse.fromJson(customDio.data);
 
       setState(() {
-        dataIsLoading = false;
-
         _firstTicket = TicketData.fromJson(customResponse.data['data'][0]);
+
+        dataIsLoading = false;
       });
     }
 
@@ -435,8 +435,6 @@ class _TicketsPageState extends State<TicketsPage>
       }
 
       setState(() {
-        dataIsLoading = false;
-
         refresh = false;
         loading = false;
 
@@ -447,6 +445,8 @@ class _TicketsPageState extends State<TicketsPage>
           _tickets.length,
           (index) => false,
         );
+
+        dataIsLoading = false;
       });
     }
 
