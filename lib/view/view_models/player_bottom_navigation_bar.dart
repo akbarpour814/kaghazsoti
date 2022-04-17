@@ -1,8 +1,10 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
 import '../audio_player_models/audiobook_player_page.dart';
 import '../audio_player_models/common.dart';
 import '../audio_player_models/progress_bar/custom_progress_bar.dart';
@@ -19,7 +21,7 @@ class PlayerBottomNavigationBar extends StatefulWidget {
       _PlayerBottomNavigationBarState();
 }
 
-class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
+class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> with InternetConnection {
   Stream<Duration> get _bufferedPositionStream =>
       audioPlayerHandler.playbackState
           .map((state) => state.bufferedPosition)
@@ -42,12 +44,32 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    if (demoOfBookIsPlaying.of(context)) {
-      return _demoOfBookIsPlaying(context);
-    } else if (audiobookIsPlaying.of(context)) {
-      return _audiobookIsPlaying(context);
+    if(connectionStatus == ConnectivityResult.none) {
+      if (demoOfBookIsPlaying.of(context)) {
+        return FutureBuilder(
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            return _notPlaying();
+          },
+          future: demoPlayer.stop(),
+        );
+      } else if (audiobookIsPlaying.of(context)) {
+        return FutureBuilder(
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            return _notPlaying();
+          },
+          future: audioPlayerHandler.stop(),
+        );
+      } else {
+        return _notPlaying();
+      }
     } else {
-      return _notPlaying();
+      if (demoOfBookIsPlaying.of(context)) {
+        return _demoOfBookIsPlaying(context);
+      } else if (audiobookIsPlaying.of(context)) {
+        return _audiobookIsPlaying(context);
+      } else {
+        return _notPlaying();
+      }
     }
   }
 

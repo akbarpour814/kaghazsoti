@@ -9,10 +9,13 @@ import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import 'package:kaghaze_souti/model/payment.dart';
 import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
 import 'package:sizer/sizer.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:zarinpal/zarinpal.dart';
+import '../../../model/payment.dart';
+import '../../../model/payment.dart';
 import '../../../model/payment.dart';
 import '../../view_models/custom_smart_refresher.dart';
 import '../../view_models/custom_snack_bar.dart';
@@ -40,7 +43,7 @@ class PurchaseHistoryPage extends StatefulWidget {
 }
 
 class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
-    with InternetConnection, LoadDataFromAPI, Refresher, DisplayOfDetails {
+    with InternetConnection, LoadDataFromAPI, Refresher, DisplayOfDetails, CustomVerificationPayment {
   late List<Purchase> _purchaseHistory;
   late List<Purchase> _purchaseHistoryTemp;
   late bool _paymentGateway;
@@ -48,15 +51,12 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   @override
   void initState() {
     super.initState();
-    _handleIncomingLinks();
-    _handleInitialUri();
 
+    _handleIncomingLinks();
 
     _purchaseHistory = [];
     _purchaseHistoryTemp = [];
     _paymentGateway = false;
-
-
   }
 
 
@@ -345,7 +345,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
         width: 100.0.w - (2 * 18.0) - (2 * 5.0.w),
         child: ElevatedButton.icon(
           onPressed: () {
-            _payment(index);
+            startPayment(_purchaseHistory[index], PurchaseHistoryPage.routeName);
           },
           label: const Text('خرید'),
           icon: const Icon(Ionicons.card_outline),
@@ -354,47 +354,15 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
     );
   }
 
-  late  Payment payment;
-  void _payment(int index) async {
-    String description = '';
-
-    for(int i = 0; i < _purchaseHistory[index].books.length; ++i) {
-      description += '${i + 1}- ${_purchaseHistory[index].books[i].name} \n';
-    }
-
-    payment = Payment(
-      amount: _purchaseHistory[index].finalPriceInt,
-      callbackURL: PurchaseHistoryPage.routeName,
-      description: description,
-    );
-
-
-    // setState(() {
-    //   _paymentGateway = true;
-    // });
-
-    payment.startPayment(_purchaseHistory[index].id.toString());
-
-  }
-
-  PaymentStatus? status;
-  StreamSubscription? _sub;
-
-  @override
-  void dispose() {
-    _sub?.cancel();
-    super.dispose();
-  }
-
   void _handleIncomingLinks() {
     if (!kIsWeb) {
-      _sub = uriLinkStream.listen((Uri? uri) {
-        _tyayd(uri!.queryParameters);
+      uriLinkStream2 = uriLinkStream.listen((Uri? uri) {
+        verificationPayment(uri!.queryParameters);
       });
     }
   }
 
-  void _tyayd(Map<String, String> status) async {
+  void verificationPayment(Map<String, String> status) async {
     customDio = await CustomDio.dio.get(
       'dashboard/invoice_and_pay/callback',
       queryParameters: status,
@@ -428,31 +396,5 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
       }
     }
   }
-
-
-  Future<void> _handleInitialUri() async {
-    if (!initialUriIsHandled) {
-      initialUriIsHandled = true;
-      try {
-        final uri = await getInitialUri();
-        if (uri == null) {
-          print('no initial uri');
-        } else {
-          print('got initial uri: $uri');
-        }
-        if (!mounted) return;
-      } on PlatformException {
-        print('failed to get initial uri');
-      } on FormatException catch (err) {
-        if (!mounted) return;
-        print('malformed initial uri, $err');
-      }
-    }
-  }
-
-  late String amount;
-
-
-
 
 }
