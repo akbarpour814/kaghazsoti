@@ -6,7 +6,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import '../audio_player_models/audiobook_player_page.dart';
-import '../audio_player_models/common.dart';
+import '../audio_player_models/show_slider_dialog.dart';
 import '../audio_player_models/progress_bar/custom_progress_bar.dart';
 import '/main.dart';
 import 'package:sizer/sizer.dart';
@@ -22,26 +22,6 @@ class PlayerBottomNavigationBar extends StatefulWidget {
 }
 
 class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> with InternetConnection {
-  Stream<Duration> get _bufferedPositionStream =>
-      audioPlayerHandler.playbackState
-          .map((state) => state.bufferedPosition)
-          .distinct();
-
-  Stream<Duration?> get _durationStream =>
-      audioPlayerHandler.mediaItem.map((item) => item?.duration).distinct();
-
-  Stream<PositionData> get _positionDataStream =>
-      Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
-        AudioService.position,
-        _bufferedPositionStream,
-        _durationStream,
-        (position, bufferedPosition, duration) => PositionData(
-          position,
-          bufferedPosition,
-          duration ?? Duration.zero,
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
     if(connectionStatus == ConnectivityResult.none) {
@@ -142,6 +122,14 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> w
               ),
             );
           } else if (playing != true) {
+            return InkWell(
+              child: const Icon(
+                Ionicons.play_outline,
+                color: Colors.white,
+              ),
+              onTap: demoPlayer.play,
+            );
+          } else if(processingState == ProcessingState.completed) {
             return InkWell(
               child: const Icon(
                 Ionicons.play_outline,

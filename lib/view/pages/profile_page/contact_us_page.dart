@@ -661,8 +661,8 @@ class _TicketViewState extends State<TicketView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: List<Text>.generate(
                           widget.ticketData.answers.length,
-                          (commentIndex) => Text(
-                            '${commentIndex + 1}- ${widget.ticketData.answers[commentIndex]}',
+                          (ticketIndex) => Text(
+                            '${ticketIndex + 1}- ${widget.ticketData.answers[ticketIndex]}',
                             textAlign: TextAlign.start,
                           ),
                         ),

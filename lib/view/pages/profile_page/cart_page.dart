@@ -39,6 +39,8 @@ class _CartPageState extends State<CartPage>
   late Map<String, Book> _bookCartTemp;
   late bool _purchaseInvoiceWasIssued;
   Purchase? _purchaseInvoice;
+  late bool _paymentGateway;
+  late bool _showButtons;
 
   @override
   void initState() {
@@ -48,10 +50,11 @@ class _CartPageState extends State<CartPage>
 
     _bookCartSlug = [];
     _bookCartSlug.addAll(bookCartSlug);
-
     _bookCart = [];
     _bookCartTemp = {};
     _purchaseInvoiceWasIssued = false;
+    _paymentGateway = false;
+    _showButtons = true;
   }
 
   Future _initCart() async {
@@ -86,7 +89,7 @@ class _CartPageState extends State<CartPage>
       bottomNavigationBar: playerBottomNavigationBar,
       floatingActionButton: (_bookCartSlug.isNotEmpty) &&
               (connectionStatus != ConnectivityResult.none) &&
-              (!dataIsLoading)
+              (!dataIsLoading) && (_showButtons)
           ? ((_purchaseInvoiceWasIssued)
               ? _paymentButton()
               : _issuanceOfPurchaseInvoiceButton())
@@ -121,7 +124,9 @@ class _CartPageState extends State<CartPage>
   }
 
   Widget _body() {
-    if (dataIsLoading) {
+    if(_paymentGateway) {
+      return const Center(child: CustomCircularProgressIndicator());
+    } else if (dataIsLoading) {
       return FutureBuilder(
         future: _initCart(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -448,9 +453,14 @@ class _CartPageState extends State<CartPage>
     return SizedBox(
       width: 100.0.w - (2 * 5.0.w),
       child: ElevatedButton.icon(
-        onPressed: () {
+        onPressed: () async {
           if (!dataIsLoading) {
             startPayment(_purchaseInvoice!, CartPage.routeName);
+
+            setState(() {
+              _showButtons = false;
+              _paymentGateway = true;
+            });
           }
         },
         label: const Text('ادامه خرید'),
@@ -478,6 +488,7 @@ class _CartPageState extends State<CartPage>
 
       setState(() {
         dataIsLoading = true;
+        _paymentGateway = false;
       });
 
       if(customResponse.data['data']['level'] == 'success') {
@@ -506,7 +517,7 @@ class _CartPageState extends State<CartPage>
         customSnackBar(
           context,
           Ionicons.call_outline,
-          'پرداخت ناموفق! لطفاً با ما تماس بگیرید.',
+          'خرید ناموفق! لطفاً با ما تماس بگیرید.',
           4,
         ),
       );

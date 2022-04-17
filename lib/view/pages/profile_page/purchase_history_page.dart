@@ -131,22 +131,18 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   }
 
   Widget _body() {
-    if (dataIsLoading) {
+    if(_paymentGateway) {
+      return const Center(child: CustomCircularProgressIndicator());
+    } else if (dataIsLoading) {
       return FutureBuilder(
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           if (snapshot.hasData) {
             return _innerBody();
           } else {
-            return const Center(
-              child: CustomCircularProgressIndicator(),
-            );
+            return const Center(child: CustomCircularProgressIndicator());
           }
         },
         future: _initPurchaseHistory(),
-      );
-    } else if(_paymentGateway) {
-      return const Center(
-        child: CustomCircularProgressIndicator(),
       );
     } else {
       return _innerBody();
@@ -346,6 +342,10 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
         child: ElevatedButton.icon(
           onPressed: () {
             startPayment(_purchaseHistory[index], PurchaseHistoryPage.routeName);
+
+            setState(() {
+              _paymentGateway = true;
+            });
           },
           label: const Text('خرید'),
           icon: const Icon(Ionicons.card_outline),
@@ -373,6 +373,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
 
       setState(() {
         dataIsLoading = true;
+        _paymentGateway = false;
       });
 
       if(customResponse.data['data']['level'] == 'success') {

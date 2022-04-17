@@ -22,7 +22,7 @@ import '../../controller/custom_dio.dart';
 import '../../main.dart';
 import '../../model/book_introduction.dart';
 import '../view_models/no_internet_connection.dart';
-import 'common.dart';
+import 'show_slider_dialog.dart';
 
 import 'package:rxdart/rxdart.dart';
 
@@ -43,21 +43,6 @@ class AudiobookPlayerPage extends StatefulWidget {
 
 class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     with InternetConnection, LoadDataFromAPI {
-  Stream<Duration> get _bufferedPositionStream =>
-      audioPlayerHandler.playbackState
-          .map((state) => state.bufferedPosition)
-          .distinct();
-
-  Stream<Duration?> get _durationStream =>
-      audioPlayerHandler.mediaItem.map((item) => item?.duration).distinct();
-
-  Stream<PositionData> get _positionDataStream =>
-      Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
-          AudioService.position,
-          _bufferedPositionStream,
-          _durationStream,
-          (position, bufferedPosition, duration) => PositionData(
-              position, bufferedPosition, duration ?? Duration.zero));
 
   @override
   void initState() {
@@ -94,8 +79,6 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
               ),
             );
           }
-
-
 
           previousAudiobookInPlayId = widget.audiobook.id;
 

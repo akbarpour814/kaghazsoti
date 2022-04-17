@@ -274,6 +274,15 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                         child: const Icon(Ionicons.play_outline),
                         onPressed: demoPlayer.play,
                       );
+                    } else if(processingState == ProcessingState.completed) {
+                      demoOfBookIsPlaying.$ = false;
+                      demoInPlayId = -1;
+                      demoPlayer.stop();
+
+                      return FloatingActionButton(
+                        child: const Icon(Ionicons.play_outline),
+                        onPressed: demoPlayer.play,
+                      );
                     } else {
                       return FloatingActionButton(
                         child: const Icon(Ionicons.pause_outline),
@@ -549,7 +558,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
           ),
           Visibility(
-            visible: _book.numberOfPages != '',
+            visible: _book.numberOfPages.isNotEmpty,
             child: Property(
               property: 'تعداد صفحات',
               value: _book.numberOfPages.toString(),
