@@ -6,7 +6,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'audio_player_handler.dart';
-import 'media_library.dart';
 import 'queue_state.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:audio_session/audio_session.dart';

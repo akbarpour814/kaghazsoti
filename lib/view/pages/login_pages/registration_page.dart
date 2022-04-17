@@ -1,10 +1,15 @@
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:persian_number_utility/persian_number_utility.dart';
 import 'package:sizer/sizer.dart';
+import '../../../controller/prepare_to_login_app.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/view/pages/login_pages/splash_page.dart';
 import '../../../controller/custom_response.dart';
 import '../../../controller/custom_dio.dart';
@@ -23,28 +28,31 @@ class RegistrationPage extends StatefulWidget {
   _RegistrationPageState createState() => _RegistrationPageState();
 }
 
-class _RegistrationPageState extends State<RegistrationPage> {
-  TextEditingController _firstAndLastNameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _phoneNumberController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _repeatPasswordController = TextEditingController();
-
+class _RegistrationPageState extends State<RegistrationPage> with InternetConnection, LoadDataFromAPI {
+  late TextEditingController _firstAndLastNameController;
   String? _firstAndLastNameError;
+  late TextEditingController _emailController;
   String? _emailError;
+  late TextEditingController _phoneNumberController;
   String? _phoneNumberError;
+  late TextEditingController _passwordController;
   String? _passwordError;
+  late TextEditingController _repeatPasswordController;
   String? _repeatPasswordError;
-
   late bool _registeredInformation;
   late bool _obscureText;
 
   @override
   void initState() {
+    super.initState();
+
+    _firstAndLastNameController = TextEditingController();
+    _emailController = TextEditingController();
+    _phoneNumberController = TextEditingController();
+    _passwordController = TextEditingController();
+    _repeatPasswordController = TextEditingController();
     _registeredInformation = false;
     _obscureText = true;
-
-    super.initState();
   }
 
   @override
@@ -81,28 +89,34 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Widget _body() {
-    return Center(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 5.0.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(bottom: 5.0.h),
-                child: _permissionToObscureText(),
-              ),
-              _firstAndLastName(),
-              _email(),
-              _phoneNumber(),
-              _password(),
-              _repeatPassword(),
-              _informationRegistrationButton(),
-            ],
+    if (connectionStatus == ConnectivityResult.none) {
+      return const Center(
+        child: NoInternetConnection(),
+      );
+    } else {
+      return Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5.0.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(bottom: 5.0.h),
+                  child: _permissionToObscureText(),
+                ),
+                _firstAndLastName(),
+                _email(),
+                _phoneNumber(),
+                _password(),
+                _repeatPassword(),
+                _informationRegistrationButton(),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Row _permissionToObscureText() {
@@ -117,7 +131,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
             },
             value: _obscureText,
             activeColor:
-            _obscureText ? Theme.of(context).primaryColor : Colors.grey,
+                _obscureText ? Theme.of(context).primaryColor : Colors.grey,
           ),
         ),
         Flexible(
@@ -126,7 +140,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
               text: _obscureText ? 'عدم نمایش رمز' : 'نمایش رمز',
               style: TextStyle(
                 color:
-                _obscureText ? Theme.of(context).primaryColor : Colors.grey,
+                    _obscureText ? Theme.of(context).primaryColor : Colors.grey,
                 fontFamily: fontFamily,
               ),
             ),
@@ -151,7 +165,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _firstAndLastNameError = UserInformationFormatCheck.checkFirstAndLastNameFormat(_firstAndLastNameController, null);
+            _firstAndLastNameError =
+                UserInformationFormatCheck.checkFirstAndLastNameFormat(
+                    _firstAndLastNameController, null);
           });
         },
       ),
@@ -173,7 +189,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _emailError = UserInformationFormatCheck.checkEmailFormat(_emailController, null);
+            _emailError = UserInformationFormatCheck.checkEmailFormat(
+                _emailController, null);
           });
         },
       ),
@@ -196,7 +213,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-            _phoneNumberError = UserInformationFormatCheck.checkPhoneNumberFormat(_phoneNumberController, null);
+            _phoneNumberError =
+                UserInformationFormatCheck.checkPhoneNumberFormat(
+                    _phoneNumberController, null);
           });
         },
       ),
@@ -219,7 +238,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-             _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, null);
+            _passwordError = UserInformationFormatCheck.checkPasswordFormat(
+                _passwordController, null);
           });
         },
       ),
@@ -242,7 +262,9 @@ class _RegistrationPageState extends State<RegistrationPage> {
         ),
         onChanged: (String text) {
           setState(() {
-             _repeatPasswordError = UserInformationFormatCheck.checkPasswordFormat(_repeatPasswordController, null);
+            _repeatPasswordError =
+                UserInformationFormatCheck.checkPasswordFormat(
+                    _repeatPasswordController, null);
           });
         },
       ),
@@ -257,7 +279,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         child: ElevatedButton.icon(
           onPressed: () {
             setState(() {
-              if(_passwordController.text != _repeatPasswordController.text) {
+              if (_passwordController.text != _repeatPasswordController.text) {
                 _repeatPasswordError = 'لطفاً رمز عبور جدید را تکرار کنید.';
               } else {
                 _informationRegistration();
@@ -272,58 +294,87 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   void _informationRegistration() async {
-    _firstAndLastNameError = UserInformationFormatCheck.checkFirstAndLastNameFormat(_firstAndLastNameController, 'لطفاً نام و نام خوانوادگی خود را وارد کنید.',);
-    _emailError = UserInformationFormatCheck.checkEmailFormat(_emailController, 'لطفاً ایمیل خود را وارد کنید.',);
-    _phoneNumberError= UserInformationFormatCheck.checkPhoneNumberFormat(_phoneNumberController, 'لطفاً شماره تلفن همراه خود را وارد کنید.',);
-    _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, 'لطفاً رمز عبور را وارد کنید.',);
-    _repeatPasswordError = UserInformationFormatCheck.checkPasswordFormat(_repeatPasswordController, 'لطفاً رمز عبور را تکرار کنید.',);
+    _firstAndLastNameError =
+        UserInformationFormatCheck.checkFirstAndLastNameFormat(
+      _firstAndLastNameController,
+      'لطفاً نام و نام خوانوادگی خود را وارد کنید.',
+    );
+    _emailError = UserInformationFormatCheck.checkEmailFormat(
+      _emailController,
+      'لطفاً ایمیل خود را وارد کنید.',
+    );
+    _phoneNumberError = UserInformationFormatCheck.checkPhoneNumberFormat(
+      _phoneNumberController,
+      'لطفاً شماره تلفن همراه خود را وارد کنید.',
+    );
+    _passwordError = UserInformationFormatCheck.checkPasswordFormat(
+      _passwordController,
+      'لطفاً رمز عبور را وارد کنید.',
+    );
+    _repeatPasswordError = UserInformationFormatCheck.checkPasswordFormat(
+      _repeatPasswordController,
+      'لطفاً رمز عبور را تکرار کنید.',
+    );
 
-    if(_firstAndLastNameError == null && _emailError == null && _phoneNumberError == null && _passwordError == null && _repeatPasswordError == null) {
-
+    if ((_firstAndLastNameError == null )&&
+        (_emailError == null) &&
+        (_phoneNumberError == null) &&
+        (_passwordError == null) &&
+        (_repeatPasswordError == null)) {
       var client = http.Client();
       try {
-        http.Response response = await client.post(Uri.parse('https://kaghazsoti.uage.ir/api/register'), body: {
-          'name': _firstAndLastNameController.text,
-          'email': _emailController.text,
-          'username': _phoneNumberController.text,
-          'password': _passwordController.text,
-          'password_confirmation': _repeatPasswordController.text
-        },);
+        http.Response response = await client.post(
+          Uri.parse('https://kaghazsoti.uage.ir/api/register'),
+          body: {
+            'name': _firstAndLastNameController.text,
+            'email': _emailController.text,
+            'username': _phoneNumberController.text,
+            'password': _passwordController.text,
+            'password_confirmation': _repeatPasswordController.text
+          },
+        );
 
-        print(response.statusCode);
-        print(jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>);
+        Map<String, dynamic> _data =
+            jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
 
-        Map<String, dynamic> _data = jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
+        if (response.statusCode == 200) {
+          if (_data['success']) {
+            Response<dynamic> _customDio = await Dio().post(
+              'https://kaghazsoti.uage.ir/api/login',
+              data: {
+                'email': _emailController.text,
+                'password': _passwordController.text
+              },
+            );
 
-        if(response.statusCode == 200) {
-
-
-          if(_data['success']) {
-            Response<dynamic> _customDio = await Dio().post('https://kaghazsoti.uage.ir/api/login', data: {'email' : _emailController.text, 'password' : _passwordController.text},);
-
-            if(_customDio.statusCode == 200) {
-              CustomResponse _customResponse = CustomResponse.fromJson(_customDio.data);
-
-
+            if (_customDio.statusCode == 200) {
+              CustomResponse _customResponse =
+                  CustomResponse.fromJson(_customDio.data);
 
               tokenLogin.$ = _customResponse.data['token'];
-              await sharedPreferences.setString('tokenLogin', _customResponse.data['token']);
+              await sharedPreferences.setString(
+                  'tokenLogin', _customResponse.data['token']);
               await sharedPreferences.setBool('firstLogin', false);
 
               headers = {
-                'Authorization' : 'Bearer ${tokenLogin.of(context)}',
+                'Authorization': 'Bearer ${tokenLogin.of(context)}',
                 'Accept': 'application/json',
-                'client': 'api'};
+                'client': 'api'
+              };
 
-              preparation();
+              prepareToLoginApp();
 
               setState(() {
-
                 _registeredInformation = _customResponse.success;
 
                 if (_registeredInformation) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    customSnackBar(context, Ionicons.checkmark_done_outline, 'به کاغذ صوتی خوش آمدید.', 2,),
+                    customSnackBar(
+                      context,
+                      Ionicons.checkmark_done_outline,
+                      'به کاغذ صوتی خوش آمدید.',
+                      2,
+                    ),
                   );
                 }
 
@@ -331,7 +382,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const PersistentBottomNavigationBar(),
+                      builder: (context) =>
+                          const PersistentBottomNavigationBar(),
                     ),
                   );
                 });
@@ -343,106 +395,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 _repeatPasswordController = TextEditingController();
               });
             }
-
-          } else {
-            print('1234');
-            // if(_customResponse.data['']) {
-            //
-            // }
-          }
-
-
+          } else {}
         } else {
-         setState(() {
-           print('1');
-           if((_data['message'])['username'] != null) {
-             print('2');
-             _phoneNumberError = 'حساب کاربری با شماره تلفن وارد شده وجود دارد.';
-           }
+          setState(() {
+            if ((_data['message'])['username'] != null) {
+              _phoneNumberError =
+                  'حساب کاربری با شماره تلفن وارد شده وجود دارد.';
+            }
 
-           if((_data['message'])['email'] != null) {
-             print('3');
-             _emailError = 'حساب کاربری با ایمیل وارد شده وجود دارد.';
-           }
-         });
+            if ((_data['message'])['email'] != null) {
+              _emailError = 'حساب کاربری با ایمیل وارد شده وجود دارد.';
+            }
+          });
         }
-
       } finally {
         client.close();
       }
-
-/*      Response<dynamic> _customDio = await Dio().post(
-        'https://kaghazsoti.uage.ir/api/register',
-        data: {
-          'name': _firstAndLastNameController.text,
-          'email': _emailController.text,
-          'username': _phoneNumberController.text,
-          'password': _passwordController.text,
-          'password_confirmation': _repeatPasswordController.text
-        },
-      );
-
-      print(_customDio.data);
-      print('---------------------------------------------------');
-
-      if(_customDio.statusCode == 200) {
-        Map<String, dynamic> _data = _customDio.data;
-
-        if(_data['success']) {
-         _customDio = await Dio().post('https://kaghazsoti.uage.ir/api/login', data: {'email' : _emailController.text, 'password' : _passwordController.text},);
-
-         if(_customDio.statusCode == 200) {
-           CustomResponse _customResponse = CustomResponse.fromJson(_customDio.data);
-
-
-
-           tokenLogin.$ = _customResponse.data['token'];
-           await sharedPreferences.setString('tokenLogin', _customResponse.data['token']);
-           await sharedPreferences.setBool('firstLogin', false);
-
-           headers = {
-             'Authorization' : 'Bearer ${tokenLogin.of(context)}',
-             'Accept': 'application/json',
-             'client': 'api'};
-
-           preparation();
-
-           setState(() {
-
-             _registeredInformation = _customResponse.success;
-
-             if (_registeredInformation) {
-               ScaffoldMessenger.of(context).showSnackBar(
-                 customSnackBar(context, Ionicons.checkmark_done_outline, 'خوش آمدید.', 2,),
-               );
-             }
-
-             Future.delayed(const Duration(seconds: 3), () {
-               Navigator.pushReplacement(
-                 context,
-                 MaterialPageRoute(
-                   builder: (context) => const PersistentBottomNavigationBar(),
-                 ),
-               );
-             });
-
-             _firstAndLastNameController = TextEditingController();
-             _emailController = TextEditingController();
-             _phoneNumberController = TextEditingController();
-             _passwordController = TextEditingController();
-             _repeatPasswordController = TextEditingController();
-           });
-         }
-
-       } else {
-          print('1234');
-          // if(_customResponse.data['']) {
-          //
-          // }
-        }
-
-
-      }*/
     }
   }
 }

@@ -66,7 +66,6 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
       queryParameters: {'page': currentPage},
     );
 
-    print('11111111111111111111111');
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 
@@ -390,7 +389,6 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   void _handleIncomingLinks() {
     if (!kIsWeb) {
       _sub = uriLinkStream.listen((Uri? uri) {
-        print(uri);
         _tyayd(uri!.queryParameters);
       });
     }

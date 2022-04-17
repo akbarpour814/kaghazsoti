@@ -164,9 +164,6 @@ class _MyBookState extends State<MyBook> {
     return InkWell(
       onTap: () {
         if (widget.book.id != previousAudiobookInPlayId) {
-          print('xxxxxxxxxxx');
-          print(widget.book.id);
-          print(previousAudiobookInPlayId);
           audioPlayerHandler.onTaskRemoved();
           audioPlayerHandler.seek(Duration(microseconds: 0));
 

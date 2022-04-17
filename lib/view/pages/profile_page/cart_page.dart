@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import '../../../controller/load_data_from_api.dart';
@@ -30,6 +31,7 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage>
     with InternetConnection, LoadDataFromAPI {
+  late List<String> _bookCartSlug;
   late List<Book> _bookCart;
   late Map<String, Book> _bookCartTemp;
   late bool _purchaseInvoiceWasIssued;
@@ -38,6 +40,9 @@ class _CartPageState extends State<CartPage>
   @override
   void initState() {
     super.initState();
+
+    _bookCartSlug = [];
+    _bookCartSlug.addAll(bookCartSlug);
 
     _bookCart = [];
     _bookCartTemp = {};
@@ -48,13 +53,13 @@ class _CartPageState extends State<CartPage>
     if (dataIsLoading) {
       _bookCartTemp.clear();
 
-      for (int i = 0; i < bookCartSlug.length; ++i) {
-        customDio = await CustomDio.dio.post('books/${bookCartSlug[i]}');
+      for (int i = 0; i < _bookCartSlug.length; ++i) {
+        customDio = await CustomDio.dio.post('books/${_bookCartSlug[i]}');
 
         if (customDio.statusCode == 200) {
           customResponse = CustomResponse.fromJson(customDio.data);
 
-          _bookCartTemp[bookCartSlug[i]] = Book.fromJson(customResponse.data);
+          _bookCartTemp[_bookCartSlug[i]] = Book.fromJson(customResponse.data);
         }
       }
 
@@ -74,7 +79,7 @@ class _CartPageState extends State<CartPage>
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
-      floatingActionButton: (bookCartSlug.isNotEmpty) &&
+      floatingActionButton: (_bookCartSlug.isNotEmpty) &&
               (connectionStatus != ConnectivityResult.none) &&
               (!dataIsLoading)
           ? ((_purchaseInvoiceWasIssued)
@@ -101,13 +106,9 @@ class _CartPageState extends State<CartPage>
             ),
           ),
           onTap: () {
-            setState(() {
-              if (_purchaseInvoiceWasIssued) {
-                bookCartSlug.clear();
-              }
 
               Navigator.of(context).pop();
-            });
+
           },
         ),
       ],
@@ -122,10 +123,7 @@ class _CartPageState extends State<CartPage>
           if (snapshot.hasData) {
             return _innerBody();
           } else {
-            return Center(
-              child: CustomCircularProgressIndicator(
-              ),
-            );
+            return Center(child: CustomCircularProgressIndicator());
           }
         },
       );
@@ -152,7 +150,7 @@ class _CartPageState extends State<CartPage>
 
           return _initCart();
         },
-        child: bookCartSlug.isEmpty
+        child: _bookCartSlug.isEmpty
             ? const Center(
                 child: Text('محصولی در سبد خرید شما وجود ندارد.'),
               )
@@ -290,6 +288,7 @@ class _CartPageState extends State<CartPage>
           _bookCart[index].name,
           style: TextStyle(
             fontSize: Theme.of(context).textTheme.bodySmall!.fontSize,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         subtitle: Text(
@@ -337,11 +336,12 @@ class _CartPageState extends State<CartPage>
   void _bookRemove(int index) async {
     setState(() {
       bookCartSlug.remove(_bookCart[index].slug);
+      _bookCartSlug.remove(_bookCart[index].slug);
 
       _bookCart.removeAt(index);
     });
 
-    await sharedPreferences.setStringList('bookCartSlug', bookCartSlug);
+    await sharedPreferences.setStringList('bookCartSlug', _bookCartSlug);
   }
 
   Widget _prices() {
@@ -431,9 +431,11 @@ class _CartPageState extends State<CartPage>
         _purchaseInvoice = Purchase.fromJson(customResponse.data);
 
         _purchaseInvoiceWasIssued = true;
+
+        bookCartSlug.clear();
       });
 
-      await sharedPreferences.setStringList('cartSlug', []);
+      await sharedPreferences.setStringList('bookCartSlug', []);
     }
   }
 

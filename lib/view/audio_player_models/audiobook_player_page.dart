@@ -74,10 +74,6 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
 
     if (customDio.statusCode == 200) {
       if (widget.audiobook.id != previousAudiobookInPlayId) {
-        print('yyyyyyyy');
-        print(widget.audiobook.id);
-        print(previousAudiobookInPlayId);
-
         setState(() {
           for (Map<String, dynamic> mediaItem in customDio.data['data']) {
             mediaItems.add(

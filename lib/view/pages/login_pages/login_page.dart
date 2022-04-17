@@ -1,6 +1,11 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import '../../../controller/prepare_to_login_app.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/controller/custom_response.dart';
 import '/view/pages/login_pages/password_recovery_page.dart';
 import '/view/pages/login_pages/registration_page.dart';
@@ -19,27 +24,25 @@ class LoginPage extends StatefulWidget {
   _LoginPageState createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
-  late  bool _internetConnectionChecker;
-  late Response<dynamic> _customDio;
-  late CustomResponse _customResponse;
-  final TextEditingController _emailOrPhoneNumberController = TextEditingController();
+class _LoginPageState extends State<LoginPage>
+    with TickerProviderStateMixin, InternetConnection, LoadDataFromAPI {
+  late TextEditingController _emailOrPhoneNumberController;
   String? _emailOrPhoneNumberError;
-  final TextEditingController _passwordController = TextEditingController();
+  late TextEditingController _passwordController;
   String? _passwordError;
-
   late bool _loginPermission;
   late bool _emailOrPhoneNumber;
   late bool _obscureText;
 
-
   @override
   void initState() {
+    super.initState();
+
+    _emailOrPhoneNumberController = TextEditingController();
+    _passwordController = TextEditingController();
     _loginPermission = false;
     _emailOrPhoneNumber = true;
     _obscureText = true;
-
-    super.initState();
   }
 
   @override
@@ -52,41 +55,46 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   Widget _body() {
-    return Center(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _appTitle(),
-              //_emailOrPhoneNumberSelect(),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 5.0.h),
-                child: Column(
-                  children: [
-                    _emailOrPhoneNumberTextField(),
-                    _password(),
-                  ],
+    if (connectionStatus == ConnectivityResult.none) {
+      return const Center(
+        child: NoInternetConnection(),
+      );
+    } else {
+      return Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _appTitle(),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 5.0.h),
+                  child: Column(
+                    children: [
+                      _emailOrPhoneNumberTextField(),
+                      _password(),
+                    ],
+                  ),
                 ),
-              ),
-              _informationConfirmButton(),
-              Container(
-                margin: EdgeInsets.only(top: 15.0.h),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _forgotPasswordButton(),
-                    _registrationButton(),
-                  ],
+                _informationConfirmButton(),
+                Container(
+                  margin: EdgeInsets.only(top: 15.0.h),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _forgotPasswordButton(),
+                      _registrationButton(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Padding _appTitle() {
@@ -104,54 +112,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     );
   }
 
-  Row _emailOrPhoneNumberSelect() {
-    return Row(
-      children: [
-        Flexible(
-          child: Checkbox(
-            onChanged: (bool? value) {
-              setState(() {
-                if (!_loginPermission) {
-                  _emailOrPhoneNumber = _emailOrPhoneNumber ? false : true;
-                }
-              });
-            },
-            value: true,
-            activeColor: _emailOrPhoneNumber
-                ? Theme.of(context).primaryColor
-                : Colors.grey,
-          ),
-        ),
-        Flexible(
-          child: RichText(
-            text: TextSpan(
-              text: 'ایمیل ',
-              style: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontFamily: fontFamily,
-              ),
-              children: const <TextSpan>[
-                TextSpan(
-                  text: 'یا ',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextSpan(
-                  text: 'تلفن همراه',
-                  style: TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   Padding _emailOrPhoneNumberTextField() {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
@@ -162,7 +122,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         maxLength: _emailOrPhoneNumber ? null : 11,
         decoration: InputDecoration(
           helperText: _emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه',
-          hintText: 'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
+          hintText:
+              'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
           errorText: _emailOrPhoneNumberError,
           suffixIcon: Icon(
             _emailOrPhoneNumber
@@ -172,10 +133,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         ),
         onChanged: (String text) {
           setState(() {
-            _emailOrPhoneNumberError = UserInformationFormatCheck.checkEmailFormat(
+            _emailOrPhoneNumberError =
+                UserInformationFormatCheck.checkEmailFormat(
               _emailOrPhoneNumberController,
               null,
-            );;
+            );
+            ;
           });
         },
       ),
@@ -194,15 +157,22 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           helperText: 'رمز عبور',
           hintText: 'لطفاً رمز عبور را وارد کنید.',
           errorText: _passwordError,
-          suffixIcon: InkWell(onTap: () {
-            setState(() {
-              _obscureText = _obscureText ? false : true;
-            });
-          }, child: Icon(_obscureText ? Ionicons.eye_off_outline : Ionicons.eye_outline),),
+          suffixIcon: InkWell(
+            onTap: () {
+              setState(() {
+                _obscureText = _obscureText ? false : true;
+              });
+            },
+            child: Icon(
+                _obscureText ? Ionicons.eye_off_outline : Ionicons.eye_outline),
+          ),
         ),
         onChanged: (String text) {
           setState(() {
-            _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, null,);
+            _passwordError = UserInformationFormatCheck.checkPasswordFormat(
+              _passwordController,
+              null,
+            );
           });
         },
       ),
@@ -227,79 +197,82 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void _informationConfirm() async {
     _emailOrPhoneNumberError = UserInformationFormatCheck.checkEmailFormat(
       _emailOrPhoneNumberController,
-        'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
+      'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
+    );
+    _passwordError = UserInformationFormatCheck.checkPasswordFormat(
+      _passwordController,
+      'لطفاً رمز عبور را وارد کنید.',
     );
 
-    _passwordError = UserInformationFormatCheck.checkPasswordFormat(_passwordController, 'لطفاً رمز عبور را وارد کنید.',);
+    if ((_emailOrPhoneNumberError == null) && (_passwordError == null)) {
+      try {
+        customDio = await Dio().post(
+          'https://kaghazsoti.uage.ir/api/login',
+          data: {
+            'email': _emailOrPhoneNumberController.text,
+            'password': _passwordController.text
+          },
+        );
 
-    if((_emailOrPhoneNumberError == null) && (_passwordError == null)) {
-     try {
-       _customDio = await Dio().post('https://kaghazsoti.uage.ir/api/login', data: {'email' : _emailOrPhoneNumberController.text, 'password' : _passwordController.text},);
+        if (customDio.statusCode == 200) {
+          customResponse = CustomResponse.fromJson(customDio.data);
 
-       if(_customDio.statusCode == 200) {
-         _customResponse = CustomResponse.fromJson(_customDio.data);
+          _loginPermission = true;
 
-         _loginPermission = true;
+          if (customResponse.success) {
+            _emailOrPhoneNumberError = null;
+            _passwordError = null;
 
-         if(_customResponse.success) {
-           _emailOrPhoneNumberError = null;
-           _passwordError = null;
+            await sharedPreferences.setString(
+                'tokenLogin', customResponse.data['token']);
+            await sharedPreferences.setBool('firstLogin', false);
+            setState(() {
+              tokenLogin.$ = customResponse.data['token'];
 
+              headers = {
+                'Authorization': 'Bearer ${tokenLogin.of(context)}',
+                'Accept': 'application/json',
+                'client': 'api'
+              };
+            });
 
-           await sharedPreferences.setString('tokenLogin', _customResponse.data['token']);
-           await sharedPreferences.setBool('firstLogin', false);
-           setState(() {
+            prepareToLoginApp();
 
-             tokenLogin.$ = _customResponse.data['token'];
+            ScaffoldMessenger.of(context).showSnackBar(
+              customSnackBar(
+                context,
+                Ionicons.checkmark_done_outline,
+                'به کاغذ صوتی خوش آمدید.',
+                2,
+              ),
+            );
 
-             headers = {
-               'Authorization' : 'Bearer ${tokenLogin.of(context)}',
-               'Accept': 'application/json',
-               'client': 'api'};
-           });
+            Future.delayed(const Duration(seconds: 3), () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PersistentBottomNavigationBar(),
+                ),
+              );
+            });
+          } else {
+            setState(() {
+              _emailOrPhoneNumberError = 'کاربری با ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} وارد شده یافت نشد.';
+              _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
-           preparation();
+              _loginPermission = false;
+            });
+          }
+        }
+      } catch (e) {
+        setState(() {
+          _emailOrPhoneNumberError = 'کاربری با ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} وارد شده یافت نشد.';
+          _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
-           ScaffoldMessenger.of(context).showSnackBar(
-             customSnackBar(
-               context,
-               Ionicons.checkmark_done_outline,
-               'به کاغذ صوتی خوش آمدید.',
-               2,
-             ),
-           );
-
-           Future.delayed(const Duration(seconds: 3), () {
-             Navigator.pushReplacement(
-               context,
-               MaterialPageRoute(
-                 builder: (context) => const PersistentBottomNavigationBar(),
-               ),
-             );
-           });
-
-         } else {
-           setState(() {
-             _emailOrPhoneNumberError = 'کاربری با ایمیل وارد شده یافت نشد.';
-             _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
-
-             _loginPermission = false;
-           });
-         }
-       }
-     } catch(e) {
-       setState(() {
-         _emailOrPhoneNumberError = 'کاربری با ایمیل وارد شده یافت نشد.';
-         _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
-
-         _loginPermission = false;
-       });
-     }
+          _loginPermission = false;
+        });
+      }
     }
-
-
-    
-
   }
 
   SizedBox _forgotPasswordButton() {

@@ -1,6 +1,11 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:shared_value/shared_value.dart';
+import '../../../controller/prepare_to_login_app.dart';
+import '../../view_models/no_internet_connection.dart';
 import '/view/view_models/custom_circular_progress_indicator.dart';
 import '../../../controller/custom_dio.dart';
 import '../../../controller/custom_response.dart';
@@ -12,8 +17,7 @@ import 'package:sizer/sizer.dart';
 import '/main.dart';
 
 late Map<String, String> headers;
-
-SharedValue<String> tokenLogin = SharedValue(value: '73|OfDRVAaeA7KgE0uhZyrO83qaMkGP73lW6E2xdVTR');
+SharedValue<String> tokenLogin = SharedValue(value: '');
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -22,76 +26,41 @@ class SplashPage extends StatefulWidget {
   _SplashPageState createState() => _SplashPageState();
 }
 
-late bool firstLogin;
-late Response<dynamic> customDio;
-late CustomResponse customResponse;
-class _SplashPageState extends State<SplashPage> {
-
-  late bool _dataIsLoading;
-
-
-
-  @override
-  void initState() {
-    _dataIsLoading = true;
-
-
-    super.initState();
-  }
-
+class _SplashPageState extends State<SplashPage> with InternetConnection, LoadDataFromAPI {
+  late bool _firstLogin;
 
   Future _loginStep() async {
-
     sharedPreferences = await SharedPreferences.getInstance();
 
     bookCartSlug = sharedPreferences.getStringList('bookCartSlug') ?? [];
-    print(bookCartSlug);
 
-    firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
-    print(firstLogin);
+    _firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
 
     customDio = await Dio().post('https://kaghazsoti.uage.ir/api/categories');
-    print(customDio.statusCode);
 
-    if(!firstLogin) {
-
-      tokenLogin.$ = await sharedPreferences.getString('tokenLogin') ?? '73|OfDRVAaeA7KgE0uhZyrO83qaMkGP73lW6E2xdVTR';
+    if (!_firstLogin) {
+      tokenLogin.$ = await sharedPreferences.getString('tokenLogin') ?? '';
 
       headers = {
-        'Authorization' : 'Bearer ${tokenLogin.of(context)}',
+        'Authorization': 'Bearer ${tokenLogin.of(context)}',
         'Accept': 'application/json',
         'client': 'api',
       };
 
-      print(headers);
+      prepareToLoginApp();
 
-      if(tokenLogin.of(context).isNotEmpty && !firstLogin) {
-        preparation();
-
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const PersistentBottomNavigationBar(),
-          ),
-        );
-      }
-      ///////////////////////////////////////////////////////////////////////////////////////////
-
-      // Future.delayed(const Duration(seconds: 6), () {
-      //   Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) => const PersistentBottomNavigationBar(),
-      //     ),
-      //   );
-      // });
-
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const PersistentBottomNavigationBar(),
+        ),
+      );
     } else {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const LoginPage(),),
+          builder: (context) => const LoginPage(),
+        ),
       );
     }
 
@@ -100,8 +69,6 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       body: Center(
         child: Column(
@@ -120,7 +87,7 @@ class _SplashPageState extends State<SplashPage> {
                 ],
               ),
             ),
-            FutureBuilder(builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) { return Center(child: CustomCircularProgressIndicator()); }, future: _loginStep(),),
+            _loginStatus(),
           ],
         ),
       ),
@@ -143,70 +110,19 @@ class _SplashPageState extends State<SplashPage> {
       textAlign: TextAlign.center,
     );
   }
-}
 
-void preparation() async {
-
-
-
-
-  //tokenLogin = '60|34pLDO4mZP84GtKq1aNFczvGFKZl07GnXoTCSTjI';
-
-  customDio = await CustomDio.dio.get('dashboard/users/wish');
-
-  print(customDio.statusCode);
-
-  if(customDio.statusCode == 200) {
-
-    customResponse = CustomResponse.fromJson(customDio.data);
-
-    int lastPage = customResponse.data['last_page'];
-
-    for(Map<String, dynamic> bookIntroduction in customResponse.data['data']) {
-      markedBooksId.add(bookIntroduction['id']);
+  Widget _loginStatus() {
+    if (connectionStatus == ConnectivityResult.none) {
+      return const Center(
+        child: NoInternetConnection(),
+      );
+    } else {
+      return FutureBuilder(
+        future: _loginStep(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          return Center(child: CustomCircularProgressIndicator());
+        },
+      );
     }
-
-    for(int i = 2; i <= lastPage; ++i) {
-      customDio = await CustomDio.dio.get('dashboard/users/wish', queryParameters: {'page': i},);
-
-      if(customDio.statusCode == 200) {
-        customResponse = CustomResponse.fromJson(customDio.data);
-
-        for(Map<String, dynamic> bookIntroduction in customResponse.data['data']) {
-          markedBooksId.add(bookIntroduction['id']);
-        }
-      }
-    }
-  }
-
-
-  customDio = await CustomDio.dio.get('dashboard/my_books');
-
-  if(customDio.statusCode == 200) {
-    Map<String, dynamic> data = customDio.data;
-
-    int lastPage = data['last_page'];
-
-    for(Map<String, dynamic> bookIntroduction in data['data']) {
-      libraryId.add(bookIntroduction['id']);
-    }
-
-    for(int i = 2; i <= lastPage; ++i) {
-      customDio = await CustomDio.dio.get('dashboard/my_books', queryParameters: {'page': i},);
-
-      if(customDio.statusCode == 200) {
-        data = customDio.data;
-
-        for(Map<String, dynamic> bookIntroduction in data['data']) {
-          libraryId.add(bookIntroduction['id']);
-        }
-      }
-    }
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////////
-  customDio = await CustomDio.dio.get('user');
-  if(customDio.statusCode == 200) {
-    userId = customDio.data['id'];
   }
 }
