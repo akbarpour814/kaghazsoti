@@ -394,6 +394,15 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
           ),
         );
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        customSnackBar(
+          context,
+          Ionicons.call_outline,
+          'پرداخت ناموفق! لطفاً با ما تماس بگیرید.',
+          4,
+        ),
+      );
     }
   }
 

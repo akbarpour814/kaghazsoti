@@ -34,6 +34,7 @@ enum Topic {
   suggestion,
   complaint,
   defect,
+  unsuccessfulPayment,
   question,
   other,
 }
@@ -43,6 +44,7 @@ extension TopicExtension on Topic {
     Topic.suggestion: 'پیشنهاد',
     Topic.complaint: 'شکایت',
     Topic.defect: 'گزارش نقص فنی',
+    Topic.unsuccessfulPayment: 'پرداخت ناموفق',
     Topic.question: 'پرسش',
     Topic.other: 'سایر موارد',
   };

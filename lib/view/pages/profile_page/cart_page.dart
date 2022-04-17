@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:uni_links/uni_links.dart';
 import '../../../controller/load_data_from_api.dart';
 import '../../../model/payment.dart';
+import '../../view_models/custom_snack_bar.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 import '/model/book.dart';
@@ -30,7 +33,7 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage>
-    with InternetConnection, LoadDataFromAPI {
+    with InternetConnection, LoadDataFromAPI, CustomVerificationPayment {
   late List<String> _bookCartSlug;
   late List<Book> _bookCart;
   late Map<String, Book> _bookCartTemp;
@@ -40,6 +43,8 @@ class _CartPageState extends State<CartPage>
   @override
   void initState() {
     super.initState();
+
+    _handleIncomingLinks();
 
     _bookCartSlug = [];
     _bookCartSlug.addAll(bookCartSlug);
@@ -445,7 +450,7 @@ class _CartPageState extends State<CartPage>
       child: ElevatedButton.icon(
         onPressed: () {
           if (!dataIsLoading) {
-            _payment();
+            startPayment(_purchaseInvoice!, CartPage.routeName);
           }
         },
         label: const Text('ادامه خرید'),
@@ -454,13 +459,57 @@ class _CartPageState extends State<CartPage>
     );
   }
 
-  void _payment() {
-    Payment payment = Payment(
-      amount: _purchaseInvoice!.finalPriceInt,
-      callbackURL: CartPage.routeName,
-      description: 'description',
+  void _handleIncomingLinks() {
+    if (!kIsWeb) {
+      uriLinkStream2 = uriLinkStream.listen((Uri? uri) {
+        verificationPayment(uri!.queryParameters);
+      });
+    }
+  }
+
+  void verificationPayment(Map<String, String> status) async {
+    customDio = await CustomDio.dio.get(
+      'dashboard/invoice_and_pay/callback',
+      queryParameters: status,
     );
 
-    payment.startPayment(_purchaseInvoice!.id.toString());
+    if(customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
+
+      setState(() {
+        dataIsLoading = true;
+      });
+
+      if(customResponse.data['data']['level'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          customSnackBar(
+            context,
+            Ionicons.checkmark_done_outline,
+            'پرداخت شما با موفقیت انجام شد.',
+            4,
+          ),
+        );
+
+        _purchaseInvoiceWasIssued = false;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          customSnackBar(
+            context,
+            Ionicons.refresh_outline,
+            'پرداخت شما با موفقیت انجام نشد.',
+            4,
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        customSnackBar(
+          context,
+          Ionicons.call_outline,
+          'پرداخت ناموفق! لطفاً با ما تماس بگیرید.',
+          4,
+        ),
+      );
+    }
   }
 }
