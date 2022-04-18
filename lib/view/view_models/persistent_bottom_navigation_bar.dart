@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
@@ -37,14 +40,27 @@ class _PersistentBottomNavigationBarState
 
   @override
   Widget build(BuildContext context) {
-    return PersistentTabView(
-      context,
-      controller: _persistentTabController,
-      screens: _pages,
-      items: _items(),
-      navBarStyle: NavBarStyle.style18,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      resizeToAvoidBottomInset: true,
+    return WillPopScope(
+      onWillPop: () async {
+        if (Platform.isAndroid) {
+          SystemNavigator.pop();
+        } else {
+          exit(0);
+        }
+
+        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+
+        return false;
+      },
+      child: PersistentTabView(
+        context,
+        controller: _persistentTabController,
+        screens: _pages,
+        items: _items(),
+        navBarStyle: NavBarStyle.style18,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        resizeToAvoidBottomInset: true,
+      ),
     );
   }
 

@@ -421,6 +421,8 @@ class _TicketsPageState extends State<TicketsPage>
       queryParameters: {'page': currentPage},
     );
 
+    print(customDio.data);
+
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 

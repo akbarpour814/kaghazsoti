@@ -314,3 +314,7 @@ class AudioPlayerHandlerImplements extends BaseAudioHandler with SeekHandler imp
 
 }
 
+extension AudioHandlerExtension on AudioHandler {
+  Future<void> dispose() => customAction('dispose');
+}
+

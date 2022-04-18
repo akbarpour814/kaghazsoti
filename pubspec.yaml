@@ -66,6 +66,7 @@ dependencies:
 
 
 
+  package_info_plus: ^1.4.2
   restart_app: ^1.1.0
 
 

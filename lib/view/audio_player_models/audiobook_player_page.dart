@@ -131,6 +131,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
               audioPlayerHandler.seek(Duration(microseconds: 0));
               previousAudiobookInPlayId = -1;
               mediaItems.clear();
+              await audioPlayerHandler.dispose();
               Navigator.of(context).pop();
 
             });
@@ -175,18 +176,15 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   Widget _innerBody() {
     Widget _body = Column(
       children: [
-        SizedBox(
-          height: 40.0.h,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _upperPart(),
-              _progressBar(),
-              _cycleModesAndSpeedPlay(),
-              _lowerPart(),
-            ],
-          ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _upperPart(),
+            _progressBar(),
+            _cycleModesAndSpeedPlay(),
+            _lowerPart(),
+          ],
         ),
         _bookIndex(),
       ],
@@ -233,17 +231,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
                 if (snapshotTemp == null) {
                   return const SizedBox();
                 } else {
-                  return SizedBox(
-                    height: 20.0.h,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        _bookIntroduction(snapshotTemp, context),
-                        _controlButtons(),
-                      ],
-                    ),
-                  );
+                  return _controlButtons();
                 }
               },
             ),
@@ -291,7 +279,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     return Column(
       children: [
         Text(
-          snapshotTemp.album ?? '',
+          snapshotTemp.album  ?? '',
           style: TextStyle(
             color: Theme.of(context).primaryColor,
             fontWeight: FontWeight.bold,
@@ -300,7 +288,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
         ),
         SizedBox(height: 8.0,),
         Text(
-          snapshotTemp.title,
+          '${snapshotTemp.title}\n\n',
           textAlign: TextAlign.center,
         ),
       ],
@@ -532,12 +520,15 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          queue[i].title,
-                          style: TextStyle(
-                            color: i == queueState.queueIndex
-                                ? Colors.white
-                                : null,
+                        Flexible(
+                          child: Text(
+                            queue[i].title,
+                            style: TextStyle(
+                              color: i == queueState.queueIndex
+                                  ? Colors.white
+                                  : null,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                         Text(
