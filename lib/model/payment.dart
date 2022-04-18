@@ -29,7 +29,7 @@ class Payment extends State with LoadDataFromAPI {
 
 
   Payment({required this.amount, required this.callbackURL, required this.description}) {
-    paymentRequest.setIsSandBox(true);
+    paymentRequest.setIsSandBox(false);
     paymentRequest.setMerchantID(merchantID);
     paymentRequest.setAmount(amount);
     paymentRequest.setCallbackURL('kaghaze-souti-version-flutter:/$callbackURL');

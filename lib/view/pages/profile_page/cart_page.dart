@@ -477,10 +477,10 @@ class _CartPageState extends State<CartPage>
     }
   }
 
-  void verificationPayment(Map<String, String> status) async {
+  void verificationPayment(Map<String, String> queryParameters) async {
     customDio = await CustomDio.dio.get(
       'dashboard/invoice_and_pay/callback',
-      queryParameters: status,
+      queryParameters: queryParameters,
     );
 
     if(customDio.statusCode == 200) {
@@ -492,6 +492,10 @@ class _CartPageState extends State<CartPage>
       });
 
       if(customResponse.data['data']['level'] == 'success') {
+        _purchaseInvoice!.books.forEach((element) {
+          markedBooksId.add(element.id);
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           customSnackBar(
             context,
@@ -500,8 +504,6 @@ class _CartPageState extends State<CartPage>
             4,
           ),
         );
-
-        _purchaseInvoiceWasIssued = false;
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           customSnackBar(

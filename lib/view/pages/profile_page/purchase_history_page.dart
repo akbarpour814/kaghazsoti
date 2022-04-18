@@ -47,6 +47,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   late List<Purchase> _purchaseHistory;
   late List<Purchase> _purchaseHistoryTemp;
   late bool _paymentGateway;
+  late int _purchaseIndexSelected;
 
   @override
   void initState() {
@@ -69,30 +70,32 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 
-      lastPage = customResponse.data['last_page'];
+      if(customResponse.data.isNotEmpty) {
+        lastPage = customResponse.data['last_page'];
 
-      if (currentPage == 1) {
-        _purchaseHistoryTemp.clear();
+        if (currentPage == 1) {
+          _purchaseHistoryTemp.clear();
+        }
+
+        for (Map<String, dynamic> purchase in customResponse.data['data']) {
+          _purchaseHistoryTemp.add(Purchase.fromJson(purchase));
+        }
+
+        setState(() {
+          refresh = false;
+          loading = false;
+
+          _purchaseHistory.clear();
+          _purchaseHistory.addAll(_purchaseHistoryTemp);
+
+          displayOfDetails = List<bool>.generate(
+            _purchaseHistory.length,
+                (index) => false,
+          );
+
+          dataIsLoading = false;
+        });
       }
-
-      for (Map<String, dynamic> purchase in customResponse.data['data']) {
-        _purchaseHistoryTemp.add(Purchase.fromJson(purchase));
-      }
-
-      setState(() {
-        refresh = false;
-        loading = false;
-
-        _purchaseHistory.clear();
-        _purchaseHistory.addAll(_purchaseHistoryTemp);
-
-        displayOfDetails = List<bool>.generate(
-          _purchaseHistory.length,
-          (index) => false,
-        );
-
-        dataIsLoading = false;
-      });
     }
 
     return customDio;
@@ -345,6 +348,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
 
             setState(() {
               _paymentGateway = true;
+              _purchaseIndexSelected = index;
             });
           },
           label: const Text('خرید'),
@@ -377,6 +381,10 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
       });
 
       if(customResponse.data['data']['level'] == 'success') {
+        _purchaseHistory[_purchaseIndexSelected].books.forEach((element) {
+          markedBooksId.add(element.id);
+        });
+
         ScaffoldMessenger.of(context).showSnackBar(
           customSnackBar(
             context,

@@ -53,25 +53,27 @@ class _SubcategoryBooksPageState extends State<SubcategoryBooksPage>
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 
-      lastPage = customResponse.data['last_page'];
+      if(customResponse.data.isNotEmpty) {
+        lastPage = customResponse.data['last_page'];
 
-      if (currentPage == 1) {
-        _subcategoryBooksTemp.clear();
+        if (currentPage == 1) {
+          _subcategoryBooksTemp.clear();
+        }
+
+        for (Map<String, dynamic> book in customResponse.data['data']) {
+          _subcategoryBooksTemp.add(BookIntroduction.fromJson(book));
+        }
+
+        setState(() {
+          refresh = false;
+          loading = false;
+
+          _subcategoryBooks.clear();
+          _subcategoryBooks.addAll(_subcategoryBooksTemp);
+
+          dataIsLoading = false;
+        });
       }
-
-      for (Map<String, dynamic> book in customResponse.data['data']) {
-        _subcategoryBooksTemp.add(BookIntroduction.fromJson(book));
-      }
-
-      setState(() {
-        refresh = false;
-        loading = false;
-
-        _subcategoryBooks.clear();
-        _subcategoryBooks.addAll(_subcategoryBooksTemp);
-
-        dataIsLoading = false;
-      });
     }
 
     return customDio;

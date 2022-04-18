@@ -47,6 +47,8 @@ class _SplashPageState extends State<SplashPage> with InternetConnection, LoadDa
         'client': 'api',
       };
 
+      print(headers);
+
       prepareToLoginApp();
 
       Navigator.pushReplacement(

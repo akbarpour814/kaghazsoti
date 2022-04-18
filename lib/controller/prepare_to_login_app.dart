@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:kaghaze_souti/view/pages/login_pages/splash_page.dart';
 
 import '../main.dart';
 import 'custom_dio.dart';
@@ -12,23 +13,25 @@ void prepareToLoginApp() async {
   if (customDio.statusCode == 200) {
     customResponse = CustomResponse.fromJson(customDio.data);
 
-    int lastPage = customResponse.data['last_page'];
+    if(customResponse.data.isNotEmpty) {
+      int lastPage = customResponse.data['last_page'];
 
-    for (Map<String, dynamic> bookIntroduction in customResponse.data['data']) {
-      markedBooksId.add(bookIntroduction['id']);
-    }
+      for (Map<String, dynamic> bookIntroduction in customResponse.data['data']) {
+        markedBooksId.add(bookIntroduction['id']);
+      }
 
-    for (int i = 2; i <= lastPage; ++i) {
-      customDio = await CustomDio.dio.get(
-        'dashboard/users/wish',
-        queryParameters: {'page': i},
-      );
+      for (int i = 2; i <= lastPage; ++i) {
+        customDio = await CustomDio.dio.get(
+          'dashboard/users/wish',
+          queryParameters: {'page': i},
+        );
 
-      if (customDio.statusCode == 200) {
-        customResponse = CustomResponse.fromJson(customDio.data);
+        if (customDio.statusCode == 200) {
+          customResponse = CustomResponse.fromJson(customDio.data);
 
-        for (Map<String, dynamic> bookIntroduction in customResponse.data['data']) {
-          markedBooksId.add(bookIntroduction['id']);
+          for (Map<String, dynamic> bookIntroduction in customResponse.data['data']) {
+            markedBooksId.add(bookIntroduction['id']);
+          }
         }
       }
     }
@@ -39,7 +42,7 @@ void prepareToLoginApp() async {
     Map<String, dynamic> data = customDio.data;
 
     int lastPage = data['last_page'];
-
+    
     for (Map<String, dynamic> bookIntroduction in data['data']) {
       libraryId.add(bookIntroduction['id']);
     }

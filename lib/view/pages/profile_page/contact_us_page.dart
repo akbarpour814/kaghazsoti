@@ -443,7 +443,7 @@ class _TicketsPageState extends State<TicketsPage>
 
         displayOfDetails = List<bool>.generate(
           _tickets.length,
-          (index) => false,
+              (index) => false,
         );
 
         dataIsLoading = false;

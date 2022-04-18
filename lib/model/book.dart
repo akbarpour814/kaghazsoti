@@ -30,7 +30,6 @@ class Book {
   late String partOfTheBook;
   late List<Review> reviews;
   late bool reviewed;
-  late List<Part> parts;
   late String demo;
   late String bookCoverPath;
   late List<BookIntroduction> otherBooksByThePublisher;
@@ -151,8 +150,7 @@ class Book {
       reviews.insert(0, myReview);
     }
 
-    parts = [];
-    demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo']}';
+    demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo'] ?? ''}';
     print(product['demo']);
     print("product['demo']");
 
@@ -194,7 +192,6 @@ class Book {
     print(aboutBook);
     print(partOfTheBook);
     print(reviews);
-    print(parts);
     print(demo);
     print(bookCoverPath);
     print(otherBooksByThePublisher);
@@ -204,12 +201,6 @@ class Book {
   void setReviews(List<dynamic> reviewsAsMap) {
     for(Map<String, dynamic> review in reviewsAsMap) {
       reviews.add(Review.fromJson(review));
-    }
-  }
-
-  void setParts(List<dynamic> partsAsMap) {
-    for(Map<String, dynamic> part in partsAsMap) {
-      parts.add(Part.fromJson(part));
     }
   }
 

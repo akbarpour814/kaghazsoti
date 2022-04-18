@@ -43,25 +43,27 @@ class _MarkedPageState extends State<MarkedPage>
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 
-      lastPage = customResponse.data['last_page'];
+      if(customResponse.data.isNotEmpty) {
+        lastPage = customResponse.data['last_page'];
 
-      if (currentPage == 1) {
-        _markedBooksTemp.clear();
+        if (currentPage == 1) {
+          _markedBooksTemp.clear();
+        }
+
+        for (Map<String, dynamic> book in customResponse.data['data']) {
+          _markedBooksTemp.add(BookIntroduction.fromJson(book));
+        }
+
+        setState(() {
+          refresh = false;
+          loading = false;
+
+          _markedBooks.clear();
+          _markedBooks.addAll(_markedBooksTemp);
+
+          dataIsLoading = false;
+        });
       }
-
-      for (Map<String, dynamic> book in customResponse.data['data']) {
-        _markedBooksTemp.add(BookIntroduction.fromJson(book));
-      }
-
-      setState(() {
-        refresh = false;
-        loading = false;
-
-        _markedBooks.clear();
-        _markedBooks.addAll(_markedBooksTemp);
-
-        dataIsLoading = false;
-      });
     }
 
     return customDio;
