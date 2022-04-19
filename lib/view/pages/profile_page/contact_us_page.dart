@@ -148,10 +148,13 @@ class _ContactUsPageState extends State<ContactUsPage>
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'نظرات شما',
-                          style:
-                              TextStyle(color: Theme.of(context).primaryColor),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12.0),
+                          child: Text(
+                            'نظرات شما',
+                            style:
+                                TextStyle(color: Theme.of(context).primaryColor),
+                          ),
                         ),
                         Visibility(
                           visible: customResponse.data['data'].length >= 2,
