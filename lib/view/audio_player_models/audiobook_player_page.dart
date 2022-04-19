@@ -181,6 +181,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _upperPart(),
+            _bookIntroduction(),
             _progressBar(),
             _cycleModesAndSpeedPlay(),
             _lowerPart(),
@@ -275,23 +276,27 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     );
   }
 
-  Column _bookIntroduction(MediaItem snapshotTemp, BuildContext context) {
-    return Column(
-      children: [
-        Text(
-          snapshotTemp.album  ?? '',
-          style: TextStyle(
-            color: Theme.of(context).primaryColor,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        SizedBox(height: 8.0,),
-        Text(
-          '${snapshotTemp.title}\n\n',
-          textAlign: TextAlign.center,
-        ),
-      ],
+  StreamBuilder _bookIntroduction() {
+    return  StreamBuilder<MediaItem?>(
+      stream: audioPlayerHandler.mediaItem,
+      builder: (context, snapshot) {
+        MediaItem? snapshotTemp = snapshot.data;
+
+        if (snapshotTemp == null) {
+          return const SizedBox();
+        } else {
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
+            child: Center(
+              child: Text(
+                snapshotTemp.title,
+                style: TextStyle(color: Theme.of(context).primaryColor),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 
@@ -395,7 +400,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
 
   Padding _cycleModesAndSpeedPlay() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5.0.w),
+      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 5.0.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

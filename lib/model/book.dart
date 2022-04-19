@@ -110,6 +110,7 @@ class Book {
     //////////////////////////
     marked = markedBooksId.contains(product['id']);
 
+
     numberOfVotes = product['vote'] ?? 0;
     print(product['vote']);
     print("product['vote']");

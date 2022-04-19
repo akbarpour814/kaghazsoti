@@ -46,6 +46,7 @@ class _CartPageState extends State<CartPage>
   void initState() {
     super.initState();
 
+    print(markedBooksId);
     _handleIncomingLinks();
 
     _bookCartSlug = [];
@@ -478,51 +479,61 @@ class _CartPageState extends State<CartPage>
   }
 
   void verificationPayment(Map<String, String> queryParameters) async {
-    customDio = await CustomDio.dio.get(
-      'dashboard/invoice_and_pay/callback',
-      queryParameters: queryParameters,
-    );
+    try {
+      customDio = await CustomDio.dio.get(
+        'dashboard/invoice_and_pay/callback',
+        queryParameters: queryParameters,
+      );
 
-    if(customDio.statusCode == 200) {
-      customResponse = CustomResponse.fromJson(customDio.data);
+      if(customDio.statusCode == 200) {
+        customResponse = CustomResponse.fromJson(customDio.data);
 
-      setState(() {
-        dataIsLoading = true;
-        _paymentGateway = false;
-      });
-
-      if(customResponse.data['data']['level'] == 'success') {
-        _purchaseInvoice!.books.forEach((element) {
-          markedBooksId.add(element.id);
+        setState(() {
+          dataIsLoading = true;
+          _paymentGateway = false;
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          customSnackBar(
-            context,
-            Ionicons.checkmark_done_outline,
-            'پرداخت شما با موفقیت انجام شد.',
-            4,
-          ),
-        );
+        if(customResponse.data['data']['level'] == 'success') {
+          setState(() {
+            for(int i = 0; i < _purchaseInvoice!.books.length; ++i) {
+              libraryId.add(_purchaseInvoice!.books[i].id);
+            }
+          });
+          print(libraryId);
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar(
+              context,
+              Ionicons.checkmark_done_outline,
+              'پرداخت شما با موفقیت انجام شد.',
+              4,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar(
+              context,
+              Ionicons.refresh_outline,
+              'پرداخت شما با موفقیت انجام نشد.',
+              4,
+            ),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           customSnackBar(
             context,
-            Ionicons.refresh_outline,
-            'پرداخت شما با موفقیت انجام نشد.',
+            Ionicons.call_outline,
+            'خرید ناموفق! لطفاً با ما تماس بگیرید.',
             4,
           ),
         );
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        customSnackBar(
-          context,
-          Ionicons.call_outline,
-          'خرید ناموفق! لطفاً با ما تماس بگیرید.',
-          4,
-        ),
-      );
+    } catch(e) {
+      setState(() {
+        _showButtons = true;
+        _paymentGateway = false;
+      });
     }
   }
 }
