@@ -51,7 +51,9 @@ class _ContactUsPageState extends State<ContactUsPage>
       customResponse = CustomResponse.fromJson(customDio.data);
 
       setState(() {
-        _firstTicket = TicketData.fromJson(customResponse.data['data'][0]);
+        if(customResponse.data['data'].isNotEmpty) {
+          _firstTicket = TicketData.fromJson(customResponse.data['data'][0]);
+        }
 
         dataIsLoading = false;
       });
@@ -121,7 +123,7 @@ class _ContactUsPageState extends State<ContactUsPage>
     } else {
       return SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _selectATicketTopic(),
             _ticketTextField(),
@@ -177,7 +179,13 @@ class _ContactUsPageState extends State<ContactUsPage>
                       height: 0.0,
                     ),
                   ),
+                  SizedBox(
+                    height: 10.0.h,
+                  ),
                   _firstTicketView(),
+                  SizedBox(
+                    height: 10.0.h,
+                  ),
                 ],
               ),
             ),
@@ -372,13 +380,9 @@ class _ContactUsPageState extends State<ContactUsPage>
 
   Widget _firstTicketView() {
     if (_firstTicket == null) {
-      return Expanded(
-        child: Center(
-          child: Text(
-            'شما تا کنون نظری به ثبت نرسانده اید.',
-            style: TextStyle(color: Theme.of(context).primaryColor),
-          ),
-        ),
+      return Text(
+        'شما تا کنون نظری به ثبت نرسانده اید.',
+        style: TextStyle(color: Theme.of(context).primaryColor),
       );
     } else {
       return TicketView(
