@@ -6,6 +6,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:kaghaze_souti/view/view_models/custom_smart_refresher.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sizer/sizer.dart';
 import '../../../main.dart';
 import '../../view_models/no_internet_connection.dart';
@@ -119,6 +120,22 @@ class _SearchPageState extends State<SearchPage>
   }
 
   Widget _innerBody() {
+    Widget _body = Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: 16.0,
+            horizontal: 5.0.w,
+          ),
+          child: _searchTextField(),
+        ),
+        const Divider(
+          height: 0.0,
+        ),
+        _searchResults(),
+      ],
+    );
+
     if (connectionStatus == ConnectivityResult.none) {
       setState(() {
         dataIsLoading = true;
@@ -128,21 +145,11 @@ class _SearchPageState extends State<SearchPage>
         child: NoInternetConnection(),
       );
     } else {
-      return Column(
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: 16.0,
-              horizontal: 5.0.w,
-            ),
-            child: _searchTextField(),
-          ),
-          const Divider(
-            height: 0.0,
-          ),
-          _searchResults(),
-        ],
-      );
+      if (MediaQuery.of(context).orientation == Orientation.landscape) {
+        return SingleChildScrollView(child: _body);
+      } else {
+        return _body;
+      }
     }
   }
 
@@ -179,6 +186,7 @@ class _SearchPageState extends State<SearchPage>
   }
 
   Widget _searchResults() {
+
     if (_searchKey == null) {
       return _notSearching();
     } else {
@@ -245,42 +253,54 @@ class _SearchPageState extends State<SearchPage>
   }
 
   Widget _isSearching() {
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          children: List.generate(
-            _books.length,
-            (index) => BookShortIntroduction(
-              book: _books[index],
-              searchKey: _searchKey,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _notSearching() {
-    return Expanded(
-      child: CustomSmartRefresher(
-        refreshController: refreshController,
-        onRefresh: () => onRefresh(() => _initBooks()),
-        onLoading: () => onLoading(() => _initBooks()),
-        list: List<BookShortIntroduction>.generate(
+    SingleChildScrollView _isSearching = SingleChildScrollView(
+      child: Column(
+        children: List.generate(
           _books.length,
-          (index) => BookShortIntroduction(
+              (index) => BookShortIntroduction(
             book: _books[index],
             searchKey: _searchKey,
           ),
         ),
-        listType: 'کتاب',
-        refresh: refresh,
-        loading: loading,
-        lastPage: lastPage,
-        currentPage: currentPage,
-        dataIsLoading: dataIsLoading,
       ),
     );
+
+    if (MediaQuery.of(context).orientation == Orientation.landscape) {
+      return _isSearching;
+    } else {
+      return Expanded(
+        child: _isSearching,
+      );
+    }
+  }
+
+  Widget _notSearching() {
+    CustomSmartRefresher _notSearching = CustomSmartRefresher(
+      refreshController: refreshController,
+      onRefresh: () => onRefresh(() => _initBooks()),
+      onLoading: () => onLoading(() => _initBooks()),
+      list: List<BookShortIntroduction>.generate(
+        _books.length,
+            (index) => BookShortIntroduction(
+          book: _books[index],
+          searchKey: _searchKey,
+        ),
+      ),
+      listType: 'کتاب',
+      refresh: refresh,
+      loading: loading,
+      lastPage: lastPage,
+      currentPage: currentPage,
+      dataIsLoading: dataIsLoading,
+    );
+
+    if (MediaQuery.of(context).orientation == Orientation.landscape) {
+      return _notSearching;
+    } else {
+      return Expanded(
+        child: _notSearching,
+      );
+    }
   }
 }
 

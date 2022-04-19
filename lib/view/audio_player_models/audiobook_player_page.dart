@@ -501,7 +501,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   }
 
   Widget _bookIndex() {
-    Widget _bookIndex = StreamBuilder<QueueState>(
+    StreamBuilder _bookIndex = StreamBuilder<QueueState>(
       stream: audioPlayerHandler.queueState,
       builder: (context, snapshot) {
         final queueState = snapshot.data ?? QueueState.empty;
