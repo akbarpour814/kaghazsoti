@@ -89,10 +89,8 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
       }
     }
 
-
     return customDio;
   }
-
 
   @override
   Widget build(BuildContext context) {
