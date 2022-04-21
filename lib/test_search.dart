@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import 'package:kaghaze_souti/view/view_models/custom_circular_progress_indicator.dart';
 import 'package:kaghaze_souti/view/view_models/custom_smart_refresher.dart';
+import 'package:kaghaze_souti/view/view_models/no_internet_connection.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sizer/sizer.dart';
 import '../../../main.dart';
-import '../../view_models/no_internet_connection.dart';
 import '/model/book_introduction.dart';
 
 import '../../../controller/custom_response.dart';
 import '../../../controller/custom_dio.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
 import '/view/view_models/book_short_introduction.dart';
 
 class SearchPage extends StatefulWidget {
@@ -122,7 +122,16 @@ class _SearchPageState extends State<SearchPage>
   Widget _innerBody() {
     Widget _body = Column(
       children: [
-        _searchTextField(),
+        Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: 16.0,
+            horizontal: 5.0.w,
+          ),
+          child: _searchTextField(),
+        ),
+        const Divider(
+          height: 0.0,
+        ),
         _searchResults(),
       ],
     );
@@ -136,53 +145,43 @@ class _SearchPageState extends State<SearchPage>
         child: NoInternetConnection(),
       );
     } else {
-      if (MediaQuery.of(context).orientation == Orientation.portrait) {
-        return _body;
-      } else {
+      if (MediaQuery.of(context).orientation == Orientation.landscape) {
         return SingleChildScrollView(child: _body);
+      } else {
+        return _body;
       }
     }
   }
 
-  Column _searchTextField() {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: 16.0,
-            horizontal: 5.0.w,
-          ),
-          child: TextField(
-            readOnly: false,
-            controller: _searchController,
-            keyboardType: TextInputType.text,
-            decoration: const InputDecoration(
-              helperText: 'عبارت جست و جو',
-              hintText: 'لطفاً عبارت مورد نظر را بنویسید.',
-              suffixIcon: Icon(Ionicons.search_outline),
-            ),
-            onChanged: (String text) {
-              setState(() {
-                if (_searchController.text.isEmpty) {
-                  _searchKey = null;
-                  _books.clear();
-                  _books.addAll(_booksTemp);
-                  _dataIsLoadingToSearchForBooks = false;
-                  _noBooksFound = false;
-                } else {
-                  _searchKey = _searchController.text;
-                  _dataIsLoadingToSearchForBooks = true;
+  Padding _searchTextField() {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 0.5.h),
+      child: TextField(
+        readOnly: false,
+        controller: _searchController,
+        keyboardType: TextInputType.text,
+        decoration: const InputDecoration(
+          helperText: 'عبارت جست و جو',
+          hintText: 'لطفاً عبارت مورد نظر را بنویسید.',
+          suffixIcon: Icon(Ionicons.search_outline),
+        ),
+        onChanged: (String text) {
+          setState(() {
+            if (_searchController.text.isEmpty) {
+              _searchKey = null;
+              _books.clear();
+              _books.addAll(_booksTemp);
+              _dataIsLoadingToSearchForBooks = false;
+              _noBooksFound = false;
+            } else {
+              _searchKey = _searchController.text;
+              _dataIsLoadingToSearchForBooks = true;
 
-                  _initBooksFound();
-                }
-              });
-            },
-          ),
-        ),
-        const Divider(
-          height: 0.0,
-        ),
-      ],
+              _initBooksFound();
+            }
+          });
+        },
+      ),
     );
   }
 
@@ -208,7 +207,12 @@ class _SearchPageState extends State<SearchPage>
               }
             } else {
               return const Expanded(
-                child: Center(child: CustomCircularProgressIndicator(),),);
+                child: Center(
+                  child: CustomCircularProgressIndicator(
+
+                  ),
+                ),
+              );
             }
           },
         );
@@ -290,14 +294,12 @@ class _SearchPageState extends State<SearchPage>
       dataIsLoading: dataIsLoading,
     );
 
-    if (MediaQuery.of(context).orientation == Orientation.portrait) {
+    if (MediaQuery.of(context).orientation == Orientation.landscape) {
+      return _notSearching;
+    } else {
       return Expanded(
         child: _notSearching,
       );
-    } else {
-      //refreshController = RefreshController(initialRefresh: false);
-
-      return _notSearching;
     }
   }
 }

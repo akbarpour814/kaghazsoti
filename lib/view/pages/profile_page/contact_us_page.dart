@@ -182,13 +182,7 @@ class _ContactUsPageState extends State<ContactUsPage>
                       height: 0.0,
                     ),
                   ),
-                  SizedBox(
-                    height: 10.0.h,
-                  ),
                   _firstTicketView(),
-                  SizedBox(
-                    height: 10.0.h,
-                  ),
                 ],
               ),
             ),
@@ -383,9 +377,19 @@ class _ContactUsPageState extends State<ContactUsPage>
 
   Widget _firstTicketView() {
     if (_firstTicket == null) {
-      return Text(
-        'شما تا کنون نظری به ثبت نرسانده اید.',
-        style: TextStyle(color: Theme.of(context).primaryColor),
+      return Column(
+        children: [
+          SizedBox(
+            height: 10.0.h,
+          ),
+          Text(
+            'شما تا کنون نظری به ثبت نرسانده اید.',
+            style: TextStyle(color: Theme.of(context).primaryColor),
+          ),
+          SizedBox(
+            height: 10.0.h,
+          ),
+        ],
       );
     } else {
       return TicketView(
