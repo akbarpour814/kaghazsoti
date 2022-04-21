@@ -44,7 +44,7 @@ late AudioPlayer demoPlayer;
 late SharedPreferences sharedPreferences;
 
 String defaultBanner = 'assets/images/defaultBanner.jpg';
-String defaultBookCover = 'assets/images/defaultBookCover.jpg';
+String defaultBookCover = 'assets/images/appLogoForOutApp.png';
 String appLogo = 'assets/images/appLogo.jpg';
 String appLogoNet = 'https://kaghazsoti.com/img/logo.1e799436.jpeg';
 

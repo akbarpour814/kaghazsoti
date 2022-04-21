@@ -43,7 +43,9 @@ class _CustomSmartRefresherState extends State<CustomSmartRefresher> {
       onLoading: widget.refresh ? null : widget.onLoading,
       enablePullDown: true,
       enablePullUp: true,
-      header: const MaterialClassicHeader(),
+      header: MaterialClassicHeader(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      ),
       footer: CustomFooter(
         builder: (BuildContext? context, LoadStatus? mode) {
           Widget bar;

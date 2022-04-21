@@ -92,7 +92,7 @@ class _BookShortIntroductionState extends State<BookShortIntroduction> {
   Container _bookCover() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).scaffoldBackgroundColor,
         border: Border.all(color: Theme.of(context).primaryColor),
         borderRadius: const BorderRadius.all(
           Radius.circular(5.0),

@@ -250,7 +250,7 @@ class _MyBookState extends State<MyBook> {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).scaffoldBackgroundColor,
           border: Border.all(color: Theme.of(context).primaryColor),
           borderRadius: const BorderRadius.all(
             Radius.circular(5.0),
