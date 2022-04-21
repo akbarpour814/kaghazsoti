@@ -85,6 +85,7 @@ class _AccountPageState extends State<AccountPage> with InternetConnection, Load
             ),
           ),
           onTap: () {
+            print(MediaQuery.of(context).size.height);
             Navigator.of(context).pop();
           },
         ),

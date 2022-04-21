@@ -18,8 +18,8 @@ class _CustomCircularProgressIndicatorState extends State<CustomCircularProgress
         Padding(
           padding: const EdgeInsets.only(left: 18.0),
           child: SizedBox(
-            width: 5.0.w,
-            height: 5.0.w,
+            width: 20.5,
+            height: 20.5,
             child: const CircularProgressIndicator(),
           ),
         ),

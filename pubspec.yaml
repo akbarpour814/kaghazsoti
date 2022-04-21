@@ -55,6 +55,7 @@ dependencies:
   new_version: ^0.3.0
 
   assets_audio_player: ^3.0.4+1
+  flutter_neumorphic: ^3.2.0
 
 
   zarinpal: ^1.0.4+1

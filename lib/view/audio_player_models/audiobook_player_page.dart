@@ -43,7 +43,6 @@ class AudiobookPlayerPage extends StatefulWidget {
 
 class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     with InternetConnection, LoadDataFromAPI {
-
   @override
   void initState() {
     super.initState();
@@ -86,6 +85,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
         });
 
         await audioPlayerHandler.updateQueue(mediaItems);
+
       }
     }
 
@@ -127,11 +127,11 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
               audioPlayerHandler.stop();
               audioPlayerHandler.onTaskRemoved();
               audioPlayerHandler.seek(Duration(microseconds: 0));
+              await audioPlayerHandler.skipToQueueItem(0);
               previousAudiobookInPlayId = -1;
               mediaItems.clear();
               await audioPlayerHandler.dispose();
               Navigator.of(context).pop();
-
             });
           },
           child: const Padding(
@@ -158,7 +158,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
         future: _initMediaItems(),
       );
     } else {
-      if(demoOfBookIsPlaying.of(context)) {
+      if (demoOfBookIsPlaying.of(context)) {
         return _innerBody();
       } else {
         return FutureBuilder(
@@ -275,7 +275,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   }
 
   StreamBuilder _bookIntroduction() {
-    return  StreamBuilder<MediaItem?>(
+    return StreamBuilder<MediaItem?>(
       stream: audioPlayerHandler.mediaItem,
       builder: (context, snapshot) {
         MediaItem? snapshotTemp = snapshot.data;

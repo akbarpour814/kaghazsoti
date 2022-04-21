@@ -1,11 +1,14 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:just_audio/just_audio.dart' as JustAudio;
 import 'package:kaghaze_souti/controller/internet_connection.dart';
+import '../../test.dart';
 import '../audio_player_models/audiobook_player_page.dart';
+import '../audio_player_models/audiobook_player_page_2.dart';
 import '../audio_player_models/show_slider_dialog.dart';
 import '../audio_player_models/progress_bar/custom_progress_bar.dart';
 import '/main.dart';
@@ -105,15 +108,15 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> w
 
   Flexible _playButtonForDemoOfBook() {
     return Flexible(
-      child: StreamBuilder<PlayerState>(
+      child: StreamBuilder<JustAudio.PlayerState>(
         stream: demoPlayer.playerStateStream,
         builder: (context, snapshot) {
           final playerState = snapshot.data;
           final processingState = playerState?.processingState;
           final playing = playerState?.playing;
 
-          if (processingState == ProcessingState.loading ||
-              processingState == ProcessingState.buffering) {
+          if (processingState == JustAudio.ProcessingState.loading ||
+              processingState == JustAudio.ProcessingState.buffering) {
             return InkWell(
               onTap: null,
               child: const Icon(
@@ -129,7 +132,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> w
               ),
               onTap: demoPlayer.play,
             );
-          } else if(processingState == ProcessingState.completed) {
+          } else if(processingState == JustAudio.ProcessingState.completed) {
             return InkWell(
               child: const Icon(
                 Ionicons.play_outline,
@@ -151,11 +154,14 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> w
     );
   }
 
+
+
   Container _audiobookIsPlaying(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(8.0),
       color: Theme.of(context).primaryColor,
       width: 100.0.w,
+      height: 5.0.h,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -175,7 +181,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> w
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return AudiobookPlayerPage(
+                return AudiobookPlayerPage_2(
                   audiobook: audiobookInPlay,
                 );
               },
@@ -193,19 +199,50 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> w
   SizedBox _progressBarForAudiobook() {
     return SizedBox(
       width: 75.0.w,
-      child: CustomProgressBarBottom(
-        audioPlayer: audioPlayerHandler.audioPlayer,
-        timeLabelLocation: TimeLabelLocation.none,
-        baseBarColor: Colors.white,
-        progressBarColor: const Color(0xFF55929C),
-        bufferedBarColor: const Color(0xFFC6DADE),
-        thumbColor: const Color(0xFF55929C),
-        thumbGlowColor: const Color(0xFF55929C).withOpacity(0.6),
-      ),
+      child: assetsAudioPlayer.builderRealtimePlayingInfos(
+          builder: (context, RealtimePlayingInfos? infos) {
+            if (infos == null) {
+              return SizedBox();
+            }
+            return PositionSeekWidget(
+              playerBottomNavigationBar: true,
+              currentPosition: infos.currentPosition,
+              duration: infos.duration,
+              seekTo: (to) {
+                assetsAudioPlayer.seek(to);
+              },
+            );
+          }),
     );
+
+    // return SizedBox(
+    //   width: 75.0.w,
+    //   child: CustomProgressBarBottom(
+    //     audioPlayer: audioPlayerHandler.audioPlayer,
+    //     timeLabelLocation: TimeLabelLocation.none,
+    //     baseBarColor: Colors.white,
+    //     progressBarColor: const Color(0xFF55929C),
+    //     bufferedBarColor: const Color(0xFFC6DADE),
+    //     thumbColor: const Color(0xFF55929C),
+    //     thumbGlowColor: const Color(0xFF55929C).withOpacity(0.6),
+    //   ),
+    // );
   }
 
-  Flexible _playButtonForAudiobook() {
+  Widget _playButtonForAudiobook() {
+    return Flexible(
+      child: PlayerBuilder.isPlaying(player: assetsAudioPlayer, builder: (BuildContext context, bool isPlaying) {
+        return InkWell(
+          onTap: () {
+            assetsAudioPlayer.playOrPause();
+          },
+          child: Icon(
+            isPlaying ? Ionicons.pause_outline : Ionicons.play_outline,
+            color: Colors.white,
+          ),);
+      },),
+
+    );
     return Flexible(
       child: StreamBuilder<PlaybackState>(
         stream: audioPlayerHandler.playbackState,

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,7 @@ int previousAudiobookInPlayId = -1;
 int audiobookInPlayId = -1;
 SharedValue<bool> audiobookIsPlaying = SharedValue(value: false);
 late BookIntroduction audiobookInPlay;
-late AudioPlayerHandler audioPlayerHandler;
+ late AudioPlayerHandler audioPlayerHandler;
 
 
 SharedValue<bool> demoOfBookIsPlaying = SharedValue(value: false);
@@ -67,6 +68,11 @@ int demoInPlayId = -1;
 
 
 Future<void> main() async {
+
+  AssetsAudioPlayer.setupNotificationsOpenAction((notification) => true);
+
+
+
   audioPlayerHandler = await AudioService.init(
     builder: () => AudioPlayerHandlerImplements(),
     config: const AudioServiceConfig(
@@ -131,6 +137,7 @@ class MyApp extends StatelessWidget {
       scaffoldBackgroundColor: Colors.white,
       dividerColor: _primaryColor,
       appBarTheme: const AppBarTheme(
+        toolbarHeight: 56.0,
         centerTitle: true,
         titleTextStyle: TextStyle(
           fontFamily: fontFamily,
@@ -154,6 +161,7 @@ class MyApp extends StatelessWidget {
       dividerColor: _primaryColor,
       accentColor: _primaryColor,
       appBarTheme: AppBarTheme(
+        toolbarHeight: 56.0,
         backgroundColor: _primaryColor,
         centerTitle: true,
         titleTextStyle: const TextStyle(

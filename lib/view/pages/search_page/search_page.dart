@@ -90,10 +90,21 @@ class _SearchPageState extends State<SearchPage>
   }
 
   AppBar _appBar() {
+    late double _size = 112.0;
+
     return AppBar(
+      elevation: 0.0,
       title: const Text('جست و جو'),
       leading: const Icon(
         Ionicons.search_outline,
+      ),
+      bottom: PreferredSize(
+        preferredSize: Size(_size, _size),
+        child: Container(
+          alignment: Alignment.center,
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: _searchTextField(),
+        ),
       ),
     );
   }
@@ -107,9 +118,7 @@ class _SearchPageState extends State<SearchPage>
             return _innerBody();
           } else {
             return Center(
-              child: CustomCircularProgressIndicator(
-
-              ),
+              child: CustomCircularProgressIndicator(),
             );
           }
         },
@@ -120,13 +129,6 @@ class _SearchPageState extends State<SearchPage>
   }
 
   Widget _innerBody() {
-    Widget _body = Column(
-      children: [
-        _searchTextField(),
-        _searchResults(),
-      ],
-    );
-
     if (connectionStatus == ConnectivityResult.none) {
       setState(() {
         dataIsLoading = true;
@@ -136,11 +138,7 @@ class _SearchPageState extends State<SearchPage>
         child: NoInternetConnection(),
       );
     } else {
-      if (MediaQuery.of(context).orientation == Orientation.portrait) {
-        return _body;
-      } else {
-        return SingleChildScrollView(child: _body);
-      }
+      return _searchResults();
     }
   }
 
@@ -187,7 +185,6 @@ class _SearchPageState extends State<SearchPage>
   }
 
   Widget _searchResults() {
-
     if (_searchKey == null) {
       return _notSearching();
     } else {
@@ -197,18 +194,15 @@ class _SearchPageState extends State<SearchPage>
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             if (snapshot.hasData) {
               if ((_noBooksFound) && (_searchKey != null)) {
-                return Expanded(
-                  child: Center(
-                    child: Text(
-                        'کتابی با عبارت جست و جوی «$_searchKey» یافت نشد.'),
-                  ),
+                return Center(
+                  child:
+                      Text('کتابی با عبارت جست و جوی «$_searchKey» یافت نشد.'),
                 );
               } else {
                 return _isSearching();
               }
             } else {
-              return const Expanded(
-                child: Center(child: CustomCircularProgressIndicator(),),);
+              return Center(child: CustomCircularProgressIndicator());
             }
           },
         );
@@ -249,35 +243,27 @@ class _SearchPageState extends State<SearchPage>
   }
 
   Widget _isSearching() {
-    SingleChildScrollView _isSearching = SingleChildScrollView(
+    return SingleChildScrollView(
       child: Column(
         children: List.generate(
           _books.length,
-              (index) => BookShortIntroduction(
+          (index) => BookShortIntroduction(
             book: _books[index],
             searchKey: _searchKey,
           ),
         ),
       ),
     );
-
-    if (MediaQuery.of(context).orientation == Orientation.landscape) {
-      return _isSearching;
-    } else {
-      return Expanded(
-        child: _isSearching,
-      );
-    }
   }
 
   Widget _notSearching() {
-    CustomSmartRefresher _notSearching = CustomSmartRefresher(
+    return CustomSmartRefresher(
       refreshController: refreshController,
       onRefresh: () => onRefresh(() => _initBooks()),
       onLoading: () => onLoading(() => _initBooks()),
       list: List<BookShortIntroduction>.generate(
         _books.length,
-            (index) => BookShortIntroduction(
+        (index) => BookShortIntroduction(
           book: _books[index],
           searchKey: _searchKey,
         ),
@@ -289,16 +275,6 @@ class _SearchPageState extends State<SearchPage>
       currentPage: currentPage,
       dataIsLoading: dataIsLoading,
     );
-
-    if (MediaQuery.of(context).orientation == Orientation.portrait) {
-      return Expanded(
-        child: _notSearching,
-      );
-    } else {
-      //refreshController = RefreshController(initialRefresh: false);
-
-      return _notSearching;
-    }
   }
 }
 
