@@ -149,6 +149,7 @@ class MyApp extends StatelessWidget {
       textSelectionTheme: _textSelectionTheme(),
       outlinedButtonTheme: _outlinedButtonTheme(context),
       dividerTheme: _dividerTheme(),
+      canvasColor: Colors.white,
     );
   }
 
@@ -174,6 +175,7 @@ class MyApp extends StatelessWidget {
       textSelectionTheme: _textSelectionTheme(),
       outlinedButtonTheme: _outlinedButtonTheme(context),
       dividerTheme: _dividerTheme(),
+      canvasColor: Colors.grey.shade800,
     );
   }
 

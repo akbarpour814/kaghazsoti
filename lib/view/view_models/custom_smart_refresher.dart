@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../../main.dart';
 import 'custom_circular_progress_indicator.dart';
 
 // ignore: must_be_immutable
@@ -44,7 +45,7 @@ class _CustomSmartRefresherState extends State<CustomSmartRefresher> {
       enablePullDown: true,
       enablePullUp: true,
       header: MaterialClassicHeader(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor: MyApp.themeNotifier.value == ThemeMode.light ? Colors.white : Colors.grey.shade800,
       ),
       footer: CustomFooter(
         builder: (BuildContext? context, LoadStatus? mode) {
