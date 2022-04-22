@@ -9,6 +9,7 @@ import 'package:kaghaze_souti/controller/internet_connection.dart';
 import '../../test.dart';
 import '../audio_player_models/audiobook_player_page.dart';
 import '../audio_player_models/audiobook_player_page_2.dart';
+import '../audio_player_models/audiobook_player_page_3.dart';
 import '../audio_player_models/show_slider_dialog.dart';
 import '../audio_player_models/progress_bar/custom_progress_bar.dart';
 import '/main.dart';
@@ -40,7 +41,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> w
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             return _notPlaying();
           },
-          future: audioPlayerHandler.stop(),
+          future: assetsAudioPlayer.play(),
         );
       } else {
         return _notPlaying();
@@ -181,7 +182,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar> w
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return AudiobookPlayerPage_2(
+                return AudiobookPlayerPage_3(
                   audiobook: audiobookInPlay,
                 );
               },

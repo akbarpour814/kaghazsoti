@@ -288,7 +288,7 @@ class _SplashPageState extends State<SplashPage>
     bookCartSlug = sharedPreferences.getStringList('bookCartSlug') ?? [];
 
     _firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
-    
+
     if (!_firstLogin) {
       tokenLogin.$ = await sharedPreferences.getString('tokenLogin') ?? '';
 

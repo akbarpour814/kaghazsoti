@@ -14,6 +14,7 @@ import 'package:kaghaze_souti/view/view_models/custom_smart_refresher.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../../audio_player_models/audiobook_player_page_2.dart';
+import '../../audio_player_models/audiobook_player_page_3.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 
@@ -226,7 +227,7 @@ class _MyBookState extends State<MyBook> {
             builder: (context) {
               //return MyApp_2(audios: audios,audiobook: audiobookInPlay);
               //return AudiobookPlayerPage(audiobook: audiobookInPlay);
-              return AudiobookPlayerPage_2(audiobook: audiobookInPlay);
+              return AudiobookPlayerPage_3(audiobook: audiobookInPlay);
             },
           ),
         );

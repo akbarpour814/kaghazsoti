@@ -151,7 +151,7 @@ class _SearchPageState extends State<SearchPage>
             horizontal: 5.0.w,
           ),
           child: TextField(
-            readOnly: false,
+            readOnly: dataIsLoading,
             controller: _searchController,
             keyboardType: TextInputType.text,
             decoration: const InputDecoration(
