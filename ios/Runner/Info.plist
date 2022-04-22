@@ -7,6 +7,20 @@
       <string>audio</string>
     </array>
 
+    <key>CFBundleURLTypes</key>
+    	<array>
+    		<dict>
+    			<key>CFBundleTypeRole</key>
+    			<string>Editor</string>
+    			<key>CFBundleURLName</key>
+    			<!-- <string>pay</string> -->
+    			<key>CFBundleURLSchemes</key>
+    			<array>
+    				<string>kaghaze-souti-version-flutter</string>
+    			</array>
+    		</dict>
+    	</array>
+
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

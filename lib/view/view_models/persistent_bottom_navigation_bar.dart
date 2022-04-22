@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/main.dart';
+import 'package:kaghaze_souti/view/audio_player_models/audio_player_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import '../pages/category_page/category_page.dart';
@@ -10,6 +12,7 @@ import '../pages/home_page/home_page.dart';
 import '../pages/library_page/library_page.dart';
 import '../pages/profile_page/profile_page.dart';
 import '../pages/search_page/search_page.dart';
+import 'custom_snack_bar.dart';
 
 class PersistentBottomNavigationBar extends StatefulWidget {
   const PersistentBottomNavigationBar({Key? key}) : super(key: key);
@@ -38,17 +41,22 @@ class _PersistentBottomNavigationBarState
     super.initState();
   }
 
+  bool _secondTime = false;
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (Platform.isAndroid) {
-          SystemNavigator.pop();
-        } else {
-          exit(0);
-        }
+        if((_persistentTabController.index == 0)) {
+          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
 
-        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          if (Platform.isAndroid) {
+            SystemNavigator.pop();
+          } else {
+            exit(0);
+          }
+        } else {
+          return true;
+        }
 
         return false;
       },

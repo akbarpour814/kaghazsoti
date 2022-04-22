@@ -1,6 +1,6 @@
 import 'dart:async';
+import 'dart:io';
 
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -8,13 +8,11 @@ import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/test.dart';
 import 'package:kaghaze_souti/view/audio_player_models/audiobook_player_page.dart';
 import 'package:kaghaze_souti/view/view_models/custom_smart_refresher.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import '../../audio_player_models/audiobook_player_page_2.dart';
-import '../../audio_player_models/audiobook_player_page_3.dart';
+import '../../view_models/custom_snack_bar.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/main.dart';
 
@@ -25,6 +23,8 @@ import '../../../model/book_introduction.dart';
 import '../../view_models/custom_circular_progress_indicator.dart';
 
 class MyLibraryPage extends StatefulWidget {
+  static const routeName = '/myLibraryPage';
+
   const MyLibraryPage({Key? key}) : super(key: key);
 
   @override
@@ -74,9 +74,13 @@ class _MyLibraryPageState extends State<MyLibraryPage>
       });
     }
 
+    print('ModalRoute.of(context).settings.name');
+    print(ModalRoute.of(context)!.settings.name);
+
     return customDio;
   }
 
+  bool _secondTime = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -166,68 +170,27 @@ class _MyBookState extends State<MyBook> {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () async {
+      onTap: () {
         if (widget.book.id != previousAudiobookInPlayId) {
           audioPlayerHandler.onTaskRemoved();
           audioPlayerHandler.seek(Duration(microseconds: 0));
-          await audioPlayerHandler.skipToQueueItem(0);
 
           demoOfBookIsPlaying.$ = false;
           demoInPlayId = -1;
           demoPlayer.stop();
           audioPlayerHandler.stop();
 
-          //mediaItems.clear();
+          mediaItems.clear();
 
           audioPlayerHandler.updateQueue([]);
           audiobookInPlay = widget.book;
           audiobookInPlayId = widget.book.id;
         }
 
-
-        final audios = <Audio>[
-          Audio.network(
-        'https://kaghazsoti.uage.ir/storage/book-files/1/f5af5f9c-7aa7-447c-8ae6-19f55a635139.mp3',
-            metas: Metas(
-              id: 'Online',
-              title: 'Online',
-              artist: 'Florent Champigny',
-              album: 'OnlineAlbum',
-              // image: MetasImage.network('https://www.google.com')
-              image: MetasImage.asset('assets/images/defaultBookCover.jpg'),
-            ),
-          ),
-          Audio.network(
-            'https://kaghazsoti.uage.ir/storage/book-files/1/d4d61061-c59a-43f7-86c7-c6a365f2e703.mp3',
-            metas: Metas(
-              id: 'Online',
-              title: 'Online',
-              artist: 'Florent Champigny',
-              album: 'OnlineAlbum',
-              // image: MetasImage.network('https://www.google.com')
-              image: MetasImage.asset('assets/images/defaultBookCover.jpg'),
-            ),
-          ),
-          Audio.network(
-            'https://kaghazsoti.uage.ir/storage/book-files/1/2060d69e-0243-42ec-9a5b-eeae89222df5.mp3',
-            metas: Metas(
-              id: 'Online',
-              title: 'Online',
-              artist: 'Florent Champigny',
-              album: 'OnlineAlbum',
-              // image: MetasImage.network('https://www.google.com')
-              image: MetasImage.asset('assets/images/defaultBookCover.jpg'),
-            ),
-          ),
-        ];
-
-
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) {
-              //return MyApp_2(audios: audios,audiobook: audiobookInPlay);
-              //return AudiobookPlayerPage(audiobook: audiobookInPlay);
-              return AudiobookPlayerPage_3(audiobook: audiobookInPlay);
+              return AudiobookPlayerPage(audiobook: widget.book);
             },
           ),
         );
@@ -251,7 +214,7 @@ class _MyBookState extends State<MyBook> {
       padding: const EdgeInsets.all(8.0),
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: Colors.white,
           border: Border.all(color: Theme.of(context).primaryColor),
           borderRadius: const BorderRadius.all(
             Radius.circular(5.0),
@@ -289,4 +252,3 @@ class _MyBookState extends State<MyBook> {
     );
   }
 }
-

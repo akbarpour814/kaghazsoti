@@ -39,6 +39,8 @@ PlayerBottomNavigationBar playerBottomNavigationBar = const PlayerBottomNavigati
 
 late AudioPlayer demoPlayer;
 
+bool inLibraryPage = false;
+
 
 
 late SharedPreferences sharedPreferences;
@@ -114,6 +116,7 @@ class MyApp extends StatelessWidget {
               routes: {
                 CartPage.routeName: (context) => const CartPage(),
                 PurchaseHistoryPage.routeName: (context) => const PurchaseHistoryPage(),
+                MyLibraryPage.routeName: (context) => const MyLibraryPage(),
               },
               theme: _theme(context),
               darkTheme: _darkTheme(context),

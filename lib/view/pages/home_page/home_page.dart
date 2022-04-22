@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
@@ -8,6 +9,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import '../../view_models/custom_snack_bar.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/model/book_introduction.dart';
 import '../../../controller/custom_dio.dart';
@@ -103,7 +105,7 @@ class _HomePageState extends State<HomePage> with InternetConnection, LoadDataFr
     );
   }
 
-  FutureBuilder _body() {
+  Widget _body() {
     return FutureBuilder(
       future: _initHomePageCategoriesData(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {

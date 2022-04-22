@@ -43,6 +43,7 @@ class AudiobookPlayerPage extends StatefulWidget {
 
 class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     with InternetConnection, LoadDataFromAPI {
+
   @override
   void initState() {
     super.initState();
@@ -69,9 +70,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
                 duration: Duration(
                   milliseconds: INTL.DateFormat('HH:mm:ss')
                       .parse(
-                        mediaItem['timer'],
-                        true,
-                      )
+                    mediaItem['timer'],
+                    true,
+                  )
                       .millisecondsSinceEpoch,
                 ),
                 artUri: Uri.parse(widget.audiobook.bookCoverPath),
@@ -82,10 +83,11 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
           previousAudiobookInPlayId = widget.audiobook.id;
 
           dataIsLoading = false;
+
+          audioPlayerHandler.audioPlayer.seek(Duration(microseconds: 0), index: 0);
         });
 
         await audioPlayerHandler.updateQueue(mediaItems);
-
       }
     }
 
@@ -127,11 +129,11 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
               audioPlayerHandler.stop();
               audioPlayerHandler.onTaskRemoved();
               audioPlayerHandler.seek(Duration(microseconds: 0));
-              await audioPlayerHandler.skipToQueueItem(0);
               previousAudiobookInPlayId = -1;
               mediaItems.clear();
               await audioPlayerHandler.dispose();
               Navigator.of(context).pop();
+
             });
           },
           child: const Padding(
@@ -158,7 +160,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
         future: _initMediaItems(),
       );
     } else {
-      if (demoOfBookIsPlaying.of(context)) {
+      if(demoOfBookIsPlaying.of(context)) {
         return _innerBody();
       } else {
         return FutureBuilder(
@@ -275,7 +277,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   }
 
   StreamBuilder _bookIntroduction() {
-    return StreamBuilder<MediaItem?>(
+    return  StreamBuilder<MediaItem?>(
       stream: audioPlayerHandler.mediaItem,
       builder: (context, snapshot) {
         MediaItem? snapshotTemp = snapshot.data;
@@ -379,7 +381,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
                 : Colors.grey,
           ),
           onTap:
-              queueState.hasPrevious ? audioPlayerHandler.skipToPrevious : null,
+          queueState.hasPrevious ? audioPlayerHandler.skipToPrevious : null,
         );
       },
     );
@@ -446,7 +448,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
           onTap: () {
             audioPlayerHandler.setRepeatMode(
               cycleModes[
-                  (cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
+              (cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
             );
           },
         );
@@ -536,9 +538,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
                         ),
                         Text(
                           queue[i].duration.toString().substring(
-                                0,
-                                queue[i].duration.toString().indexOf('.'),
-                              ),
+                            0,
+                            queue[i].duration.toString().indexOf('.'),
+                          ),
                           style: Theme.of(context).textTheme.caption,
                         ),
                       ],
