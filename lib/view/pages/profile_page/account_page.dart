@@ -51,7 +51,7 @@ class _AccountPageState extends State<AccountPage> with InternetConnection, Load
         _emailController =
             TextEditingController(text: customDio.data['email']);
         _phoneNumberController =
-            TextEditingController(text: customDio.data['mobile']);
+            TextEditingController(text: customDio.data['username']);
 
         dataIsLoading = false;
       });

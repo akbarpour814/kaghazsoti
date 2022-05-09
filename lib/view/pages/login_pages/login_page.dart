@@ -26,22 +26,20 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage>
     with TickerProviderStateMixin, InternetConnection, LoadDataFromAPI {
-  late TextEditingController _emailOrPhoneNumberController;
-  String? _emailOrPhoneNumberError;
+  late TextEditingController _phoneNumberController;
+  String? _phoneNumberError;
   late TextEditingController _passwordController;
   String? _passwordError;
   late bool _loginPermission;
-  late bool _emailOrPhoneNumber;
   late bool _obscureText;
 
   @override
   void initState() {
     super.initState();
 
-    _emailOrPhoneNumberController = TextEditingController();
+    _phoneNumberController = TextEditingController();
     _passwordController = TextEditingController();
     _loginPermission = false;
-    _emailOrPhoneNumber = true;
     _obscureText = true;
   }
 
@@ -117,25 +115,20 @@ class _LoginPageState extends State<LoginPage>
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
         readOnly: _loginPermission,
-        controller: _emailOrPhoneNumberController,
+        controller: _phoneNumberController,
         keyboardType: TextInputType.emailAddress,
-        maxLength: _emailOrPhoneNumber ? null : 11,
+        maxLength: 11,
         decoration: InputDecoration(
-          helperText: _emailOrPhoneNumber ? 'ایمیل' : 'تلفن همراه',
-          hintText:
-              'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
-          errorText: _emailOrPhoneNumberError,
-          suffixIcon: Icon(
-            _emailOrPhoneNumber
-                ? Ionicons.mail_outline
-                : Ionicons.phone_portrait_outline,
-          ),
+          helperText: 'تلفن همراه',
+          hintText: 'لطفاً شماره تلفن همراه خود را وارد کنید.',
+          errorText: _phoneNumberError,
+          suffixIcon: Icon(Ionicons.phone_portrait_outline),
         ),
         onChanged: (String text) {
           setState(() {
-            _emailOrPhoneNumberError =
+            _phoneNumberError =
                 UserInformationFormatCheck.checkEmailFormat(
-              _emailOrPhoneNumberController,
+              _phoneNumberController,
               null,
             );
             ;
@@ -195,21 +188,21 @@ class _LoginPageState extends State<LoginPage>
   }
 
   void _informationConfirm() async {
-    _emailOrPhoneNumberError = UserInformationFormatCheck.checkEmailFormat(
-      _emailOrPhoneNumberController,
-      'لطفاً ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} خود را وارد کنید.',
+    _phoneNumberError = UserInformationFormatCheck.checkEmailFormat(
+      _phoneNumberController,
+      'لطفاً شماره تلفن همراه خود را وارد کنید.',
     );
     _passwordError = UserInformationFormatCheck.checkPasswordFormat(
       _passwordController,
       'لطفاً رمز عبور را وارد کنید.',
     );
 
-    if ((_emailOrPhoneNumberError == null) && (_passwordError == null)) {
+    if ((_phoneNumberError == null) && (_passwordError == null)) {
       try {
         customDio = await Dio().post(
           'https://kaghazsoti.uage.ir/api/login',
           data: {
-            'email': _emailOrPhoneNumberController.text,
+            'username': _phoneNumberController.text,
             'password': _passwordController.text
           },
         );
@@ -220,7 +213,7 @@ class _LoginPageState extends State<LoginPage>
           _loginPermission = true;
 
           if (customResponse.success) {
-            _emailOrPhoneNumberError = null;
+            _phoneNumberError = null;
             _passwordError = null;
 
             await sharedPreferences.setString(
@@ -257,7 +250,8 @@ class _LoginPageState extends State<LoginPage>
             });
           } else {
             setState(() {
-              _emailOrPhoneNumberError = 'کاربری با ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} وارد شده یافت نشد.';
+              _phoneNumberError =
+                  'کاربری با شماره تلفن همراه وارد شده یافت نشد.';
               _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
               _loginPermission = false;
@@ -266,7 +260,8 @@ class _LoginPageState extends State<LoginPage>
         }
       } catch (e) {
         setState(() {
-          _emailOrPhoneNumberError = 'کاربری با ${_emailOrPhoneNumber ? 'ایمیل' : 'شماره تلفن همراه'} وارد شده یافت نشد.';
+          _phoneNumberError =
+          'کاربری با شماره تلفن همراه وارد شده یافت نشد.';
           _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
           _loginPermission = false;
