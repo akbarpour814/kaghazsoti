@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kaghaze_souti/test.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,9 +14,7 @@ class MyApp extends StatelessWidget {
 
     return const MaterialApp(
       title: appTitle,
-      home: OrientationList(
-        title: appTitle,
-      ),
+      home: CountdownTimerDemoState(),
     );
   }
 }

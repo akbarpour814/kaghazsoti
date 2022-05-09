@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import 'package:kaghaze_souti/controller/send_verification_code.dart';
 import 'package:kaghaze_souti/view/pages/login_pages/splash_page.dart';
 import '../../../controller/custom_response.dart';
 import '../../../controller/functions_for_checking_user_information_format.dart';
@@ -27,7 +28,7 @@ class PasswordRecoveryPage extends StatefulWidget {
 }
 
 class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
-    with InternetConnection, LoadDataFromAPI {
+    with InternetConnection, LoadDataFromAPI, SendVerificationCode {
   late TextEditingController _phoneNumberController;
   String? _phoneNumberError;
   late TextEditingController _recoveryCodeController;
@@ -217,6 +218,8 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
       if (customDio.statusCode == 200) {
         setState(() {
           _sendRecoveryCode = false;
+
+          startTimer();
         });
       }
     }
@@ -234,7 +237,8 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
             helperText: 'کد بازیابی',
             hintText: 'لطفاً کد بازیابی را وارد کنید.',
             errorText: _recoveryCodeError,
-            suffixIcon: const Icon(Ionicons.code_working_outline),
+            //suffixIcon: Icon(Ionicons.code_working_outline),
+            suffixIcon: Text(remainder()),
           ),
           onChanged: (String text) {},
         ),
