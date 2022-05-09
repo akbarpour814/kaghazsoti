@@ -71,7 +71,7 @@ class _LoginPageState extends State<LoginPage>
                   padding: EdgeInsets.symmetric(vertical: 5.0.h),
                   child: Column(
                     children: [
-                      _emailOrPhoneNumberTextField(),
+                      _phoneNumberTextField(),
                       _password(),
                     ],
                   ),
@@ -110,7 +110,7 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  Padding _emailOrPhoneNumberTextField() {
+  Padding _phoneNumberTextField() {
     return Padding(
       padding: EdgeInsets.only(bottom: 0.5.h),
       child: TextField(
@@ -127,7 +127,7 @@ class _LoginPageState extends State<LoginPage>
         onChanged: (String text) {
           setState(() {
             _phoneNumberError =
-                UserInformationFormatCheck.checkEmailFormat(
+                UserInformationFormatCheck.checkPhoneNumberFormat(
               _phoneNumberController,
               null,
             );
@@ -188,7 +188,7 @@ class _LoginPageState extends State<LoginPage>
   }
 
   void _informationConfirm() async {
-    _phoneNumberError = UserInformationFormatCheck.checkEmailFormat(
+    _phoneNumberError = UserInformationFormatCheck.checkPhoneNumberFormat(
       _phoneNumberController,
       'لطفاً شماره تلفن همراه خود را وارد کنید.',
     );

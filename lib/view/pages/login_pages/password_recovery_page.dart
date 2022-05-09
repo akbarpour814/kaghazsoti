@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
@@ -31,25 +32,20 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
     with InternetConnection, LoadDataFromAPI, SendVerificationCode {
   late TextEditingController _phoneNumberController;
   String? _phoneNumberError;
-  late TextEditingController _recoveryCodeController;
-  String? _recoveryCodeError;
   late TextEditingController _newPasswordController;
   String? _newPasswordError;
   late TextEditingController _repeatNewPasswordController;
   String? _repeatNewPasswordError;
   late bool _obscureText;
-  late bool _sendRecoveryCode;
 
   @override
   void initState() {
     super.initState();
 
     _phoneNumberController = TextEditingController();
-    _recoveryCodeController = TextEditingController();
     _newPasswordController = TextEditingController();
     _repeatNewPasswordController = TextEditingController();
     _obscureText = true;
-    _sendRecoveryCode = true;
   }
 
   @override
@@ -76,9 +72,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
             ),
           ),
           onTap: () {
-            if (!_sendRecoveryCode) {
-              Navigator.of(context).pop();
-            }
+            Navigator.of(context).pop();
           },
         ),
       ],
@@ -103,11 +97,13 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
                   child: _permissionToObscureText(),
                 ),
                 _phoneNumber(),
-                _recoveryCode(),
+                codeTextField(),
+                //_recoveryCode(),
                 _newPassword(),
                 _repeatNewPassword(),
                 _receiveRecoveryCodeButton(),
                 _sendRecoveryCodeButton(),
+                resendCodeButton(_phoneNumberController.text),
               ],
             ),
           ),
@@ -118,7 +114,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
 
   Visibility _permissionToObscureText() {
     return Visibility(
-      visible: !_sendRecoveryCode,
+      visible: !sendCode,
       child: Row(
         children: [
           Flexible(
@@ -153,7 +149,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
 
   Visibility _phoneNumber() {
     return Visibility(
-      visible: _sendRecoveryCode,
+      visible: sendCode,
       child: Padding(
         padding: EdgeInsets.only(bottom: 0.5.h),
         child: TextField(
@@ -182,7 +178,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
 
   Visibility _receiveRecoveryCodeButton() {
     return Visibility(
-      visible: _sendRecoveryCode,
+      visible: sendCode && !resendCodePermission,
       child: Padding(
         padding: EdgeInsets.only(top: 5.0.h),
         child: Center(
@@ -194,7 +190,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
                   _receiveRecoveryCode();
                 });
               },
-              label: const Text('دریافت کد بازیابی'),
+              label: const Text('دریافت کد تأیید'),
               icon: const Icon(Ionicons.checkmark_outline),
             ),
           ),
@@ -217,7 +213,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
 
       if (customDio.statusCode == 200) {
         setState(() {
-          _sendRecoveryCode = false;
+          sendCode = false;
 
           startTimer();
         });
@@ -225,30 +221,19 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
     }
   }
 
-  Visibility _recoveryCode() {
-    return Visibility(
-      visible: !_sendRecoveryCode,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 0.5.h),
-        child: TextField(
-          controller: _recoveryCodeController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            helperText: 'کد بازیابی',
-            hintText: 'لطفاً کد بازیابی را وارد کنید.',
-            errorText: _recoveryCodeError,
-            //suffixIcon: Icon(Ionicons.code_working_outline),
-            suffixIcon: Text(remainder()),
-          ),
-          onChanged: (String text) {},
-        ),
-      ),
-    );
-  }
+  // Visibility _recoveryCode() {
+  //   return Visibility(
+  //     visible: !(sendCode || resendCodePermission),
+  //     child: Padding(
+  //       padding: EdgeInsets.only(bottom: 0.5.h),
+  //       child: codeTextField(),
+  //     ),
+  //   );
+  // }
 
   Visibility _sendRecoveryCodeButton() {
     return Visibility(
-      visible: !_sendRecoveryCode,
+      visible: !sendCode,
       child: Padding(
         padding: EdgeInsets.only(top: 5.0.h),
         child: Center(
@@ -260,7 +245,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
                   _sendRecoveryCodeOperation();
                 });
               },
-              label: const Text('ارسال کد بازیابی'),
+              label: const Text('ارسال کد تأیید'),
               icon: const Icon(Ionicons.checkmark_outline),
             ),
           ),
@@ -270,8 +255,8 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
   }
 
   void _sendRecoveryCodeOperation() async {
-    _recoveryCodeError = _recoveryCodeController.text.isEmpty
-        ? 'لطفاً کد بازیابی را وارد کنید.'
+    codeError = codeController.text.isEmpty
+        ? 'لطفاً کد تأیید را وارد کنید.'
         : null;
     _newPasswordError = UserInformationFormatCheck.checkPasswordFormat(
       _newPasswordController,
@@ -282,7 +267,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
       'لطفاً رمز عبور جدید را تکرار کنید.',
     );
 
-    if ((_recoveryCodeError == null) &&
+    if ((codeError == null) &&
         (_newPasswordError == null) &&
         (_repeatNewPasswordError == null)) {
       var client = http.Client();
@@ -291,7 +276,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
           Uri.parse('https://kaghazsoti.uage.ir/api/forgot/step2'),
           body: {
             'mobile': _phoneNumberController.text,
-            'code': _recoveryCodeController.text,
+            'code': codeController.text,
             'password': _newPasswordController.text,
             'password_confirmation': _repeatNewPasswordController.text,
           },
@@ -346,7 +331,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
                 );
               });
 
-              _recoveryCodeController = TextEditingController();
+              codeController = TextEditingController();
               _phoneNumberController = TextEditingController();
               _newPasswordController = TextEditingController();
               _repeatNewPasswordController = TextEditingController();
@@ -370,7 +355,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
 
   Visibility _newPassword() {
     return Visibility(
-      visible: !_sendRecoveryCode,
+      visible: !sendCode,
       child: Padding(
         padding: EdgeInsets.only(bottom: 0.5.h),
         child: TextField(
@@ -399,7 +384,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
 
   Visibility _repeatNewPassword() {
     return Visibility(
-      visible: !_sendRecoveryCode,
+      visible: !sendCode,
       child: Padding(
         padding: EdgeInsets.only(bottom: 0.5.h),
         child: TextField(

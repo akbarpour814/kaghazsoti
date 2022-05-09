@@ -79,9 +79,7 @@ class _RegistrationPageState extends State<RegistrationPage> with InternetConnec
             ),
           ),
           onTap: () {
-            if (!_registeredInformation) {
-              Navigator.of(context).pop();
-            }
+            Navigator.of(context).pop();
           },
         ),
       ],
