@@ -1,7 +1,6 @@
 import 'dart:async';
 
 // import 'package:localization/localization.dart';
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -76,9 +75,6 @@ int demoInPlayId = -1;
 
 
 Future<void> main() async {
-
-  AssetsAudioPlayer.setupNotificationsOpenAction((notification) => true);
-
   audioPlayerHandler = await AudioService.init(
     builder: () => AudioPlayerHandlerImplements(),
     config: const AudioServiceConfig(
