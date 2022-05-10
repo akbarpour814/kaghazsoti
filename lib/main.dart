@@ -1,10 +1,12 @@
 import 'dart:async';
 
+// import 'package:localization/localization.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:kaghaze_souti/view/audio_player_models/audio_player_handler.dart';
@@ -14,6 +16,7 @@ import 'package:kaghaze_souti/view/pages/profile_page/cart_page.dart';
 import 'package:kaghaze_souti/view/pages/profile_page/marked_page.dart';
 import 'package:kaghaze_souti/view/pages/profile_page/purchase_history_page.dart';
 import 'package:material_color_generator/material_color_generator.dart';
+import 'package:persian_number_utility/persian_number_utility.dart';
 
 import '/view/view_models/player_bottom_navigation_bar.dart';
 import 'controller/custom_response.dart';
@@ -40,6 +43,8 @@ PlayerBottomNavigationBar playerBottomNavigationBar = const PlayerBottomNavigati
 late AudioPlayer demoPlayer;
 
 bool inLibraryPage = false;
+
+String domain = '';
 
 
 
@@ -73,8 +78,6 @@ int demoInPlayId = -1;
 Future<void> main() async {
 
   AssetsAudioPlayer.setupNotificationsOpenAction((notification) => true);
-
-
 
   audioPlayerHandler = await AudioService.init(
     builder: () => AudioPlayerHandlerImplements(),
@@ -112,6 +115,14 @@ class MyApp extends StatelessWidget {
           builder: (_, ThemeMode currentMode, __) {
             return MaterialApp(
               title: 'Kaghaze souti',
+              localizationsDelegates: [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: [
+                Locale('fa', ''),
+              ],
               debugShowCheckedModeBanner: false,
               routes: {
                 CartPage.routeName: (context) => const CartPage(),

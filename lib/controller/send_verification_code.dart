@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:kaghaze_souti/view/pages/login_pages/registration_page.dart';
 import 'package:kaghaze_souti/view/pages/login_pages/splash_page.dart';
 import 'package:sizer/sizer.dart';
 
@@ -15,7 +16,7 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
   String? codeError;
   late int numberOfSend;
   late bool sendCode;
-  late Timer timer;
+  Timer? timer;
   late Duration duration;
   late bool resendCodePermission;
 
@@ -30,56 +31,68 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
     resendCodePermission = false;
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void startTimer() {
     timer =
         Timer.periodic(Duration(seconds: 1), (_) => setCountDown());
   }
 
   void stopTimer() {
-    setState(() => timer.cancel());
+    setState(() => timer!.cancel());
   }
 
   void setCountDown() {
     final int reduceSecondsBy = 1;
 
-    setState(() {
-      final int seconds = duration.inSeconds - reduceSecondsBy;
+    try {
+      setState(() {
+        final int seconds = duration.inSeconds - reduceSecondsBy;
 
-      if (seconds < 0) {
-        timer.cancel();
+        if (seconds < 0) {
+          timer!.cancel();
 
-        numberOfSend++;
+          codeError = null;
 
-        sendCode = true;
+          numberOfSend++;
 
-        if((numberOfSend >= 1) && (numberOfSend < 5)) {
-          resendCodePermission = true;
-        } else {
-          resendCodePermission = false;
+          sendCode = true;
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            customSnackBar(
-              context,
-              Ionicons.refresh_outline,
-              'بعد از اجرای دوباره برنامه امتحان کنید.',
-              3,
-            ),
-          );
+          if((numberOfSend >= 1) && (numberOfSend < 5)) {
+            resendCodePermission = true;
+          } else {
+            resendCodePermission = false;
+            login = false;
 
-          Future.delayed(const Duration(seconds: 4), () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                const SplashPage(),
+            ScaffoldMessenger.of(context).showSnackBar(
+              customSnackBar(
+                context,
+                Ionicons.refresh_outline,
+                'بعد از اجرای دوباره برنامه امتحان کنید.',
+                2,
               ),
             );
-          });
+
+            Future.delayed(const Duration(microseconds: 2500), () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                  const SplashPage(),
+                ),
+              );
+            });
+          }
+        } else {
+          duration = Duration(seconds: seconds);
         }
-      } else {
-        duration = Duration(seconds: seconds);
-      }
-    });
+      });
+    } catch(e) {
+
+    }
   }
 
   String remainder() {
@@ -100,6 +113,11 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
             errorText: codeError,
             suffixIcon: Icon(Ionicons.code_working_outline),
           ),
+          onChanged: (String text) {
+            setState(() {
+              codeError = null;
+            });
+          },
         ),
       ),
     );
@@ -115,6 +133,10 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
             width: 100.0.w - (2 * 5.0.w),
             child: ElevatedButton.icon(
               onPressed: () {
+                setState(() {
+                  codeController = TextEditingController();
+                });
+
                 resendCode(phoneNumber);
               },
               label: const Text('دریافت مجدد کد تأیید'),

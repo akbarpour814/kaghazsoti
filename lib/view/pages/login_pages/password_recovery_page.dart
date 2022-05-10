@@ -72,6 +72,10 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
             ),
           ),
           onTap: () {
+            if(timer != null) {
+              timer!.cancel();
+            }
+
             Navigator.of(context).pop();
           },
         ),
@@ -221,16 +225,6 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
     }
   }
 
-  // Visibility _recoveryCode() {
-  //   return Visibility(
-  //     visible: !(sendCode || resendCodePermission),
-  //     child: Padding(
-  //       padding: EdgeInsets.only(bottom: 0.5.h),
-  //       child: codeTextField(),
-  //     ),
-  //   );
-  // }
-
   Visibility _sendRecoveryCodeButton() {
     return Visibility(
       visible: !sendCode,
@@ -281,23 +275,22 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
             'password_confirmation': _repeatNewPasswordController.text,
           },
         );
-
         if (response.statusCode == 200) {
           customResponse = CustomResponse.fromJson(
               jsonDecode(utf8.decode(response.bodyBytes))
-                  as Map<String, dynamic>);
+              as Map<String, dynamic>);
 
           Response<dynamic> _customDio = await Dio().post(
             'https://kaghazsoti.uage.ir/api/login',
             data: {
-              'email': customResponse.data['email'],
+              'username': _phoneNumberController.text,
               'password': _newPasswordController.text
             },
           );
 
           if (_customDio.statusCode == 200) {
             CustomResponse _customResponse =
-                CustomResponse.fromJson(_customDio.data);
+            CustomResponse.fromJson(_customDio.data);
 
             tokenLogin.$ = _customResponse.data['token'];
             await sharedPreferences.setString(
@@ -322,7 +315,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
                 ),
               );
 
-              Future.delayed(const Duration(seconds: 3), () {
+              Future.delayed(const Duration(microseconds: 2500), () {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
@@ -338,15 +331,15 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
             });
           }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            customSnackBar(
-              context,
-              Ionicons.refresh_outline,
-              'لطفاً دوباره امتحان کنید.',
-              2,
-            ),
-          );
+          setState(() {
+            codeError = 'کد وارد شده صحیح نمی باشد.';
+          });
         }
+
+      } catch(e) {
+        setState(() {
+          codeError = 'کد وارد شده صحیح نمی باشد.';
+        });
       } finally {
         client.close();
       }

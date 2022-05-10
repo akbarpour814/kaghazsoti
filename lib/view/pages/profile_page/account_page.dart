@@ -137,7 +137,6 @@ class _AccountPageState extends State<AccountPage> with InternetConnection, Load
                   child: Column(
                     children: [
                       _firstAndLastName(),
-                      _email(),
                       _phoneNumber(),
                     ],
                   ),
@@ -315,7 +314,6 @@ class _AccountPageState extends State<AccountPage> with InternetConnection, Load
         'user',
         data: {
           'name': _firstAndLastNameController.text,
-          'email': _emailController.text,
           'mobile': _phoneNumberController.text,
         },
       );

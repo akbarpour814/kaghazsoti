@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:kaghaze_souti/controller/internet_connection.dart';
 import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import 'package:kaghaze_souti/controller/send_verification_code.dart';
 import '../../../controller/prepare_to_login_app.dart';
 import '../../view_models/no_internet_connection.dart';
 import '/controller/custom_response.dart';
@@ -25,7 +26,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage>
-    with TickerProviderStateMixin, InternetConnection, LoadDataFromAPI {
+    with TickerProviderStateMixin, InternetConnection, LoadDataFromAPI, SendVerificationCode {
   late TextEditingController _phoneNumberController;
   String? _phoneNumberError;
   late TextEditingController _passwordController;
@@ -68,15 +69,18 @@ class _LoginPageState extends State<LoginPage>
               children: [
                 _appTitle(),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 5.0.h),
+                  padding: EdgeInsets.symmetric(vertical: resendCodePermission && sendCode && (numberOfSend < 5) ? 0.0 : 5.0.h),
                   child: Column(
                     children: [
                       _phoneNumberTextField(),
                       _password(),
+                      codeTextField(),
                     ],
                   ),
                 ),
                 _informationConfirmButton(),
+                _sendCodeButton(),
+                resendCodeButton(_phoneNumberController.text),
                 Container(
                   margin: EdgeInsets.only(top: 15.0.h),
                   child: Column(
@@ -116,7 +120,7 @@ class _LoginPageState extends State<LoginPage>
       child: TextField(
         readOnly: _loginPermission,
         controller: _phoneNumberController,
-        keyboardType: TextInputType.emailAddress,
+        keyboardType: TextInputType.phone,
         maxLength: 11,
         decoration: InputDecoration(
           helperText: 'تلفن همراه',
@@ -138,51 +142,51 @@ class _LoginPageState extends State<LoginPage>
     );
   }
 
-  Padding _password() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 0.5.h),
-      child: TextField(
-        readOnly: _loginPermission,
-        obscureText: _obscureText,
-        controller: _passwordController,
-        keyboardType: TextInputType.visiblePassword,
-        decoration: InputDecoration(
-          helperText: 'رمز عبور',
-          hintText: 'لطفاً رمز عبور را وارد کنید.',
-          errorText: _passwordError,
-          suffixIcon: InkWell(
-            onTap: () {
-              setState(() {
-                _obscureText = _obscureText ? false : true;
-              });
-            },
-            child: Icon(
-                _obscureText ? Ionicons.eye_off_outline : Ionicons.eye_outline),
-          ),
+  TextField _password() {
+    return TextField(
+      readOnly: _loginPermission,
+      obscureText: _obscureText,
+      controller: _passwordController,
+      keyboardType: TextInputType.visiblePassword,
+      decoration: InputDecoration(
+        helperText: 'رمز عبور',
+        hintText: 'لطفاً رمز عبور را وارد کنید.',
+        errorText: _passwordError,
+        suffixIcon: InkWell(
+          onTap: () {
+            setState(() {
+              _obscureText = _obscureText ? false : true;
+            });
+          },
+          child: Icon(
+              _obscureText ? Ionicons.eye_off_outline : Ionicons.eye_outline),
         ),
-        onChanged: (String text) {
-          setState(() {
-            _passwordError = UserInformationFormatCheck.checkPasswordFormat(
-              _passwordController,
-              null,
-            );
-          });
-        },
       ),
+      onChanged: (String text) {
+        setState(() {
+          _passwordError = UserInformationFormatCheck.checkPasswordFormat(
+            _passwordController,
+            null,
+          );
+        });
+      },
     );
   }
 
-  SizedBox _informationConfirmButton() {
-    return SizedBox(
-      width: 100.0.w - (2 * 5.0.w),
-      child: ElevatedButton.icon(
-        onPressed: () {
-          setState(() {
-            _informationConfirm();
-          });
-        },
-        label: const Text('بررسی اطلاعات برای ورود'),
-        icon: const Icon(Ionicons.checkmark_outline),
+  Visibility _informationConfirmButton() {
+    return Visibility(
+      visible: sendCode && !resendCodePermission && !_loginPermission,
+      child: SizedBox(
+        width: 100.0.w - (2 * 5.0.w),
+        child: ElevatedButton.icon(
+          onPressed: () {
+            setState(() {
+              _informationConfirm();
+            });
+          },
+          label: const Text('بررسی اطلاعات برای ورود'),
+          icon: const Icon(Ionicons.checkmark_outline),
+        ),
       ),
     );
   }
@@ -208,54 +212,15 @@ class _LoginPageState extends State<LoginPage>
         );
 
         if (customDio.statusCode == 200) {
-          customResponse = CustomResponse.fromJson(customDio.data);
-
-          _loginPermission = true;
-
-          if (customResponse.success) {
-            _phoneNumberError = null;
-            _passwordError = null;
-
-            await sharedPreferences.setString(
-                'tokenLogin', customResponse.data['token']);
-            await sharedPreferences.setBool('firstLogin', false);
+          if(customDio.data['data']['status'] == 0) {
             setState(() {
-              tokenLogin.$ = customResponse.data['token'];
+              sendCode = false;
+              _loginPermission = true;
 
-              headers = {
-                'Authorization': 'Bearer ${tokenLogin.of(context)}',
-                'Accept': 'application/json',
-                'client': 'api'
-              };
-            });
-
-            prepareToLoginApp();
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              customSnackBar(
-                context,
-                Ionicons.checkmark_done_outline,
-                'به کاغذ صوتی خوش آمدید.',
-                2,
-              ),
-            );
-
-            Future.delayed(const Duration(seconds: 3), () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const PersistentBottomNavigationBar(),
-                ),
-              );
+              startTimer();
             });
           } else {
-            setState(() {
-              _phoneNumberError =
-                  'کاربری با شماره تلفن همراه وارد شده یافت نشد.';
-              _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
-
-              _loginPermission = false;
-            });
+            _login(customDio.data);
           }
         }
       } catch (e) {
@@ -322,5 +287,99 @@ class _LoginPageState extends State<LoginPage>
         ),
       ),
     );
+  }
+
+  Visibility _sendCodeButton() {
+    return Visibility(
+      visible: !sendCode,
+      child: Center(
+        child: SizedBox(
+          width: 100.0.w - (2 * 5.0.w),
+          child: ElevatedButton.icon(
+            onPressed: () {
+              setState(() {
+                _sendCodeOperation();
+              });
+            },
+            label: const Text('ارسال کد تأیید'),
+            icon: const Icon(Ionicons.checkmark_outline),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _sendCodeOperation() async {
+    try {
+      Response<dynamic> _customDio = await Dio().post(
+        'https://kaghazsoti.uage.ir/api/register/register_confirmation_step_2',
+        data: {
+          'mobile': _phoneNumberController.text,
+          'code': codeController.text,
+        },
+      );
+
+      if (_customDio.statusCode == 200) {
+        _login(_customDio.data);
+      }
+    } catch(e) {
+      setState(() {
+        codeError = 'کد وارد شده صحیح نمی باشد.';
+      });
+    }
+  }
+
+  void _login(Map data) async {
+    if (data['success']) {
+      _phoneNumberError = null;
+      _passwordError = null;
+
+      await sharedPreferences.setString(
+          'tokenLogin', data['data']['token']);
+      await sharedPreferences.setBool('firstLogin', false);
+      setState(() {
+        sendCode = true;
+        _loginPermission = true;
+
+        _phoneNumberController = TextEditingController();
+        _passwordController = TextEditingController();
+
+        tokenLogin.$ = data['data']['token'];
+
+        headers = {
+          'Authorization': 'Bearer ${tokenLogin.of(context)}',
+          'Accept': 'application/json',
+          'client': 'api'
+        };
+      });
+
+      prepareToLoginApp();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        customSnackBar(
+          context,
+          Ionicons.checkmark_done_outline,
+          'به کاغذ صوتی خوش آمدید.',
+          2,
+        ),
+      );
+
+      Future.delayed(const Duration(microseconds: 2500), () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const PersistentBottomNavigationBar(),
+          ),
+        );
+      });
+    } else {
+      setState(() {
+        _phoneNumberError =
+        'کاربری با شماره تلفن همراه وارد شده یافت نشد.';
+        _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
+
+        _loginPermission = false;
+      });
+    }
   }
 }

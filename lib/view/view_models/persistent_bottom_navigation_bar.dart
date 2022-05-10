@@ -44,7 +44,8 @@ class _PersistentBottomNavigationBarState
   bool _secondTime = false;
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
+    /*
+    WillPopScope(
       onWillPop: () async {
         if((_persistentTabController.index == 0)) {
           SystemChannels.platform.invokeMethod('SystemNavigator.pop');
@@ -60,15 +61,15 @@ class _PersistentBottomNavigationBarState
 
         return false;
       },
-      child: PersistentTabView(
-        context,
-        controller: _persistentTabController,
-        screens: _pages,
-        items: _items(),
-        navBarStyle: NavBarStyle.style18,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        resizeToAvoidBottomInset: true,
-      ),
+    */
+    return PersistentTabView(
+      context,
+      controller: _persistentTabController,
+      screens: _pages,
+      items: _items(),
+      navBarStyle: NavBarStyle.style18,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      resizeToAvoidBottomInset: true,
     );
   }
 
