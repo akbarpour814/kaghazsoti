@@ -305,7 +305,7 @@ class _RegistrationPageState extends State<RegistrationPage>
       var client = http.Client();
       try {
         http.Response response = await client.post(
-          Uri.parse('https://kaghazsoti.uage.ir/api/register'),
+          Uri.parse('${domain}register'),
           body: {
             'name': _firstAndLastNameController.text,
             'username': _phoneNumberController.text,
@@ -364,7 +364,7 @@ class _RegistrationPageState extends State<RegistrationPage>
   void _sendCodeOperation() async {
     try {
       Response<dynamic> _customDio = await Dio().post(
-        'https://kaghazsoti.uage.ir/api/register/register_confirmation_step_2',
+        '${domain}register/register_confirmation_step_2',
         data: {
           'mobile': _phoneNumberController.text,
           'code': codeController.text,

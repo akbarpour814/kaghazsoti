@@ -9,6 +9,7 @@ import 'package:kaghaze_souti/view/pages/login_pages/registration_page.dart';
 import 'package:kaghaze_souti/view/pages/login_pages/splash_page.dart';
 import 'package:sizer/sizer.dart';
 
+import '../main.dart';
 import '../view/view_models/custom_snack_bar.dart';
 
 mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
@@ -150,7 +151,7 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
 
   void resendCode(String phoneNumber) async {
     Response<dynamic> customDio = await Dio().post(
-      'https://kaghazsoti.uage.ir/api/register/resend',
+      '${domain}register/resend',
       data: {'mobile': phoneNumber},
     );
 

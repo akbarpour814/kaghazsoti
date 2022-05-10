@@ -204,7 +204,7 @@ class _LoginPageState extends State<LoginPage>
     if ((_phoneNumberError == null) && (_passwordError == null)) {
       try {
         customDio = await Dio().post(
-          'https://kaghazsoti.uage.ir/api/login',
+          '${domain}login',
           data: {
             'username': _phoneNumberController.text,
             'password': _passwordController.text
@@ -312,7 +312,7 @@ class _LoginPageState extends State<LoginPage>
   void _sendCodeOperation() async {
     try {
       Response<dynamic> _customDio = await Dio().post(
-        'https://kaghazsoti.uage.ir/api/register/register_confirmation_step_2',
+        '${domain}register/register_confirmation_step_2',
         data: {
           'mobile': _phoneNumberController.text,
           'code': codeController.text,

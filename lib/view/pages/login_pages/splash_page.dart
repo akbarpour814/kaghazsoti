@@ -58,7 +58,7 @@ class _SplashPageState extends State<SplashPage> with InternetConnection, LoadDa
 
     _firstLogin = sharedPreferences.getBool('firstLogin') ?? true;
 
-    customDio = await Dio().post('https://kaghazsoti.uage.ir/api/categories');
+    customDio = await Dio().post('${domain}categories');
 
     if (!_firstLogin) {
       tokenLogin.$ = await sharedPreferences.getString('tokenLogin') ?? '';
@@ -179,7 +179,7 @@ class _SplashPageState extends State<SplashPage> with InternetConnection, LoadDa
   late String android;
   late String ios;
   Future _x() async {
-    customDio = await Dio().get('https://kaghazsoti.uage.ir/api/version/get');
+    customDio = await Dio().get('${domain}version/get');
 
     if(customDio.statusCode == 200) {
       Map<String, dynamic> data = customDio.data;
@@ -261,7 +261,7 @@ class _SplashPageState extends State<SplashPage>
   }
 
   Future _getVersion() async {
-    customDio = await Dio().get('https://kaghazsoti.uage.ir/api/version/get');
+    customDio = await Dio().get('${domain}version/get');
 
     if (customDio.statusCode == 200) {
       Map<String, dynamic> data = customDio.data;

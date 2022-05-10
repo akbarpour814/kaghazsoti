@@ -44,7 +44,7 @@ late AudioPlayer demoPlayer;
 
 bool inLibraryPage = false;
 
-String domain = '';
+String domain = 'https://kaghazsoti.uage.ir/api/';
 
 
 

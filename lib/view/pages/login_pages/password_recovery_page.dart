@@ -211,7 +211,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
 
     if (_phoneNumberError == null) {
       customDio = await Dio().post(
-        'https://kaghazsoti.uage.ir/api/forgot/step1',
+        '${domain}forgot/step1',
         data: {'mobile': _phoneNumberController.text},
       );
 
@@ -267,7 +267,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
       var client = http.Client();
       try {
         http.Response response = await client.post(
-          Uri.parse('https://kaghazsoti.uage.ir/api/forgot/step2'),
+          Uri.parse('${domain}forgot/step2'),
           body: {
             'mobile': _phoneNumberController.text,
             'code': codeController.text,
@@ -281,7 +281,7 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
               as Map<String, dynamic>);
 
           Response<dynamic> _customDio = await Dio().post(
-            'https://kaghazsoti.uage.ir/api/login',
+            '${domain}login',
             data: {
               'username': _phoneNumberController.text,
               'password': _newPasswordController.text
