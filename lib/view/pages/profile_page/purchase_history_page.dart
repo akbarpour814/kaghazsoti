@@ -392,7 +392,6 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
                   .add(_purchaseHistory[_purchaseIndexSelected].books[i].id);
             }
           });
-          print(libraryId);
 
           ScaffoldMessenger.of(context).showSnackBar(
             customSnackBar(

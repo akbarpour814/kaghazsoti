@@ -89,7 +89,6 @@ class _AccountPageState extends State<AccountPage>
             ),
           ),
           onTap: () {
-            print(MediaQuery.of(context).size.height);
             Navigator.of(context).pop();
           },
         ),

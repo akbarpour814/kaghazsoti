@@ -106,8 +106,6 @@ class _SplashPageState extends State<SplashPage>
 
       dataIsLoading = false;
 
-      print(headers);
-
       prepareToLoginApp();
 
       Navigator.pushReplacement(

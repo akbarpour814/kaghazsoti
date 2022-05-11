@@ -77,9 +77,6 @@ class _MyLibraryPageState extends State<MyLibraryPage>
       });
     }
 
-    print('ModalRoute.of(context).settings.name');
-    print(ModalRoute.of(context)!.settings.name);
-
     return customDio;
   }
 

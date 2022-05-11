@@ -50,10 +50,6 @@ class Payment extends State with LoadDataFromAPI {
             );
 
             statuss = status;
-            print('1 ${customDio.data}');
-            print('1 ${paymentRequest.authority}');
-
-
             paymentUrl = paymentGatewayUri!;
 
             await launch(paymentUrl);

@@ -52,8 +52,6 @@ class _CartPageState extends State<CartPage>
   @override
   void initState() {
     super.initState();
-
-    print(markedBooksId);
     _handleIncomingLinks();
 
     _bookCartSlug = [];
@@ -505,7 +503,6 @@ class _CartPageState extends State<CartPage>
               libraryId.add(_purchaseInvoice!.books[i].id);
             }
           });
-          print(libraryId);
 
           ScaffoldMessenger.of(context).showSnackBar(
             customSnackBar(

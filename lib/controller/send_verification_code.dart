@@ -157,7 +157,6 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
     );
 
     if (customDio.statusCode == 200) {
-      print(customDio.data);
       setState(() {
         sendCode = false;
 

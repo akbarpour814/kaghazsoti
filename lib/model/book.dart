@@ -177,35 +177,6 @@ class Book {
     print("json['similar']");
   }
 
-  void _toString() {
-    print(id);
-    print(slug);
-    print(name);
-    print(category);
-    print(subcategory);
-    print(author);
-    print(announcer);
-    print(fileSize);
-    print(publisherOfPrintedVersion);
-    print(printedVersionYear);
-    print(publisherOfAudioVersion);
-    print(audioVersionYear);
-    print(numberOfChapters);
-    print(numberOfPages);
-    print(duration);
-    print(price);
-    print(marked);
-    print(numberOfVotes);
-    print(numberOfStars);
-    print(aboutBook);
-    print(partOfTheBook);
-    print(reviews);
-    print(demo);
-    print(bookCoverPath);
-    print(otherBooksByThePublisher);
-    print(relatedBooks);
-  }
-
   void setReviews(List<dynamic> reviewsAsMap) {
     for (Map<String, dynamic> review in reviewsAsMap) {
       reviews.add(Review.fromJson(review));
