@@ -315,6 +315,7 @@ class _AccountPageState extends State<AccountPage>
         'user',
         data: {
           'name': _firstAndLastNameController.text,
+          'email': _emailController.text,
           'mobile': _phoneNumberController.text,
         },
       );
