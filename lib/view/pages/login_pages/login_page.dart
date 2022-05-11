@@ -1,22 +1,31 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
+
+//------/packages
+import 'package:sizer/sizer.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/controller/send_verification_code.dart';
-import '../../../controller/prepare_to_login_app.dart';
-import '../../view_models/no_internet_connection.dart';
-import '/controller/custom_response.dart';
+import 'package:dio/dio.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+//------/controller
+import '/controller/functions_for_checking_user_information_format.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+import '/controller/prepare_to_login_app.dart';
+import '/controller/send_verification_code.dart';
+
+//------/view/pages/login_pages
 import '/view/pages/login_pages/password_recovery_page.dart';
 import '/view/pages/login_pages/registration_page.dart';
 import '/view/pages/login_pages/splash_page.dart';
-import 'package:sizer/sizer.dart';
 
-import '../../../controller/functions_for_checking_user_information_format.dart';
-import '../../../main.dart';
-import '../../view_models/custom_snack_bar.dart';
-import '../../view_models/persistent_bottom_navigation_bar.dart';
+//------/view/view_models
+import '/view/view_models/custom_snack_bar.dart';
+import '/view/view_models/no_internet_connection.dart';
+import '/view/view_models/persistent_bottom_navigation_bar.dart';
+
+//------/main
+import '/main.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -26,7 +35,11 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage>
-    with TickerProviderStateMixin, InternetConnection, LoadDataFromAPI, SendVerificationCode {
+    with
+        TickerProviderStateMixin,
+        InternetConnection,
+        LoadDataFromAPI,
+        SendVerificationCode {
   late TextEditingController _phoneNumberController;
   String? _phoneNumberError;
   late TextEditingController _passwordController;
@@ -69,7 +82,11 @@ class _LoginPageState extends State<LoginPage>
               children: [
                 _appTitle(),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: resendCodePermission && sendCode && (numberOfSend < 5) ? 0.0 : 5.0.h),
+                  padding: EdgeInsets.symmetric(
+                      vertical:
+                          resendCodePermission && sendCode && (numberOfSend < 5)
+                              ? 0.0
+                              : 5.0.h),
                   child: Column(
                     children: [
                       _phoneNumberTextField(),
@@ -212,7 +229,7 @@ class _LoginPageState extends State<LoginPage>
         );
 
         if (customDio.statusCode == 200) {
-          if(customDio.data['data']['status'] == 0) {
+          if (customDio.data['data']['status'] == 0) {
             setState(() {
               sendCode = false;
               _loginPermission = true;
@@ -225,8 +242,7 @@ class _LoginPageState extends State<LoginPage>
         }
       } catch (e) {
         setState(() {
-          _phoneNumberError =
-          'کاربری با شماره تلفن همراه وارد شده یافت نشد.';
+          _phoneNumberError = 'کاربری با شماره تلفن همراه وارد شده یافت نشد.';
           _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
           _loginPermission = false;
@@ -322,7 +338,7 @@ class _LoginPageState extends State<LoginPage>
       if (_customDio.statusCode == 200) {
         _login(_customDio.data);
       }
-    } catch(e) {
+    } catch (e) {
       setState(() {
         codeError = 'کد وارد شده صحیح نمی باشد.';
       });
@@ -334,8 +350,7 @@ class _LoginPageState extends State<LoginPage>
       _phoneNumberError = null;
       _passwordError = null;
 
-      await sharedPreferences.setString(
-          'tokenLogin', data['data']['token']);
+      await sharedPreferences.setString('tokenLogin', data['data']['token']);
       await sharedPreferences.setBool('firstLogin', false);
       setState(() {
         sendCode = true;
@@ -374,8 +389,7 @@ class _LoginPageState extends State<LoginPage>
       });
     } else {
       setState(() {
-        _phoneNumberError =
-        'کاربری با شماره تلفن همراه وارد شده یافت نشد.';
+        _phoneNumberError = 'کاربری با شماره تلفن همراه وارد شده یافت نشد.';
         _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
         _loginPermission = false;

@@ -1,10 +1,21 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import '/view/view_models/show_stars.dart';
-import '../../main.dart';
-import '../../model/book_introduction.dart';
-import '../pages/search_page/search_page.dart';
-import '/view/view_models/book_introduction_page.dart';
+
+//------/packages
 import 'package:sizer/sizer.dart';
+
+//------/model
+import '/model/book_introduction.dart';
+
+//------/view/pages/search_page
+import '/view/pages/search_page/search_page.dart';
+
+//------/view/view_models
+import '/view/view_models/book_introduction_page.dart';
+import '/view/view_models/show_stars.dart';
+
+//------/main
+import '/main.dart';
 
 // ignore: must_be_immutable
 class BookShortIntroduction extends StatefulWidget {

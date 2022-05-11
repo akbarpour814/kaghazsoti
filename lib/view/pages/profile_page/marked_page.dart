@@ -1,18 +1,27 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
+
+//------/packages
 import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import '../../../controller/custom_dio.dart';
-import '../../../controller/custom_response.dart';
-import '../../../controller/load_data_from_api.dart';
-import '../../../main.dart';
-import '../../../model/book_introduction.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
-import '../../view_models/custom_smart_refresher.dart';
-import '../../view_models/no_internet_connection.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/custom_response.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/model
+import '/model/book_introduction.dart';
+
+//------/view/view_models
 import '/view/view_models/book_short_introduction.dart';
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/custom_smart_refresher.dart';
+import '/view/view_models/no_internet_connection.dart';
+
+//------/main
+import '/main.dart';
 
 class MarkedPage extends StatefulWidget {
   const MarkedPage({Key? key}) : super(key: key);
@@ -43,7 +52,7 @@ class _MarkedPageState extends State<MarkedPage>
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 
-      if(customResponse.data.isNotEmpty) {
+      if (customResponse.data.isNotEmpty) {
         lastPage = customResponse.data['last_page'];
 
         if (currentPage == 1) {
@@ -106,7 +115,7 @@ class _MarkedPageState extends State<MarkedPage>
       return FutureBuilder(
         future: _initMarkedBooks(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          if(snapshot.hasData) {
+          if (snapshot.hasData) {
             return _innerBody();
           } else {
             return const Center(child: CustomCircularProgressIndicator());

@@ -1,18 +1,27 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
-import '../../../controller/custom_dio.dart';
-import '../../../controller/custom_response.dart';
-import '../../../main.dart';
-import '../../../model/text_format.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
-import '../../view_models/no_internet_connection.dart';
+
+//------/packages
 import 'package:sizer/sizer.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/custom_response.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/model
+import '/model/text_format.dart';
+
+//------/view/view_models
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/display_of_details.dart';
+import '/view/view_models/no_internet_connection.dart';
+
+//------/main
+import '/main.dart';
 
 class FrequentlyAskedQuestionsPage extends StatefulWidget {
   const FrequentlyAskedQuestionsPage({Key? key}) : super(key: key);
@@ -42,7 +51,8 @@ class _FrequentlyAskedQuestionsPageState
 
       _frequentlyAskedQuestions.clear();
 
-      for (Map<String, dynamic> frequentlyAskedQuestion in customResponse.data) {
+      for (Map<String, dynamic> frequentlyAskedQuestion
+          in customResponse.data) {
         _frequentlyAskedQuestions
             .add(FrequentlyAskedQuestion.fromJson(frequentlyAskedQuestion));
       }
@@ -101,9 +111,7 @@ class _FrequentlyAskedQuestionsPageState
             return _innerBody();
           } else {
             return Center(
-              child: CustomCircularProgressIndicator(
-
-              ),
+              child: CustomCircularProgressIndicator(),
             );
           }
         },

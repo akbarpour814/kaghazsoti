@@ -1,78 +1,61 @@
-import 'dart:async';
-
-// import 'package:localization/localization.dart';
-import 'package:audio_service/audio_service.dart';
-import 'package:dio/dio.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:kaghaze_souti/view/audio_player_models/audio_player_handler.dart';
-import 'package:kaghaze_souti/view/pages/login_pages/login_page.dart';
-import 'package:kaghaze_souti/view/pages/login_pages/password_recovery_page.dart';
-import 'package:kaghaze_souti/view/pages/profile_page/cart_page.dart';
-import 'package:kaghaze_souti/view/pages/profile_page/marked_page.dart';
-import 'package:kaghaze_souti/view/pages/profile_page/purchase_history_page.dart';
-import 'package:material_color_generator/material_color_generator.dart';
-import 'package:persian_number_utility/persian_number_utility.dart';
 
-import '/view/view_models/player_bottom_navigation_bar.dart';
-import 'controller/custom_response.dart';
-import 'controller/custom_dio.dart';
-import 'model/book_introduction.dart';
-import 'view/pages/login_pages/splash_page.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+//------/packages
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:sizer/sizer.dart';
+import 'package:material_color_generator/material_color_generator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_value/shared_value.dart';
+import 'package:audio_service/audio_service.dart';
+import 'package:just_audio/just_audio.dart';
 
-import 'package:sizer/sizer.dart';
+//------/model
+import '/model/book_introduction.dart';
 
-import 'model/book.dart';
-import 'view/pages/library_page/library_page.dart';
-import 'view/pages/category_page/category_page.dart';
-import 'view/pages/home_page/home_page.dart';
-import 'view/pages/search_page/search_page.dart';
-import 'view/pages/profile_page/profile_page.dart';
+//------/view/audio_player_models
+import '/view/audio_player_models/audio_player_handler.dart';
 
+//------/view/pages/library_page
+import '/view/pages/library_page/library_page.dart';
 
+//------/view/pages/login_pages
+import '/view/pages/login_pages/splash_page.dart';
 
-PlayerBottomNavigationBar playerBottomNavigationBar = const PlayerBottomNavigationBar();
+//------/view/pages/profile_page
+import '/view/pages/profile_page/cart_page.dart';
+import '/view/pages/profile_page/purchase_history_page.dart';
 
-late AudioPlayer demoPlayer;
+//------/view/view_models
+import '/view/view_models/player_bottom_navigation_bar.dart';
 
-bool inLibraryPage = false;
-
+//-----/global variables
 String domain = 'https://kaghazsoti.uage.ir/api/';
-
-
-
-late SharedPreferences sharedPreferences;
-
 String defaultBanner = 'assets/images/defaultBanner.jpg';
 String defaultBookCover = 'assets/images/appLogoForOutApp.png';
 String appLogo = 'assets/images/appLogo.jpg';
 String appLogoNet = 'https://kaghazsoti.com/img/logo.1e799436.jpeg';
+const String fontFamily = 'Vazir';
 
-late List<int> markedBooksId = [];
-late List<int> libraryId = [];
-late List<String> bookCartSlug = [];
+late SharedPreferences sharedPreferences;
 late int userId;
+late List<int> libraryId = [];
+late List<int> markedBooksId = [];
+late List<String> bookCartSlug = [];
 
+PlayerBottomNavigationBar playerBottomNavigationBar =
+    const PlayerBottomNavigationBar();
 
-
-int previousAudiobookInPlayId = -1;
-
+late AudioPlayerHandler audioPlayerHandler;
+late AudioPlayer demoPlayer;
 
 int audiobookInPlayId = -1;
+int previousAudiobookInPlayId = -1;
 SharedValue<bool> audiobookIsPlaying = SharedValue(value: false);
 late BookIntroduction audiobookInPlay;
- late AudioPlayerHandler audioPlayerHandler;
 
-
-SharedValue<bool> demoOfBookIsPlaying = SharedValue(value: false);
 int demoInPlayId = -1;
-
+SharedValue<bool> demoOfBookIsPlaying = SharedValue(value: false);
 
 Future<void> main() async {
   audioPlayerHandler = await AudioService.init(
@@ -86,18 +69,16 @@ Future<void> main() async {
 
   demoPlayer = AudioPlayer();
 
-
   runApp(
     SharedValue.wrapApp(
       const MyApp(),
     ),
   );
 }
-const String fontFamily = 'Vazir';
-
 
 class MyApp extends StatelessWidget {
-  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
+  static final ValueNotifier<ThemeMode> themeNotifier =
+      ValueNotifier(ThemeMode.light);
   final Color _primaryColor = const Color(0xFF005C6B);
 
   const MyApp({Key? key}) : super(key: key);
@@ -122,7 +103,8 @@ class MyApp extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               routes: {
                 CartPage.routeName: (context) => const CartPage(),
-                PurchaseHistoryPage.routeName: (context) => const PurchaseHistoryPage(),
+                PurchaseHistoryPage.routeName: (context) =>
+                    const PurchaseHistoryPage(),
                 MyLibraryPage.routeName: (context) => const MyLibraryPage(),
               },
               theme: _theme(context),
@@ -258,4 +240,3 @@ class MyApp extends StatelessWidget {
     return const DividerThemeData(thickness: 1.0);
   }
 }
-

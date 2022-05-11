@@ -1,5 +1,8 @@
-import 'package:flutter/cupertino.dart';
-import 'package:kaghaze_souti/view/audio_player_models/progress_bar/progress_bar_state.dart';
+//------/dart and flutter packages
+import 'package:flutter/material.dart';
+
+//------/view/audio_player_models/progress_bar
+import '/view/audio_player_models/progress_bar/progress_bar_state.dart';
 
 class ProgressNotifier extends ValueNotifier<ProgressBarState> {
   ProgressNotifier() : super(_initialValue);

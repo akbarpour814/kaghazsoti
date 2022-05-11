@@ -1,10 +1,16 @@
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:kaghaze_souti/view/audio_player_models/progress_bar/progress_bar_state.dart';
-import 'package:kaghaze_souti/view/audio_player_models/progress_bar/progress_notifier.dart';
 
-import '../../../main.dart';
+//------/packages
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:just_audio/just_audio.dart';
+
+//------/view/audio_player_models/progress_bar
+import '/view/audio_player_models/progress_bar/progress_bar_state.dart';
+import '/view/audio_player_models/progress_bar/progress_notifier.dart';
+
+//------/main
+import '/main.dart';
 
 // ignore: must_be_immutable
 class CustomProgressBar extends StatefulWidget {
@@ -98,7 +104,8 @@ class _CustomProgressBarState extends State<CustomProgressBar> {
           thumbGlowColor: widget.thumbGlowColor,
           thumbGlowRadius: 20.0,
           barHeight: 2.5,
-          timeLabelTextStyle: TextStyle(color: Theme.of(context).primaryColor, fontFamily: fontFamily),
+          timeLabelTextStyle: TextStyle(
+              color: Theme.of(context).primaryColor, fontFamily: fontFamily),
         );
       },
     );
@@ -114,17 +121,21 @@ class CustomProgressBarBottom extends StatefulWidget {
   Color? bufferedBarColor;
   Color? thumbColor;
   Color? thumbGlowColor;
-  CustomProgressBarBottom({Key? key,
+
+  CustomProgressBarBottom({
+    Key? key,
     required this.audioPlayer,
     required this.timeLabelLocation,
     this.baseBarColor,
     this.progressBarColor,
     this.bufferedBarColor,
     this.thumbColor,
-    this.thumbGlowColor,}) : super(key: key);
+    this.thumbGlowColor,
+  }) : super(key: key);
 
   @override
-  _CustomProgressBarBottomState createState() => _CustomProgressBarBottomState();
+  _CustomProgressBarBottomState createState() =>
+      _CustomProgressBarBottomState();
 }
 
 class _CustomProgressBarBottomState extends State<CustomProgressBarBottom> {
@@ -194,10 +205,10 @@ class _CustomProgressBarBottomState extends State<CustomProgressBarBottom> {
           thumbGlowColor: widget.thumbGlowColor,
           thumbGlowRadius: 20.0,
           barHeight: 2.5,
-          timeLabelTextStyle: TextStyle(color: Theme.of(context).primaryColor, fontFamily: fontFamily),
+          timeLabelTextStyle: TextStyle(
+              color: Theme.of(context).primaryColor, fontFamily: fontFamily),
         );
       },
     );
   }
 }
-

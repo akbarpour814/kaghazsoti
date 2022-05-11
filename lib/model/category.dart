@@ -1,6 +1,5 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-
-import '/model/book_introduction.dart';
 
 class Category {
   late int id;
@@ -12,7 +11,7 @@ class Category {
     id = json['id'];
     name = json['name'];
 
-    for(Map<String, dynamic> subcategory in json['children']) {
+    for (Map<String, dynamic> subcategory in json['children']) {
       subcategories.add(Subcategory.fromJson(name, iconData, subcategory));
     }
   }
@@ -25,7 +24,8 @@ class Subcategory {
   late String categoryTitle;
   late IconData iconData;
 
-  Subcategory.fromJson(this.categoryTitle, this.iconData, Map<String, dynamic> json) {
+  Subcategory.fromJson(
+      this.categoryTitle, this.iconData, Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
     slug = json['slug'];

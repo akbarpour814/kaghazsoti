@@ -1,7 +1,5 @@
-import 'package:persian_number_utility/persian_number_utility.dart';
-import '/model/price_format.dart';
-
-import '../main.dart';
+//------/main
+import '/main.dart';
 
 class BookIntroduction {
   late int id;
@@ -14,7 +12,6 @@ class BookIntroduction {
   late int numberOfVotes;
   late int numberOfStars;
   late String bookCoverPath;
-
 
   BookIntroduction({
     required this.id,
@@ -42,11 +39,12 @@ class BookIntroduction {
     // print(json['title']);
     // print("json['title']");
 
-    author = json['author'] == null ? '' : (json['author'])['name']   ?? '';
+    author = json['author'] == null ? '' : (json['author'])['name'] ?? '';
     // print(json['author']);
     // print("json['author']");
 
-    publisherOfPrintedVersion = json['publisher'] == null ? '' : (json['publisher'])['name']   ?? '';
+    publisherOfPrintedVersion =
+        json['publisher'] == null ? '' : (json['publisher'])['name'] ?? '';
     // print(json['publisher']);
     // print("json['publisher']");
 
@@ -57,12 +55,10 @@ class BookIntroduction {
 
     //////////////////////
 
-
-    price = json['cast_price'] ;
+    price = json['cast_price'];
     //price = PriceFormat.priceFormat(price: int.parse(json['price'] ?? '0'), isFree: true);
     // print(json['price']);
     // print("json['price']");
-
 
     /////////////////////////
     numberOfVotes = json['vote'] ?? 0;
@@ -74,7 +70,9 @@ class BookIntroduction {
     // print(json['rating']);
     // print("json['rating']");
 
-    bookCoverPath = json['image'] == null ? defaultBookCover : 'https://kaghazsoti.uage.ir/storage/books/${json['image']}';
+    bookCoverPath = json['image'] == null
+        ? defaultBookCover
+        : 'https://kaghazsoti.uage.ir/storage/books/${json['image']}';
     // print(json['image']);
     // print("json['image']");
   }

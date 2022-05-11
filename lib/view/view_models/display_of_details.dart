@@ -1,3 +1,4 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
 
 mixin DisplayOfDetails<T extends StatefulWidget> on State<T> {

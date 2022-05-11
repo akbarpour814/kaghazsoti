@@ -1,16 +1,21 @@
+//------/dart and flutter packages
+import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/view/pages/login_pages/registration_page.dart';
-import 'package:kaghaze_souti/view/pages/login_pages/splash_page.dart';
+//------/packages
 import 'package:sizer/sizer.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:dio/dio.dart';
 
-import '../main.dart';
-import '../view/view_models/custom_snack_bar.dart';
+//------/view/pages/login_pages
+import '/view/pages/login_pages/registration_page.dart';
+import '/view/pages/login_pages/splash_page.dart';
+
+//------/view/view_models
+import '/view/view_models/custom_snack_bar.dart';
+
+//------/main
+import '/main.dart';
 
 mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
   late TextEditingController codeController;
@@ -38,8 +43,7 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
   }
 
   void startTimer() {
-    timer =
-        Timer.periodic(Duration(seconds: 1), (_) => setCountDown());
+    timer = Timer.periodic(Duration(seconds: 1), (_) => setCountDown());
   }
 
   void stopTimer() {
@@ -62,7 +66,7 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
 
           sendCode = true;
 
-          if((numberOfSend >= 1) && (numberOfSend < 5)) {
+          if ((numberOfSend >= 1) && (numberOfSend < 5)) {
             resendCodePermission = true;
           } else {
             resendCodePermission = false;
@@ -81,8 +85,7 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                  const SplashPage(),
+                  builder: (context) => const SplashPage(),
                 ),
               );
             });
@@ -91,9 +94,7 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
           duration = Duration(seconds: seconds);
         }
       });
-    } catch(e) {
-
-    }
+    } catch (e) {}
   }
 
   String remainder() {
@@ -171,5 +172,4 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
 
     setState(() => duration = Duration(seconds: 59));
   }
-
 }

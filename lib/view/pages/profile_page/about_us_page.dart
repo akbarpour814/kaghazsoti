@@ -1,22 +1,29 @@
-import 'dart:async';
+//------/dart and flutter packages
+import 'package:flutter/material.dart';
 import 'dart:io';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/model/text_format.dart';
-import '../../../controller/custom_dio.dart';
-import '../../../controller/custom_response.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
-import '../../view_models/no_internet_connection.dart';
-import '/main.dart';
-import 'package:share/share.dart';
+//------/packages
 import 'package:sizer/sizer.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:share/share.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/custom_response.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/model
+import '/model/text_format.dart';
+
+//------/view/view_models
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/no_internet_connection.dart';
+
+//------/main
+import '/main.dart';
 
 class AboutUsPage extends StatefulWidget {
   const AboutUsPage({Key? key}) : super(key: key);
@@ -25,7 +32,8 @@ class AboutUsPage extends StatefulWidget {
   _AboutUsPageState createState() => _AboutUsPageState();
 }
 
-class _AboutUsPageState extends State<AboutUsPage> with InternetConnection, LoadDataFromAPI {
+class _AboutUsPageState extends State<AboutUsPage>
+    with InternetConnection, LoadDataFromAPI {
   late String _whatsappPhoneNumber;
   late String _email;
   late String _websiteAddress;
@@ -101,9 +109,7 @@ class _AboutUsPageState extends State<AboutUsPage> with InternetConnection, Load
             );
           } else {
             return Center(
-              child: CustomCircularProgressIndicator(
-
-              ),
+              child: CustomCircularProgressIndicator(),
             );
           }
         }
@@ -142,7 +148,8 @@ class _AboutUsPageState extends State<AboutUsPage> with InternetConnection, Load
                                 'راه های ارتباط با ما:',
                               ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   _launcherToWhatsapp(),
                                   _launcherToEmail(),

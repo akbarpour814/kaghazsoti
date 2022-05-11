@@ -1,8 +1,14 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
+
+//------/packages
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import '../../main.dart';
-import 'custom_circular_progress_indicator.dart';
+//------/view/view_models
+import '/view/view_models/custom_circular_progress_indicator.dart';
+
+//------/main
+import '/main.dart';
 
 // ignore: must_be_immutable
 class CustomSmartRefresher extends StatefulWidget {
@@ -45,7 +51,9 @@ class _CustomSmartRefresherState extends State<CustomSmartRefresher> {
       enablePullDown: true,
       enablePullUp: true,
       header: MaterialClassicHeader(
-        backgroundColor: MyApp.themeNotifier.value == ThemeMode.light ? Colors.white : Colors.grey.shade800,
+        backgroundColor: MyApp.themeNotifier.value == ThemeMode.light
+            ? Colors.white
+            : Colors.grey.shade800,
       ),
       footer: CustomFooter(
         builder: (BuildContext? context, LoadStatus? mode) {

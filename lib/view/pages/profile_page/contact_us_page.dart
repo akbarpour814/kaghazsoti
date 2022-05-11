@@ -1,23 +1,30 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/view/view_models/custom_smart_refresher.dart';
-import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
-import '../../view_models/no_internet_connection.dart';
-import '/main.dart';
-import '/model/ticket_data.dart';
-import '/view/view_models/property.dart';
+
+//------/packages
 import 'package:sizer/sizer.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../../../controller/custom_dio.dart';
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/custom_response.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
 
-import '../../../controller/custom_response.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
-import '../../view_models/custom_snack_bar.dart';
+//------/model
+import '/model/ticket_data.dart';
+
+//------/view/view_models
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/custom_smart_refresher.dart';
+import '/view/view_models/custom_snack_bar.dart';
+import '/view/view_models/display_of_details.dart';
+import '/view/view_models/no_internet_connection.dart';
+import '/view/view_models/property.dart';
+
+//------/main
+import '/main.dart';
 
 class ContactUsPage extends StatefulWidget {
   const ContactUsPage({Key? key}) : super(key: key);
@@ -51,7 +58,7 @@ class _ContactUsPageState extends State<ContactUsPage>
       customResponse = CustomResponse.fromJson(customDio.data);
 
       setState(() {
-        if(customResponse.data['data'].isNotEmpty) {
+        if (customResponse.data['data'].isNotEmpty) {
           _firstTicket = TicketData.fromJson(customResponse.data['data'][0]);
         }
 
@@ -152,8 +159,8 @@ class _ContactUsPageState extends State<ContactUsPage>
                           padding: const EdgeInsets.symmetric(vertical: 12.0),
                           child: Text(
                             'نظرات شما',
-                            style:
-                                TextStyle(color: Theme.of(context).primaryColor),
+                            style: TextStyle(
+                                color: Theme.of(context).primaryColor),
                           ),
                         ),
                         Visibility(
@@ -456,7 +463,7 @@ class _TicketsPageState extends State<TicketsPage>
 
         displayOfDetails = List<bool>.generate(
           _tickets.length,
-              (index) => false,
+          (index) => false,
         );
 
         dataIsLoading = false;

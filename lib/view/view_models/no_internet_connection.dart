@@ -1,4 +1,7 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
+
+//------/packages
 import 'package:sizer/sizer.dart';
 
 class NoInternetConnection extends StatefulWidget {

@@ -1,9 +1,9 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
-import 'package:persian_number_utility/persian_number_utility.dart';
+//------/model
+import '/model/date_time_format.dart';
 
-import 'date_time_format.dart';
 class TicketData {
   late Topic topic;
   late String text;
@@ -13,14 +13,18 @@ class TicketData {
   late String lastAnswerDate;
 
   TicketData.fromJson(Map<String, dynamic> json) {
-    int findTopic = TopicExtension.topics.values.toList().indexWhere((element) => element == json['title']);
+    int findTopic = TopicExtension.topics.values
+        .toList()
+        .indexWhere((element) => element == json['title']);
 
-    topic = TopicExtension.topics.keys.elementAt(findTopic > -1 ? findTopic : TopicExtension.topics.length - 1);
+    topic = TopicExtension.topics.keys.elementAt(
+        findTopic > -1 ? findTopic : TopicExtension.topics.length - 1);
     text = json['body'];
-    status = json['status'] == 'done' ? TicketStatus.answered : TicketStatus.waiting;
+    status =
+        json['status'] == 'done' ? TicketStatus.answered : TicketStatus.waiting;
 
     answers = [];
-    for(Map<String, dynamic> answer in json['answers']) {
+    for (Map<String, dynamic> answer in json['answers']) {
       answers.add(answer['body']);
     }
 
@@ -51,7 +55,6 @@ extension TopicExtension on Topic {
 
   String? get title => topics[this];
 }
-
 
 enum TicketStatus {
   answered,

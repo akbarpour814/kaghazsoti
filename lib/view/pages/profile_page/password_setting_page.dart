@@ -1,16 +1,24 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import '../../view_models/no_internet_connection.dart';
-import '/main.dart';
-import '/view/view_models/custom_snack_bar.dart';
-import 'package:sizer/sizer.dart';
 
-import '../../../controller/custom_response.dart';
-import '../../../controller/custom_dio.dart';
-import '../../../controller/functions_for_checking_user_information_format.dart';
+//------/packages
+import 'package:sizer/sizer.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/custom_response.dart';
+import '/controller/functions_for_checking_user_information_format.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/view/view_models
+import '/view/view_models/custom_snack_bar.dart';
+import '/view/view_models/no_internet_connection.dart';
+
+//------/main
+import '/main.dart';
 
 class PasswordSettingPage extends StatefulWidget {
   const PasswordSettingPage({Key? key}) : super(key: key);

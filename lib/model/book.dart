@@ -1,10 +1,9 @@
-import 'package:html/dom.dart';
-import 'package:html/parser.dart';
-import 'package:kaghaze_souti/model/text_format.dart';
-
-import '/main.dart';
+//------/model
 import '/model/book_introduction.dart';
-import '/model/price_format.dart';
+import '/model/text_format.dart';
+
+//------/main
+import '/main.dart';
 
 class Book {
   late int id;
@@ -50,19 +49,23 @@ class Book {
     print(product['title']);
     print("product['title']");
 
-    category = product['category'] == null ? '' : (product['category'])['name']  ?? '';
+    category =
+        product['category'] == null ? '' : (product['category'])['name'] ?? '';
     print(product['category']);
     print("product['category']");
 
-    subcategory = product['parent_category'] == null ? '' : (product['parent_category'])['name']  ?? '';
+    subcategory = product['parent_category'] == null
+        ? ''
+        : (product['parent_category'])['name'] ?? '';
     print(product['parent_category']);
     print("product['parent_category']");
 
-    author = product['author'] == null ? '' : (product['author'])['name']  ?? '';
+    author = product['author'] == null ? '' : (product['author'])['name'] ?? '';
     print(product['author']);
     print("product['author']");
 
-    announcer = product['narrator'] == null ? '' : (product['narrator'])['name']  ?? '';
+    announcer =
+        product['narrator'] == null ? '' : (product['narrator'])['name'] ?? '';
     print(product['narrator']);
     print("product['narrator']");
 
@@ -72,7 +75,9 @@ class Book {
     print("product['download_volume']");
     //////////////////////
 
-    publisherOfPrintedVersion = product['publisher'] == null ? '' : (product['publisher'])['name']  ?? '';
+    publisherOfPrintedVersion = product['publisher'] == null
+        ? ''
+        : (product['publisher'])['name'] ?? '';
     print(product['publisher']);
     print("product['publisher']");
 
@@ -80,7 +85,9 @@ class Book {
     print(product['publish_year']);
     print("product['publish_year']");
 
-    publisherOfAudioVersion = product['audio_publisher'] == null ? '' : (product['audio_publisher'])['name']  ?? '';
+    publisherOfAudioVersion = product['audio_publisher'] == null
+        ? ''
+        : (product['audio_publisher'])['name'] ?? '';
     print(product['audio_publisher']);
     print("product['audio_publisher']");
 
@@ -103,13 +110,12 @@ class Book {
     //////////////////////
 
     //price = PriceFormat.priceFormat(price: int.parse(product['price'] ?? '0'), isFree: true);
-    price = product['cast_price']  ?? '';
+    price = product['cast_price'] ?? '';
     print(product['cast_price']);
     print("product['cast_price']");
 
     //////////////////////////
     marked = markedBooksId.contains(product['id']);
-
 
     numberOfVotes = product['vote'] ?? 0;
     print(product['vote']);
@@ -132,7 +138,6 @@ class Book {
 
     /////////////////////////
 
-
     reviews = [];
     reviewed = false;
     setReviews(json['reviews'] ?? []);
@@ -141,7 +146,7 @@ class Book {
 
     int myReviewIndex = reviews.indexWhere((element) => element.id == userId);
 
-    if(myReviewIndex >= 0) {
+    if (myReviewIndex >= 0) {
       reviewed = true;
 
       Review myReview = reviews[myReviewIndex];
@@ -155,7 +160,9 @@ class Book {
     print(product['demo']);
     print("product['demo']");
 
-    bookCoverPath = product['image'] == null ? defaultBookCover : 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
+    bookCoverPath = product['image'] == null
+        ? defaultBookCover
+        : 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
     print(product['image']);
     print("product['image']");
 
@@ -185,7 +192,7 @@ class Book {
     print(audioVersionYear);
     print(numberOfChapters);
     print(numberOfPages);
-    print( duration);
+    print(duration);
     print(price);
     print(marked);
     print(numberOfVotes);
@@ -200,19 +207,20 @@ class Book {
   }
 
   void setReviews(List<dynamic> reviewsAsMap) {
-    for(Map<String, dynamic> review in reviewsAsMap) {
+    for (Map<String, dynamic> review in reviewsAsMap) {
       reviews.add(Review.fromJson(review));
     }
   }
 
   void setRelatedBooks(List<dynamic> relatedBooksAsMap) {
-    for(Map<String, dynamic> book in relatedBooksAsMap) {
+    for (Map<String, dynamic> book in relatedBooksAsMap) {
       relatedBooks.add(BookIntroduction.fromJson(book));
     }
   }
 
-  void setOtherBooksByThePublisher(List<dynamic> otherBooksByThePublisherAsMap) {
-    for(Map<String, dynamic> book in otherBooksByThePublisherAsMap) {
+  void setOtherBooksByThePublisher(
+      List<dynamic> otherBooksByThePublisherAsMap) {
+    for (Map<String, dynamic> book in otherBooksByThePublisherAsMap) {
       otherBooksByThePublisher.add(BookIntroduction.fromJson(book));
     }
   }

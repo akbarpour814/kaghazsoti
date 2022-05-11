@@ -1,8 +1,10 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:async';
+
+//------/packages
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 mixin InternetConnection<T extends StatefulWidget> on State<T> {
   late ConnectivityResult connectionStatus;

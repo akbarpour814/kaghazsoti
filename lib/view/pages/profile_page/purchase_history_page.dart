@@ -1,37 +1,34 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/model/payment.dart';
-import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
+import 'package:flutter/foundation.dart';
+
+//------/packages
 import 'package:sizer/sizer.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uni_links/uni_links.dart';
-import 'package:zarinpal/zarinpal.dart';
-import '../../../model/payment.dart';
-import '../../../model/payment.dart';
-import '../../../model/payment.dart';
-import '../../view_models/custom_smart_refresher.dart';
-import '../../view_models/custom_snack_bar.dart';
-import '../../view_models/no_internet_connection.dart';
-import '../login_pages/splash_page.dart';
+
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/custom_response.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/model
+import '/model/payment.dart';
 import '/model/purchase.dart';
+
+//------/view/view_models
+import '/view/view_models/book_introduction_page.dart';
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/custom_smart_refresher.dart';
+import '/view/view_models/custom_snack_bar.dart';
+import '/view/view_models/display_of_details.dart';
+import '/view/view_models/no_internet_connection.dart';
 import '/view/view_models/property.dart';
 
-import '../../../controller/custom_dio.dart';
-import '../../../controller/custom_response.dart';
-import '../../../main.dart';
-import '../../view_models/book_introduction_page.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
-
-import 'package:http/http.dart' as http;
-
+//------/main
+import '/main.dart';
 
 class PurchaseHistoryPage extends StatefulWidget {
   static const routeName = '/purchaseHistoryPage';
@@ -43,7 +40,12 @@ class PurchaseHistoryPage extends StatefulWidget {
 }
 
 class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
-    with InternetConnection, LoadDataFromAPI, Refresher, DisplayOfDetails, CustomVerificationPayment {
+    with
+        InternetConnection,
+        LoadDataFromAPI,
+        Refresher,
+        DisplayOfDetails,
+        CustomVerificationPayment {
   late List<Purchase> _purchaseHistory;
   late List<Purchase> _purchaseHistoryTemp;
   late bool _paymentGateway;
@@ -60,7 +62,6 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
     _paymentGateway = false;
   }
 
-
   Future _initPurchaseHistory() async {
     customDio = await CustomDio.dio.post(
       'dashboard/invoices',
@@ -70,7 +71,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
 
-      if(customResponse.data.isNotEmpty) {
+      if (customResponse.data.isNotEmpty) {
         lastPage = customResponse.data['last_page'];
 
         if (currentPage == 1) {
@@ -90,7 +91,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
 
           displayOfDetails = List<bool>.generate(
             _purchaseHistory.length,
-                (index) => false,
+            (index) => false,
           );
 
           dataIsLoading = false;
@@ -134,7 +135,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   }
 
   Widget _body() {
-    if(_paymentGateway) {
+    if (_paymentGateway) {
       return const Center(child: CustomCircularProgressIndicator());
     } else if (dataIsLoading) {
       return FutureBuilder(
@@ -317,7 +318,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
                     );
                   },
                   child: Row(
-                   mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Flexible(
                         child: Text(
@@ -344,7 +345,8 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
         width: 100.0.w - (2 * 18.0) - (2 * 5.0.w),
         child: ElevatedButton.icon(
           onPressed: () {
-            startPayment(_purchaseHistory[index], PurchaseHistoryPage.routeName);
+            startPayment(
+                _purchaseHistory[index], PurchaseHistoryPage.routeName);
 
             setState(() {
               _paymentGateway = true;
@@ -373,7 +375,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
         queryParameters: status,
       );
 
-      if(customDio.statusCode == 200) {
+      if (customDio.statusCode == 200) {
         customResponse = CustomResponse.fromJson(customDio.data);
 
         setState(() {
@@ -381,10 +383,13 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
           _paymentGateway = false;
         });
 
-        if(customResponse.data['data']['level'] == 'success') {
+        if (customResponse.data['data']['level'] == 'success') {
           setState(() {
-            for(int i = 0; i < _purchaseHistory[_purchaseIndexSelected].books.length; ++i) {
-              libraryId.add(_purchaseHistory[_purchaseIndexSelected].books[i].id);
+            for (int i = 0;
+                i < _purchaseHistory[_purchaseIndexSelected].books.length;
+                ++i) {
+              libraryId
+                  .add(_purchaseHistory[_purchaseIndexSelected].books[i].id);
             }
           });
           print(libraryId);
@@ -417,11 +422,10 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
           ),
         );
       }
-    } catch(e) {
+    } catch (e) {
       setState(() {
         _paymentGateway = false;
       });
     }
   }
-
 }

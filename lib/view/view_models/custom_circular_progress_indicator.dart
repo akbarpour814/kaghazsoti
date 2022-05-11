@@ -1,15 +1,17 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
 
 // ignore: must_be_immutable
 class CustomCircularProgressIndicator extends StatefulWidget {
   const CustomCircularProgressIndicator({Key? key}) : super(key: key);
 
   @override
-  _CustomCircularProgressIndicatorState createState() => _CustomCircularProgressIndicatorState();
+  _CustomCircularProgressIndicatorState createState() =>
+      _CustomCircularProgressIndicatorState();
 }
 
-class _CustomCircularProgressIndicatorState extends State<CustomCircularProgressIndicator> {
+class _CustomCircularProgressIndicatorState
+    extends State<CustomCircularProgressIndicator> {
   @override
   Widget build(BuildContext context) {
     return Row(

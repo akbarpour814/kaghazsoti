@@ -1,27 +1,30 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import '../../view_models/custom_snack_bar.dart';
-import '../../view_models/no_internet_connection.dart';
-import '/model/book_introduction.dart';
-import '../../../controller/custom_dio.dart';
-import '../../../controller/custom_response.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
-import '/main.dart';
-import '../../view_models/books_page.dart';
 
+//------/packages
 import 'package:sizer/sizer.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/custom_response.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/model
+import '/model/book_introduction.dart';
 import '/model/home_page_category_data.dart';
+
+//------/view/view_models
 import '/view/view_models/books_list_view.dart';
+import '/view/view_models/books_page.dart';
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/no_internet_connection.dart';
+
+//------/main
+import '/main.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -30,7 +33,8 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with InternetConnection, LoadDataFromAPI {
+class _HomePageState extends State<HomePage>
+    with InternetConnection, LoadDataFromAPI {
   late List<HomePageCategoryData> _homePageCategoriesData;
 
   @override
@@ -111,9 +115,7 @@ class _HomePageState extends State<HomePage> with InternetConnection, LoadDataFr
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(
-            child: CustomCircularProgressIndicator(
-
-            ),
+            child: CustomCircularProgressIndicator(),
           );
         } else {
           if (connectionStatus == ConnectivityResult.none) {
@@ -237,7 +239,8 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
     );
   }
 
-  Column _latestAndBestSellingBooks(String title, List<BookIntroduction> books) {
+  Column _latestAndBestSellingBooks(
+      String title, List<BookIntroduction> books) {
     return Column(
       children: [
         Card(

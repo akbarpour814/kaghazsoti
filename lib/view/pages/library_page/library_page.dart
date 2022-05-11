@@ -1,26 +1,29 @@
-import 'dart:async';
-import 'dart:io';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/view/audio_player_models/audiobook_player_page.dart';
-import 'package:kaghaze_souti/view/view_models/custom_smart_refresher.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-import '../../view_models/custom_snack_bar.dart';
-import '../../view_models/no_internet_connection.dart';
-import '/main.dart';
-
+//------/packages
 import 'package:sizer/sizer.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../../../controller/custom_dio.dart';
-import '../../../model/book_introduction.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/model
+import '/model/book_introduction.dart';
+
+//------/view/audio_player_models
+import '/view/audio_player_models/audiobook_player_page.dart';
+
+//------/view/view_models
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/custom_smart_refresher.dart';
+import '/view/view_models/no_internet_connection.dart';
+
+//------/main
+import '/main.dart';
 
 class MyLibraryPage extends StatefulWidget {
   static const routeName = '/myLibraryPage';
@@ -81,6 +84,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
   }
 
   bool _secondTime = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,7 +108,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
       return FutureBuilder(
         future: _initMyBooks(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          if(snapshot.hasData) {
+          if (snapshot.hasData) {
             return _innerBody();
           } else {
             return const Center(child: CustomCircularProgressIndicator());
@@ -137,7 +141,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
           onLoading: () => onLoading(() => _initMyBooks()),
           list: List<MyBook>.generate(
             _myBooks.length,
-                (index) => MyBook(
+            (index) => MyBook(
               book: _myBooks[index],
             ),
           ),
@@ -195,7 +199,7 @@ class _MyBookState extends State<MyBook> {
           ),
         );
       },
-      child:  Card(
+      child: Card(
         color: Colors.transparent,
         elevation: 0.0,
         shape: Theme.of(context).cardTheme.shape,

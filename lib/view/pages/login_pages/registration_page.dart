@@ -1,26 +1,33 @@
+//------/dart and flutter packages
+import 'package:flutter/material.dart';
 import 'dart:convert';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/controller/send_verification_code.dart';
-import 'package:persian_number_utility/persian_number_utility.dart';
+//------/packages
 import 'package:sizer/sizer.dart';
-import '../../../controller/prepare_to_login_app.dart';
-import '../../view_models/no_internet_connection.dart';
-import '/view/pages/login_pages/splash_page.dart';
-import '../../../controller/custom_response.dart';
-import '../../../controller/custom_dio.dart';
-import '../../view_models/custom_snack_bar.dart';
-import '../../view_models/persistent_bottom_navigation_bar.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:dio/dio.dart';
+import 'package:http/http.dart' as HTTP;
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+//------/controller
+import '/controller/custom_response.dart';
 import '/controller/functions_for_checking_user_information_format.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+import '/controller/prepare_to_login_app.dart';
+import '/controller/send_verification_code.dart';
 
-import '../../../main.dart';
+//------/view/pages/login_pages
+import '/view/pages/login_pages/splash_page.dart';
 
-import 'package:http/http.dart' as http;
+//------/view/view_models
+import '/view/view_models/custom_snack_bar.dart';
+import '/view/view_models/no_internet_connection.dart';
+import '/view/view_models/persistent_bottom_navigation_bar.dart';
+
+//------/main
+import '/main.dart';
+
 late bool login;
 
 class RegistrationPage extends StatefulWidget {
@@ -80,7 +87,7 @@ class _RegistrationPageState extends State<RegistrationPage>
             ),
           ),
           onTap: () {
-            if(timer != null) {
+            if (timer != null) {
               timer!.cancel();
             }
 
@@ -302,9 +309,9 @@ class _RegistrationPageState extends State<RegistrationPage>
         (_phoneNumberError == null) &&
         (_passwordError == null) &&
         (_repeatPasswordError == null)) {
-      var client = http.Client();
+      var client = HTTP.Client();
       try {
-        http.Response response = await client.post(
+        HTTP.Response response = await client.post(
           Uri.parse('${domain}register'),
           body: {
             'name': _firstAndLastNameController.text,
@@ -328,7 +335,7 @@ class _RegistrationPageState extends State<RegistrationPage>
           setState(() {
             if ((_data['message'])['username'] != null) {
               _phoneNumberError =
-              'حساب کاربری با شماره تلفن وارد شده وجود دارد.';
+                  'حساب کاربری با شماره تلفن وارد شده وجود دارد.';
             }
           });
         }
@@ -372,7 +379,8 @@ class _RegistrationPageState extends State<RegistrationPage>
       );
 
       if (_customDio.statusCode == 200) {
-        CustomResponse _customResponse = CustomResponse.fromJson(_customDio.data);
+        CustomResponse _customResponse =
+            CustomResponse.fromJson(_customDio.data);
 
         tokenLogin.$ = _customResponse.data['token'];
         await sharedPreferences.setString(
@@ -416,7 +424,7 @@ class _RegistrationPageState extends State<RegistrationPage>
           _repeatPasswordController = TextEditingController();
         });
       }
-    } catch(e) {
+    } catch (e) {
       setState(() {
         codeError = 'کد وارد شده صحیح نمی باشد.';
       });

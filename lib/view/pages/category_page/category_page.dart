@@ -1,19 +1,29 @@
+//------/dart and flutter packages
+import 'package:flutter/material.dart';
 import 'dart:async';
 
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
+//------/packages
 import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../../view_models/no_internet_connection.dart';
+//------/controller
 import '/controller/custom_dio.dart';
-import '../../../controller/custom_response.dart';
-import '../../../main.dart';
-import '../../../model/category.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
+import '/controller/custom_response.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/model
+import '/model/category.dart';
+
+//------/view/pages/category_page
 import '/view/pages/category_page/subcategories_page.dart';
+
+//------/view/view_models
 import '/view/view_models/category_name.dart';
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/no_internet_connection.dart';
+
+//------/main
 import '/main.dart';
 
 class CategoryPage extends StatefulWidget {
@@ -23,7 +33,8 @@ class CategoryPage extends StatefulWidget {
   _CategoryPageState createState() => _CategoryPageState();
 }
 
-class _CategoryPageState extends State<CategoryPage> with InternetConnection, LoadDataFromAPI {
+class _CategoryPageState extends State<CategoryPage>
+    with InternetConnection, LoadDataFromAPI {
   late List<Category> _categories;
 
   @override
@@ -86,8 +97,7 @@ class _CategoryPageState extends State<CategoryPage> with InternetConnection, Lo
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
-            child: CustomCircularProgressIndicator(
-            ),
+            child: CustomCircularProgressIndicator(),
           );
         } else {
           if (connectionStatus == ConnectivityResult.none) {

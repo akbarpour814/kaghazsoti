@@ -1,27 +1,34 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/foundation.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+import 'package:flutter/foundation.dart';
+
+//------/packages
+import 'package:sizer/sizer.dart';
 import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:uni_links/uni_links.dart';
-import '../../../controller/load_data_from_api.dart';
-import '../../../model/payment.dart';
-import '../../view_models/custom_snack_bar.dart';
-import '../../view_models/no_internet_connection.dart';
-import '/main.dart';
+
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/custom_response.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/model
 import '/model/book.dart';
 import '/model/book_introduction.dart';
+import '/model/payment.dart';
 import '/model/purchase.dart';
-import '/view/view_models/property.dart';
-import 'package:sizer/sizer.dart';
 
-import '../../../controller/custom_dio.dart';
-import '../../../controller/custom_response.dart';
-import '../../view_models/book_introduction_page.dart';
-import '../../view_models/custom_circular_progress_indicator.dart';
+//------/view/view_models
+import '/view/view_models/book_introduction_page.dart';
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/custom_snack_bar.dart';
+import '/view/view_models/no_internet_connection.dart';
+import '/view/view_models/property.dart';
+
+//------/main
+import '/main.dart';
 
 class CartPage extends StatefulWidget {
   static const routeName = '/cartPage';
@@ -90,7 +97,8 @@ class _CartPageState extends State<CartPage>
       bottomNavigationBar: playerBottomNavigationBar,
       floatingActionButton: (_bookCartSlug.isNotEmpty) &&
               (connectionStatus != ConnectivityResult.none) &&
-              (!dataIsLoading) && (_showButtons)
+              (!dataIsLoading) &&
+              (_showButtons)
           ? ((_purchaseInvoiceWasIssued)
               ? _paymentButton()
               : _issuanceOfPurchaseInvoiceButton())
@@ -115,9 +123,7 @@ class _CartPageState extends State<CartPage>
             ),
           ),
           onTap: () {
-
-              Navigator.of(context).pop();
-
+            Navigator.of(context).pop();
           },
         ),
       ],
@@ -125,7 +131,7 @@ class _CartPageState extends State<CartPage>
   }
 
   Widget _body() {
-    if(_paymentGateway) {
+    if (_paymentGateway) {
       return const Center(child: CustomCircularProgressIndicator());
     } else if (dataIsLoading) {
       return FutureBuilder(
@@ -485,7 +491,7 @@ class _CartPageState extends State<CartPage>
         queryParameters: queryParameters,
       );
 
-      if(customDio.statusCode == 200) {
+      if (customDio.statusCode == 200) {
         customResponse = CustomResponse.fromJson(customDio.data);
 
         setState(() {
@@ -493,9 +499,9 @@ class _CartPageState extends State<CartPage>
           _paymentGateway = false;
         });
 
-        if(customResponse.data['data']['level'] == 'success') {
+        if (customResponse.data['data']['level'] == 'success') {
           setState(() {
-            for(int i = 0; i < _purchaseInvoice!.books.length; ++i) {
+            for (int i = 0; i < _purchaseInvoice!.books.length; ++i) {
               libraryId.add(_purchaseInvoice!.books[i].id);
             }
           });
@@ -529,7 +535,7 @@ class _CartPageState extends State<CartPage>
           ),
         );
       }
-    } catch(e) {
+    } catch (e) {
       setState(() {
         _showButtons = true;
         _paymentGateway = false;

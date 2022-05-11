@@ -1,8 +1,17 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
+
+//------/packages
 import 'package:ionicons/ionicons.dart';
-import '../../main.dart';
-import '../../model/book_introduction.dart';
+
+//------/model
+import '/model/book_introduction.dart';
+
+//------/view/view_models
 import '/view/view_models/book_short_introduction.dart';
+
+//------/main
+import '/main.dart';
 
 // ignore: must_be_immutable
 class BooksPage extends StatefulWidget {

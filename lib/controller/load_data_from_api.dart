@@ -1,10 +1,11 @@
-import 'package:dio/dio.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
 
-import '../view/view_models/custom_snack_bar.dart';
-import 'custom_dio.dart';
-import 'custom_response.dart';
+//------/packages
+import 'package:dio/dio.dart';
+
+//------/controller
+import '/controller/custom_response.dart';
 
 mixin LoadDataFromAPI<T extends StatefulWidget> on State<T> {
   late Response<dynamic> customDio;

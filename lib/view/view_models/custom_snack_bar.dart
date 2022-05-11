@@ -1,6 +1,8 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
 
-import '../../main.dart';
+//------/main
+import '/main.dart';
 
 SnackBar customSnackBar(BuildContext context, IconData contentIcon,
     String contentText, int duration) {

@@ -1,17 +1,25 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
+
+//------/packages
 import 'package:ionicons/ionicons.dart';
 import 'package:restart_app/restart_app.dart';
-import '/main.dart';
+
+//------/view/pages/profile_page
 import '/view/pages/profile_page/about_us_page.dart';
 import '/view/pages/profile_page/account_page.dart';
 import '/view/pages/profile_page/cart_page.dart';
-import '/view/pages/profile_page/purchase_history_page.dart';
+import '/view/pages/profile_page/contact_us_page.dart';
+import '/view/pages/profile_page/frequently_asked_questions_page.dart';
 import '/view/pages/profile_page/marked_page.dart';
 import '/view/pages/profile_page/password_setting_page.dart';
-import '/view/pages/profile_page/frequently_asked_questions_page.dart';
+import '/view/pages/profile_page/purchase_history_page.dart';
+
+//------/view/view_models
 import '/view/view_models/category_name.dart';
 
-import 'contact_us_page.dart';
+//------/main
+import '/main.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);

@@ -1,21 +1,20 @@
-import 'dart:async';
-
-import 'package:flutter/foundation.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/model/purchase.dart';
-import 'package:uni_links/uni_links.dart';
+import 'dart:async';
+
+//------/packages
 import 'package:url_launcher/url_launcher.dart';
 import 'package:zarinpal/zarinpal.dart';
+import 'package:uni_links/uni_links.dart';
 
-import 'package:http/http.dart' as http;
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/load_data_from_api.dart';
 
-import '../controller/custom_dio.dart';
-import '../controller/custom_response.dart';
-import '../view/pages/login_pages/splash_page.dart';
-import '../view/view_models/custom_snack_bar.dart';
+//------/model
+import '/model/purchase.dart';
+
 
 PaymentRequest paymentRequest = PaymentRequest();
 bool initialUriIsHandled = false;

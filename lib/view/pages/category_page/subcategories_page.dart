@@ -1,9 +1,20 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
+
+//------/packages
 import 'package:ionicons/ionicons.dart';
-import '/view/pages/category_page/subcategory_books_page.dart';
-import '../../../main.dart';
+
+//------/model
 import '/model/category.dart';
+
+//------/view/pages/category_page
+import '/view/pages/category_page/subcategory_books_page.dart';
+
+//------/view/view_models
 import '/view/view_models/category_name.dart';
+
+//------/main
+import '/main.dart';
 
 // ignore: must_be_immutable
 class SubcategoriesPage extends StatefulWidget {

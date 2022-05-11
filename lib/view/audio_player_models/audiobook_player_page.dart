@@ -1,30 +1,37 @@
-import 'dart:async';
-
-import 'package:audio_service/audio_service.dart';
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart' as INTL;
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/view/audio_player_models/audio_player_handler.dart';
-import 'package:kaghaze_souti/view/audio_player_models/progress_bar/custom_progress_bar.dart';
-import 'package:kaghaze_souti/view/audio_player_models/queue_state.dart';
-import 'package:kaghaze_souti/view/view_models/book_introduction_page.dart';
-import 'package:kaghaze_souti/view/view_models/custom_circular_progress_indicator.dart';
+
+//------/packages
 import 'package:sizer/sizer.dart';
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:intl/intl.dart' as INTL;
+import 'package:audio_service/audio_service.dart';
 
-import '../../controller/custom_dio.dart';
-import '../../main.dart';
-import '../../model/book_introduction.dart';
-import '../view_models/no_internet_connection.dart';
-import 'show_slider_dialog.dart';
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
 
-import 'package:rxdart/rxdart.dart';
+//------/model
+import '/model/book_introduction.dart';
+
+//------/view/audio_player_models/progress_bar
+import '/view/audio_player_models/progress_bar/custom_progress_bar.dart';
+
+//------/view/audio_player_models
+import '/view/audio_player_models/audio_player_handler.dart';
+import '/view/audio_player_models/queue_state.dart';
+import '/view/audio_player_models/show_slider_dialog.dart';
+
+//------/view/view_models
+import '/view/view_models/book_introduction_page.dart';
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/no_internet_connection.dart';
+
+//------/main
+import '/main.dart';
 
 List<MediaItem> mediaItems = [];
 
@@ -43,7 +50,6 @@ class AudiobookPlayerPage extends StatefulWidget {
 
 class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     with InternetConnection, LoadDataFromAPI {
-
   @override
   void initState() {
     super.initState();
@@ -70,9 +76,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
                 duration: Duration(
                   milliseconds: INTL.DateFormat('HH:mm:ss')
                       .parse(
-                    mediaItem['timer'],
-                    true,
-                  )
+                        mediaItem['timer'],
+                        true,
+                      )
                       .millisecondsSinceEpoch,
                 ),
                 artUri: Uri.parse(widget.audiobook.bookCoverPath),
@@ -84,7 +90,8 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
 
           dataIsLoading = false;
 
-          audioPlayerHandler.audioPlayer.seek(Duration(microseconds: 0), index: 0);
+          audioPlayerHandler.audioPlayer
+              .seek(Duration(microseconds: 0), index: 0);
         });
 
         await audioPlayerHandler.updateQueue(mediaItems);
@@ -133,7 +140,6 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
               mediaItems.clear();
               await audioPlayerHandler.dispose();
               Navigator.of(context).pop();
-
             });
           },
           child: const Padding(
@@ -160,7 +166,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
         future: _initMediaItems(),
       );
     } else {
-      if(demoOfBookIsPlaying.of(context)) {
+      if (demoOfBookIsPlaying.of(context)) {
         return _innerBody();
       } else {
         return FutureBuilder(
@@ -277,7 +283,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   }
 
   StreamBuilder _bookIntroduction() {
-    return  StreamBuilder<MediaItem?>(
+    return StreamBuilder<MediaItem?>(
       stream: audioPlayerHandler.mediaItem,
       builder: (context, snapshot) {
         MediaItem? snapshotTemp = snapshot.data;
@@ -381,7 +387,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
                 : Colors.grey,
           ),
           onTap:
-          queueState.hasPrevious ? audioPlayerHandler.skipToPrevious : null,
+              queueState.hasPrevious ? audioPlayerHandler.skipToPrevious : null,
         );
       },
     );
@@ -448,7 +454,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
           onTap: () {
             audioPlayerHandler.setRepeatMode(
               cycleModes[
-              (cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
+                  (cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
             );
           },
         );
@@ -538,9 +544,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
                         ),
                         Text(
                           queue[i].duration.toString().substring(
-                            0,
-                            queue[i].duration.toString().indexOf('.'),
-                          ),
+                                0,
+                                queue[i].duration.toString().indexOf('.'),
+                              ),
                           style: Theme.of(context).textTheme.caption,
                         ),
                       ],

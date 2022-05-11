@@ -1,9 +1,17 @@
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import '/view/view_models/book_introduction_page.dart';
+
+//------/packages
 import 'package:sizer/sizer.dart';
 
-import '../../main.dart';
-import '../../model/book_introduction.dart';
+//------/model
+import '/model/book_introduction.dart';
+
+//------/view/view_models
+import '/view/view_models/book_introduction_page.dart';
+
+//------/main
+import '/main.dart';
 
 // ignore: must_be_immutable
 class BooksListView extends StatelessWidget {

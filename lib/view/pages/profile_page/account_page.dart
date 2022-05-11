@@ -1,20 +1,24 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import '../../../controller/internet_connection.dart';
-import '../../view_models/no_internet_connection.dart';
-import '/view/view_models/custom_circular_progress_indicator.dart';
-import 'package:sizer/sizer.dart';
 
-import '../../../controller/custom_dio.dart';
-import '../../../controller/functions_for_checking_user_information_format.dart';
-import '../../../main.dart';
-import '../../view_models/custom_snack_bar.dart';
+//------/packages
+import 'package:sizer/sizer.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+//------/controller
+import '/controller/custom_dio.dart';
+import '/controller/functions_for_checking_user_information_format.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/view/view_models
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/custom_snack_bar.dart';
+import '/view/view_models/no_internet_connection.dart';
+
+//------/main
+import '/main.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({Key? key}) : super(key: key);
@@ -23,7 +27,8 @@ class AccountPage extends StatefulWidget {
   _AccountPageState createState() => _AccountPageState();
 }
 
-class _AccountPageState extends State<AccountPage> with InternetConnection, LoadDataFromAPI {
+class _AccountPageState extends State<AccountPage>
+    with InternetConnection, LoadDataFromAPI {
   late TextEditingController _firstAndLastNameController;
   String? _firstAndLastNameError;
   late TextEditingController _emailController;
@@ -48,8 +53,7 @@ class _AccountPageState extends State<AccountPage> with InternetConnection, Load
       setState(() {
         _firstAndLastNameController =
             TextEditingController(text: customDio.data['name']);
-        _emailController =
-            TextEditingController(text: customDio.data['email']);
+        _emailController = TextEditingController(text: customDio.data['email']);
         _phoneNumberController =
             TextEditingController(text: customDio.data['username']);
 
@@ -102,9 +106,7 @@ class _AccountPageState extends State<AccountPage> with InternetConnection, Load
             return _innerBody();
           } else {
             return Center(
-              child: CustomCircularProgressIndicator(
-
-              ),
+              child: CustomCircularProgressIndicator(),
             );
           }
         },

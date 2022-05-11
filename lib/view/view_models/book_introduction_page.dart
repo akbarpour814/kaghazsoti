@@ -1,26 +1,34 @@
-import 'dart:async';
-
-import 'package:connectivity_plus/connectivity_plus.dart';
+//------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:ionicons/ionicons.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:kaghaze_souti/controller/internet_connection.dart';
-import 'package:kaghaze_souti/controller/load_data_from_api.dart';
-import 'package:kaghaze_souti/view/view_models/display_of_details.dart';
-import '/view/view_models/show_stars.dart';
-import '../../controller/custom_response.dart';
-import '../../model/book_introduction.dart';
-import 'books_page.dart';
-import '/main.dart';
-import '/model/book.dart';
-import '/view/view_models/books_list_view.dart';
-import '/view/view_models/property.dart';
-import 'package:sizer/sizer.dart';
 
+//------/packages
+import 'package:sizer/sizer.dart';
+import 'package:ionicons/ionicons.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:just_audio/just_audio.dart';
+
+//------/controller
 import '/controller/custom_dio.dart';
-import 'custom_circular_progress_indicator.dart';
-import 'custom_snack_bar.dart';
-import 'no_internet_connection.dart';
+import '/controller/custom_response.dart';
+import '/controller/internet_connection.dart';
+import '/controller/load_data_from_api.dart';
+
+//------/model
+import '/model/book.dart';
+import '/model/book_introduction.dart';
+
+//------/view/view_models
+import '/view/view_models/books_list_view.dart';
+import '/view/view_models/books_page.dart';
+import '/view/view_models/custom_circular_progress_indicator.dart';
+import '/view/view_models/custom_snack_bar.dart';
+import '/view/view_models/display_of_details.dart';
+import '/view/view_models/no_internet_connection.dart';
+import '/view/view_models/property.dart';
+import '/view/view_models/show_stars.dart';
+
+//------/main
+import '/main.dart';
 
 // ignore: must_be_immutable
 class BookIntroductionPage extends StatefulWidget {
@@ -156,9 +164,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             return _innerBody();
           } else {
             return Center(
-              child: CustomCircularProgressIndicator(
-
-              ),
+              child: CustomCircularProgressIndicator(),
             );
           }
         },
@@ -274,7 +280,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                         child: const Icon(Ionicons.play_outline),
                         onPressed: demoPlayer.play,
                       );
-                    } else if(processingState == ProcessingState.completed) {
+                    } else if (processingState == ProcessingState.completed) {
                       demoOfBookIsPlaying.$ = false;
                       demoInPlayId = -1;
                       demoPlayer.stop();
@@ -401,7 +407,10 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
   }
 
   void _addToLibrary() async {
-    customDio = await CustomDio.dio.post('dashboard/free/add', data: {'id': _book.id},);
+    customDio = await CustomDio.dio.post(
+      'dashboard/free/add',
+      data: {'id': _book.id},
+    );
 
     if (customDio.statusCode == 200) {
       customResponse = CustomResponse.fromJson(customDio.data);
@@ -412,7 +421,6 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         dataIsLoading = true;
       });
     }
-
   }
 
   Padding _tabsTopic() {
@@ -904,8 +912,9 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                                _book.reviews[index].id == userId ? 'نظر شما' : _book.reviews[index].name),
+                            Text(_book.reviews[index].id == userId
+                                ? 'نظر شما'
+                                : _book.reviews[index].name),
                             ShowStars(
                               numberOfStars: _book.reviews[index].numberOfStars,
                             ),
