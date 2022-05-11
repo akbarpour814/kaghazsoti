@@ -47,7 +47,7 @@ class _PersistentBottomNavigationBarState
     super.initState();
   }
 
-  bool _secondTime = false;
+  //bool _secondTime = false;
 
   @override
   Widget build(BuildContext context) {

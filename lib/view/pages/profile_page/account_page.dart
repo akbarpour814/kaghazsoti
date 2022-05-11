@@ -214,30 +214,30 @@ class _AccountPageState extends State<AccountPage>
     );
   }
 
-  Padding _email() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 0.5.h),
-      child: TextField(
-        readOnly: !(_permissionToEdit ^ _registeredInformation),
-        controller: _emailController,
-        keyboardType: TextInputType.emailAddress,
-        decoration: InputDecoration(
-          helperText: 'ایمیل',
-          hintText: 'لطفاً ایمیل خود را وارد کنید.',
-          errorText: _emailError,
-          suffixIcon: const Icon(Ionicons.mail_outline),
-        ),
-        onChanged: (String text) {
-          setState(() {
-            _emailError = UserInformationFormatCheck.checkEmailFormat(
-              _emailController,
-              null,
-            );
-          });
-        },
-      ),
-    );
-  }
+  // Padding _email() {
+  //   return Padding(
+  //     padding: EdgeInsets.only(bottom: 0.5.h),
+  //     child: TextField(
+  //       readOnly: !(_permissionToEdit ^ _registeredInformation),
+  //       controller: _emailController,
+  //       keyboardType: TextInputType.emailAddress,
+  //       decoration: InputDecoration(
+  //         helperText: 'ایمیل',
+  //         hintText: 'لطفاً ایمیل خود را وارد کنید.',
+  //         errorText: _emailError,
+  //         suffixIcon: const Icon(Ionicons.mail_outline),
+  //       ),
+  //       onChanged: (String text) {
+  //         setState(() {
+  //           _emailError = UserInformationFormatCheck.checkEmailFormat(
+  //             _emailController,
+  //             null,
+  //           );
+  //         });
+  //       },
+  //     ),
+  //   );
+  // }
 
   Padding _phoneNumber() {
     return Padding(
