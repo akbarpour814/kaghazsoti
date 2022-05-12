@@ -35,7 +35,7 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
     codeController = TextEditingController();
     numberOfSend = 0;
     sendCode = true;
-    duration = Duration(seconds: 59);
+    duration = Duration(seconds: resendSms);
     resendCodePermission = false;
 
     resendCodeClick = true;
@@ -52,6 +52,12 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
 
   void stopTimer() {
     setState(() => timer!.cancel());
+  }
+
+  void resetTimer() {
+    stopTimer();
+
+    setState(() => duration = Duration(seconds: resendSms));
   }
 
   void setCountDown() {
@@ -102,7 +108,7 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
   }
 
   String remainder() {
-    return duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return'${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:${duration.inSeconds.remainder(60).toString().padLeft(2, '0')}';
   }
 
   Visibility codeTextField() {
@@ -174,11 +180,5 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
         startTimer();
       });
     }
-  }
-
-  void resetTimer() {
-    stopTimer();
-
-    setState(() => duration = Duration(seconds: 59));
   }
 }

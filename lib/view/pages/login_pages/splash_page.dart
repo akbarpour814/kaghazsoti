@@ -74,9 +74,9 @@ class _SplashPageState extends State<SplashPage>
 
       setState(() {
         _version = data['version'].toString();
-        _version = '1.0.0';
         _androidLink = data['android_link'];
         _iosLink = data['ios_link'];
+        resendSms = data['resend_sms'] ?? 100;
         _versionIsLoading = false;
       });
 

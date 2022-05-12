@@ -38,6 +38,7 @@ String appLogoNet = 'https://kaghazsoti.com/img/logo.1e799436.jpeg';
 const String fontFamily = 'Vazir';
 
 late SharedPreferences sharedPreferences;
+late int resendSms;
 late int userId;
 late List<int> libraryId = [];
 late List<int> markedBooksId = [];
