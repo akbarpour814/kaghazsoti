@@ -61,6 +61,7 @@ int demoInPlayId = -1;
 SharedValue<bool> demoOfBookIsPlaying = SharedValue(value: false);
 
 Future<void> main() async {
+  print("aaaaaaa");
   audioPlayerHandler = await AudioService.init(
     builder: () => AudioPlayerHandlerImplements(),
     config: const AudioServiceConfig(
