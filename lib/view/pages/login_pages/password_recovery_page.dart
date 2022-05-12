@@ -412,13 +412,15 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
         } else {
           setState(() {
             codeError = 'کد وارد شده صحیح نمی باشد.';
+
+            _sendRecoveryCodeClick = true;
           });
         }
       } catch (e) {
         setState(() {
           codeError = 'کد وارد شده صحیح نمی باشد.';
 
-          _sendRecoveryCodeClick = false;
+          _sendRecoveryCodeClick = true;
         });
       } finally {
         client.close();

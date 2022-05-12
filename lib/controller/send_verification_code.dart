@@ -70,6 +70,8 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
         if (seconds < 0) {
           timer!.cancel();
 
+          resendCodeClick = true;
+
           codeError = null;
 
           numberOfSend++;
