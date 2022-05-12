@@ -60,6 +60,8 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
   late List<bool> _starsForComment;
   late bool _availableInBookCart;
 
+  late bool _commentRegistrationClick;
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +75,8 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     _commentController = TextEditingController();
     _numberOfStarsForComment = 0;
     _starsForComment = List<bool>.generate(5, (index) => false);
+
+    _commentRegistrationClick = true;
   }
 
   Future _initBook() async {
@@ -729,12 +733,14 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                         } else {
                           _commentError = null;
 
-                          _commentRegistration();
+                          if(_commentRegistrationClick) {
+                            _commentRegistration();
+                          }
                         }
                       });
                     },
-                    label: const Text(
-                      'ثبت نظر',
+                    label: Text(
+                      _commentRegistrationClick ? 'ثبت نظر' : 'لطفاً شکیبا باشید.',
                     ),
                     icon: const Icon(Ionicons.checkmark_outline),
                   ),
@@ -756,6 +762,10 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
   }
 
   void _commentRegistration() async {
+    setState(() {
+      _commentRegistrationClick = false;
+    });
+
     customDio = await CustomDio.dio.post(
       'dashboard/books/${_book.slug}/review',
       data: {
@@ -766,6 +776,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
 
     if (customDio.statusCode == 200) {
       setState(() {
+
         _commentController = TextEditingController();
         _numberOfStarsForComment = 0;
         _starsForComment = List<bool>.generate(5, (index) => false);
@@ -782,6 +793,10 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
         ),
       );
     } else {
+      setState(() {
+        _commentRegistrationClick = true;
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
         customSnackBar(
           context,

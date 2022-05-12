@@ -368,7 +368,7 @@ class _ContactUsPageState extends State<ContactUsPage>
     setState(() {
       if (customDio.statusCode == 200) {
         _ticketRegistrationClick = true;
-        
+
         _topic = null;
         _ticketController = TextEditingController();
         dataIsLoading = true;
