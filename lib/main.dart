@@ -39,6 +39,8 @@ const String fontFamily = 'Vazir';
 
 late SharedPreferences sharedPreferences;
 late int resendSms;
+late String androidLink;
+late String iosLink;
 late int userId;
 late List<int> libraryId = [];
 late List<int> markedBooksId = [];

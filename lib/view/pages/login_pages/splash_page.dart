@@ -48,8 +48,6 @@ class _SplashPageState extends State<SplashPage>
   );
   bool _versionIsLoading = true;
   late String _version;
-  late String _androidLink;
-  late String _iosLink;
   late bool _firstLogin;
 
   @override
@@ -74,8 +72,8 @@ class _SplashPageState extends State<SplashPage>
 
       setState(() {
         _version = data['version'].toString();
-        _androidLink = data['android_link'];
-        _iosLink = data['ios_link'];
+        androidLink = data['android_link'];
+        iosLink = data['ios_link'];
         resendSms = data['resend_sms'] ?? 100;
         _versionIsLoading = false;
       });
@@ -245,8 +243,8 @@ class _SplashPageState extends State<SplashPage>
             ),
             actions: [
               Platform.isAndroid
-                  ? _platformUpdateButton(_androidLink)
-                  : _platformUpdateButton(_iosLink),
+                  ? _platformUpdateButton(androidLink)
+                  : _platformUpdateButton(iosLink),
             ],
           ),
         );

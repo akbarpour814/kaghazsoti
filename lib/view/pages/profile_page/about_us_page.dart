@@ -57,7 +57,7 @@ class _AboutUsPageState extends State<AboutUsPage>
         _websiteAddress = customResponse.data['general_website_url'];
 
         _textOfShare =
-            'بهترین و جدیدترین کتاب های صوتی را با ما بشنوید.\n\nراه های ارتباط با ما:\n\nواتساپ: $_whatsappPhoneNumber\nایمیل: $_email\nوب سایت: $_websiteAddress\n\nدانلود از طریق: \n\n\nوب سایت:';
+            'بهترین و جدیدترین کتاب های صوتی را با ما بشنوید.\n\nراه های ارتباط با ما:\n\nواتساپ: $_whatsappPhoneNumber\nایمیل: $_email\nوب سایت: $_websiteAddress\n\nدانلود از طریق: \n\nنسخه اندروید: $androidLink\n\nنسخه آی.او.اس: $iosLink';
       }
     }
 
