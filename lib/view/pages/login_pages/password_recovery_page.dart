@@ -45,6 +45,9 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
   String? _repeatNewPasswordError;
   late bool _obscureText;
 
+  late bool _receiveRecoveryCodeClick;
+  late bool _sendRecoveryCodeClick;
+
   @override
   void initState() {
     super.initState();
@@ -53,6 +56,9 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
     _newPasswordController = TextEditingController();
     _repeatNewPasswordController = TextEditingController();
     _obscureText = true;
+
+    _receiveRecoveryCodeClick = true;
+    _sendRecoveryCodeClick = true;
   }
 
   @override
@@ -197,11 +203,11 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
             width: 100.0.w - (2 * 5.0.w),
             child: ElevatedButton.icon(
               onPressed: () {
-                setState(() {
+                if(_receiveRecoveryCodeClick) {
                   _receiveRecoveryCode();
-                });
+                }
               },
-              label: const Text('دریافت کد تأیید'),
+              label: Text(_receiveRecoveryCodeClick ? 'دریافت کد تأیید' : 'لطفاًشکیبا باشید.'),
               icon: const Icon(Ionicons.checkmark_outline),
             ),
           ),
@@ -217,6 +223,10 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
     );
 
     if (_phoneNumberError == null) {
+      setState(() {
+        _receiveRecoveryCodeClick = false;
+      });
+
       customDio = await Dio().post(
         '${domain}forgot/step1',
         data: {'mobile': _phoneNumberController.text},
@@ -228,125 +238,6 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
 
           startTimer();
         });
-      }
-    }
-  }
-
-  Visibility _sendRecoveryCodeButton() {
-    return Visibility(
-      visible: !sendCode,
-      child: Padding(
-        padding: EdgeInsets.only(top: 5.0.h),
-        child: Center(
-          child: SizedBox(
-            width: 100.0.w - (2 * 5.0.w),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  _sendRecoveryCodeOperation();
-                });
-              },
-              label: const Text('ارسال کد تأیید'),
-              icon: const Icon(Ionicons.checkmark_outline),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _sendRecoveryCodeOperation() async {
-    codeError =
-        codeController.text.isEmpty ? 'لطفاً کد تأیید را وارد کنید.' : null;
-    _newPasswordError = UserInformationFormatCheck.checkPasswordFormat(
-      _newPasswordController,
-      'لطفاً رمز عبور جدید را وارد کنید.',
-    );
-    _repeatNewPasswordError = UserInformationFormatCheck.checkPasswordFormat(
-      _repeatNewPasswordController,
-      'لطفاً رمز عبور جدید را تکرار کنید.',
-    );
-
-    if ((codeError == null) &&
-        (_newPasswordError == null) &&
-        (_repeatNewPasswordError == null)) {
-      var client = HTTP.Client();
-      try {
-        HTTP.Response response = await client.post(
-          Uri.parse('${domain}forgot/step2'),
-          body: {
-            'mobile': _phoneNumberController.text,
-            'code': codeController.text,
-            'password': _newPasswordController.text,
-            'password_confirmation': _repeatNewPasswordController.text,
-          },
-        );
-        if (response.statusCode == 200) {
-          customResponse = CustomResponse.fromJson(
-              jsonDecode(utf8.decode(response.bodyBytes))
-                  as Map<String, dynamic>);
-
-          Response<dynamic> _customDio = await Dio().post(
-            '${domain}login',
-            data: {
-              'username': _phoneNumberController.text,
-              'password': _newPasswordController.text
-            },
-          );
-
-          if (_customDio.statusCode == 200) {
-            CustomResponse _customResponse =
-                CustomResponse.fromJson(_customDio.data);
-
-            tokenLogin.$ = _customResponse.data['token'];
-            await sharedPreferences.setString(
-                'tokenLogin', _customResponse.data['token']);
-            await sharedPreferences.setBool('firstLogin', false);
-
-            headers = {
-              'Authorization': 'Bearer ${tokenLogin.of(context)}',
-              'Accept': 'application/json',
-              'client': 'api'
-            };
-
-            prepareToLoginApp();
-
-            setState(() {
-              ScaffoldMessenger.of(context).showSnackBar(
-                customSnackBar(
-                  context,
-                  Ionicons.checkmark_done_outline,
-                  'به کاغذ صوتی خوش آمدید.',
-                  2,
-                ),
-              );
-
-              Future.delayed(const Duration(microseconds: 2500), () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PersistentBottomNavigationBar(),
-                  ),
-                );
-              });
-
-              codeController = TextEditingController();
-              _phoneNumberController = TextEditingController();
-              _newPasswordController = TextEditingController();
-              _repeatNewPasswordController = TextEditingController();
-            });
-          }
-        } else {
-          setState(() {
-            codeError = 'کد وارد شده صحیح نمی باشد.';
-          });
-        }
-      } catch (e) {
-        setState(() {
-          codeError = 'کد وارد شده صحیح نمی باشد.';
-        });
-      } finally {
-        client.close();
       }
     }
   }
@@ -407,5 +298,131 @@ class _PasswordRecoveryPageState extends State<PasswordRecoveryPage>
         ),
       ),
     );
+  }
+
+  Visibility _sendRecoveryCodeButton() {
+    return Visibility(
+      visible: !sendCode,
+      child: Padding(
+        padding: EdgeInsets.only(top: 5.0.h),
+        child: Center(
+          child: SizedBox(
+            width: 100.0.w - (2 * 5.0.w),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                if(_sendRecoveryCodeClick) {
+                  _sendRecoveryCodeOperation();
+                }
+              },
+              label: Text(_sendRecoveryCodeClick ? 'ارسال کد تأیید' : 'لطفاًشکیبا باشید.'),
+              icon: const Icon(Ionicons.checkmark_outline),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _sendRecoveryCodeOperation() async {
+    codeError =
+    codeController.text.isEmpty ? 'لطفاً کد تأیید را وارد کنید.' : null;
+    _newPasswordError = UserInformationFormatCheck.checkPasswordFormat(
+      _newPasswordController,
+      'لطفاً رمز عبور جدید را وارد کنید.',
+    );
+    _repeatNewPasswordError = UserInformationFormatCheck.checkPasswordFormat(
+      _repeatNewPasswordController,
+      'لطفاً رمز عبور جدید را تکرار کنید.',
+    );
+
+    if ((codeError == null) &&
+        (_newPasswordError == null) &&
+        (_repeatNewPasswordError == null)) {
+      setState(() {
+        _sendRecoveryCodeClick = false;
+      });
+
+      var client = HTTP.Client();
+
+      try {
+        HTTP.Response response = await client.post(
+          Uri.parse('${domain}forgot/step2'),
+          body: {
+            'mobile': _phoneNumberController.text,
+            'code': codeController.text,
+            'password': _newPasswordController.text,
+            'password_confirmation': _repeatNewPasswordController.text,
+          },
+        );
+        if (response.statusCode == 200) {
+          customResponse = CustomResponse.fromJson(
+              jsonDecode(utf8.decode(response.bodyBytes))
+              as Map<String, dynamic>);
+
+          Response<dynamic> _customDio = await Dio().post(
+            '${domain}login',
+            data: {
+              'username': _phoneNumberController.text,
+              'password': _newPasswordController.text
+            },
+          );
+
+          if (_customDio.statusCode == 200) {
+            CustomResponse _customResponse =
+            CustomResponse.fromJson(_customDio.data);
+
+            tokenLogin.$ = _customResponse.data['token'];
+            await sharedPreferences.setString(
+                'tokenLogin', _customResponse.data['token']);
+            await sharedPreferences.setBool('firstLogin', false);
+
+            headers = {
+              'Authorization': 'Bearer ${tokenLogin.of(context)}',
+              'Accept': 'application/json',
+              'client': 'api'
+            };
+
+            prepareToLoginApp();
+
+            setState(() {
+              ScaffoldMessenger.of(context).showSnackBar(
+                customSnackBar(
+                  context,
+                  Ionicons.checkmark_done_outline,
+                  'به کاغذ صوتی خوش آمدید.',
+                  2,
+                ),
+              );
+
+              Future.delayed(const Duration(microseconds: 2500), () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PersistentBottomNavigationBar(),
+                  ),
+                );
+              });
+
+              codeController = TextEditingController();
+              _phoneNumberController = TextEditingController();
+              _newPasswordController = TextEditingController();
+              _repeatNewPasswordController = TextEditingController();
+            });
+          }
+        } else {
+          setState(() {
+            codeError = 'کد وارد شده صحیح نمی باشد.';
+          });
+        }
+      } catch (e) {
+        setState(() {
+          codeError = 'کد وارد شده صحیح نمی باشد.';
+
+          _sendRecoveryCodeClick = false;
+        });
+      } finally {
+        client.close();
+      }
+    }
   }
 }

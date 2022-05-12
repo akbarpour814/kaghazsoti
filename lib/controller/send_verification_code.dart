@@ -26,6 +26,8 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
   late Duration duration;
   late bool resendCodePermission;
 
+  late bool resendCodeClick;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +37,8 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
     sendCode = true;
     duration = Duration(seconds: 59);
     resendCodePermission = false;
+
+    resendCodeClick = true;
   }
 
   @override
@@ -139,9 +143,11 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
                   codeController = TextEditingController();
                 });
 
-                resendCode(phoneNumber);
+                if(resendCodeClick) {
+                  resendCode(phoneNumber);
+                }
               },
-              label: const Text('دریافت مجدد کد تأیید'),
+              label: Text(resendCodeClick ? 'دریافت مجدد کد تأیید' : 'لطفاً شکیبا باشید.'),
               icon: const Icon(Ionicons.checkmark_outline),
             ),
           ),
@@ -151,6 +157,10 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
   }
 
   void resendCode(String phoneNumber) async {
+    setState(() {
+      resendCodeClick = false;
+    });
+
     Response<dynamic> customDio = await Dio().post(
       '${domain}register/resend',
       data: {'mobile': phoneNumber},

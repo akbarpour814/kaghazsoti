@@ -47,6 +47,9 @@ class _LoginPageState extends State<LoginPage>
   late bool _loginPermission;
   late bool _obscureText;
 
+  late bool _informationConfirmClick;
+  late bool _sendCodeClick;
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +58,9 @@ class _LoginPageState extends State<LoginPage>
     _passwordController = TextEditingController();
     _loginPermission = false;
     _obscureText = true;
+
+    _informationConfirmClick = true;
+    _sendCodeClick = true;
   }
 
   @override
@@ -83,10 +89,11 @@ class _LoginPageState extends State<LoginPage>
                 _appTitle(),
                 Padding(
                   padding: EdgeInsets.symmetric(
-                      vertical:
-                          resendCodePermission && sendCode && (numberOfSend < 5)
-                              ? 0.0
-                              : 5.0.h),
+                    vertical:
+                        resendCodePermission && sendCode && (numberOfSend < 5)
+                            ? 0.0
+                            : 5.0.h,
+                  ),
                   child: Column(
                     children: [
                       _phoneNumberTextField(),
@@ -152,7 +159,6 @@ class _LoginPageState extends State<LoginPage>
               _phoneNumberController,
               null,
             );
-            ;
           });
         },
       ),
@@ -197,11 +203,11 @@ class _LoginPageState extends State<LoginPage>
         width: 100.0.w - (2 * 5.0.w),
         child: ElevatedButton.icon(
           onPressed: () {
-            setState(() {
+            if(_informationConfirmClick) {
               _informationConfirm();
-            });
+            }
           },
-          label: const Text('بررسی اطلاعات برای ورود'),
+          label: Text(_informationConfirmClick ? 'بررسی اطلاعات برای ورود' : 'لطفاً شک باشید.'),
           icon: const Icon(Ionicons.checkmark_outline),
         ),
       ),
@@ -219,6 +225,10 @@ class _LoginPageState extends State<LoginPage>
     );
 
     if ((_phoneNumberError == null) && (_passwordError == null)) {
+      setState(() {
+        _informationConfirmClick = false;
+      });
+
       try {
         customDio = await Dio().post(
           '${domain}login',
@@ -246,6 +256,7 @@ class _LoginPageState extends State<LoginPage>
           _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
           _loginPermission = false;
+          _informationConfirmClick = true;
         });
       }
     }
@@ -313,11 +324,11 @@ class _LoginPageState extends State<LoginPage>
           width: 100.0.w - (2 * 5.0.w),
           child: ElevatedButton.icon(
             onPressed: () {
-              setState(() {
+              if(_sendCodeClick) {
                 _sendCodeOperation();
-              });
+              }
             },
-            label: const Text('ارسال کد تأیید'),
+            label: Text(_sendCodeClick ? 'ارسال کد تأیید' : 'لطفاً شک باشید.'),
             icon: const Icon(Ionicons.checkmark_outline),
           ),
         ),
@@ -327,6 +338,10 @@ class _LoginPageState extends State<LoginPage>
 
   void _sendCodeOperation() async {
     try {
+      setState(() {
+        _sendCodeClick = false;
+      });
+
       Response<dynamic> _customDio = await Dio().post(
         '${domain}register/register_confirmation_step_2',
         data: {
@@ -341,6 +356,8 @@ class _LoginPageState extends State<LoginPage>
     } catch (e) {
       setState(() {
         codeError = 'کد وارد شده صحیح نمی باشد.';
+
+        _sendCodeClick = true;
       });
     }
   }
@@ -393,6 +410,7 @@ class _LoginPageState extends State<LoginPage>
         _passwordError = 'رمز عبور وارد شده درست نمی باشد.';
 
         _loginPermission = false;
+        _informationConfirmClick = true;
       });
     }
   }

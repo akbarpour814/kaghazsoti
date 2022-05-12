@@ -50,6 +50,9 @@ class _RegistrationPageState extends State<RegistrationPage>
   late bool _registeredInformation;
   late bool _obscureText;
 
+  late bool _informationRegistrationClick;
+  late bool _sendCodeClick;
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +64,9 @@ class _RegistrationPageState extends State<RegistrationPage>
     _registeredInformation = false;
     _obscureText = true;
     login = true;
+
+    _informationRegistrationClick = true;
+    _sendCodeClick = true;
   }
 
   @override
@@ -274,11 +280,13 @@ class _RegistrationPageState extends State<RegistrationPage>
                     _repeatPasswordController.text) {
                   _repeatPasswordError = 'لطفاً رمز عبور جدید را تکرار کنید.';
                 } else {
-                  _informationRegistration();
+                  if(_informationRegistrationClick) {
+                    _informationRegistration();
+                  }
                 }
               });
             },
-            label: const Text('ثبت اطلاعات'),
+            label: Text(_informationRegistrationClick ? 'ثبت اطلاعات' : 'لطفاً شکیبا باشید.'),
             icon: const Icon(Ionicons.checkmark_outline),
           ),
         ),
@@ -309,7 +317,12 @@ class _RegistrationPageState extends State<RegistrationPage>
         (_phoneNumberError == null) &&
         (_passwordError == null) &&
         (_repeatPasswordError == null)) {
+      setState(() {
+        _informationRegistrationClick = false;
+      });
+
       var client = HTTP.Client();
+
       try {
         HTTP.Response response = await client.post(
           Uri.parse('${domain}register'),
@@ -336,6 +349,8 @@ class _RegistrationPageState extends State<RegistrationPage>
             if ((_data['message'])['username'] != null) {
               _phoneNumberError =
                   'حساب کاربری با شماره تلفن وارد شده وجود دارد.';
+
+              _informationRegistrationClick = true;
             }
           });
         }
@@ -355,11 +370,11 @@ class _RegistrationPageState extends State<RegistrationPage>
             width: 100.0.w - (2 * 5.0.w),
             child: ElevatedButton.icon(
               onPressed: () {
-                setState(() {
+                if(_sendCodeClick) {
                   _sendCodeOperation();
-                });
+                }
               },
-              label: const Text('ارسال کد تأیید'),
+              label: Text(_sendCodeClick ? 'ارسال کد تأیید' : 'لطفاً شکیبا باشید.'),
               icon: const Icon(Ionicons.checkmark_outline),
             ),
           ),
@@ -370,6 +385,10 @@ class _RegistrationPageState extends State<RegistrationPage>
 
   void _sendCodeOperation() async {
     try {
+      setState(() {
+        _sendCodeClick = false;
+      });
+
       Response<dynamic> _customDio = await Dio().post(
         '${domain}register/register_confirmation_step_2',
         data: {
@@ -427,6 +446,8 @@ class _RegistrationPageState extends State<RegistrationPage>
     } catch (e) {
       setState(() {
         codeError = 'کد وارد شده صحیح نمی باشد.';
+
+        _sendCodeClick = true;
       });
     }
   }
