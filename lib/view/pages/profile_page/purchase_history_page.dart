@@ -363,16 +363,16 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
   void _handleIncomingLinks() {
     if (!kIsWeb) {
       uriLinkStream2 = uriLinkStream.listen((Uri? uri) {
-        verificationPayment(uri!.queryParameters);
+        _verificationPayment(uri!.queryParameters);
       });
     }
   }
 
-  void verificationPayment(Map<String, String> status) async {
+  void _verificationPayment(Map<String, String> queryParameters) async {
     try {
       customDio = await CustomDio.dio.get(
         'dashboard/invoice_and_pay/callback',
-        queryParameters: status,
+        queryParameters: queryParameters,
       );
 
       if (customDio.statusCode == 200) {
@@ -385,11 +385,8 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
 
         if (customResponse.data['data']['level'] == 'success') {
           setState(() {
-            for (int i = 0;
-                i < _purchaseHistory[_purchaseIndexSelected].books.length;
-                ++i) {
-              libraryId
-                  .add(_purchaseHistory[_purchaseIndexSelected].books[i].id);
+            for (int i = 0; i < _purchaseHistory[_purchaseIndexSelected].books.length; ++i) {
+              libraryId.add(_purchaseHistory[_purchaseIndexSelected].books[i].id);
             }
           });
 
@@ -416,7 +413,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
           customSnackBar(
             context,
             Ionicons.call_outline,
-            'پرداخت ناموفق! لطفاً با ما تماس بگیرید.',
+            'خرید ناموفق! لطفاً با ما تماس بگیرید.',
             4,
           ),
         );

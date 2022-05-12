@@ -38,12 +38,16 @@ class _AccountPageState extends State<AccountPage>
   late bool _permissionToEdit;
   late bool _registeredInformation;
 
+  late bool _informationRegistrationClick;
+
   @override
   void initState() {
     super.initState();
 
     _permissionToEdit = false;
     _registeredInformation = false;
+
+    _informationRegistrationClick = true;
   }
 
   Future _initUserInformation() async {
@@ -160,6 +164,7 @@ class _AccountPageState extends State<AccountPage>
               setState(() {
                 if (!_registeredInformation) {
                   _permissionToEdit = _permissionToEdit ? false : true;
+                  _informationRegistrationClick = _permissionToEdit;
 
                   dataIsLoading = false;
                 }
@@ -273,12 +278,12 @@ class _AccountPageState extends State<AccountPage>
         width: 100.0.w - (2 * 5.0.w),
         child: ElevatedButton.icon(
           onPressed: () {
-            setState(() {
+            if(_informationRegistrationClick) {
               _informationRegistration();
-            });
+            }
           },
           label: Text(
-            _registeredInformation ? 'اطلاعات ویرایش شد' : 'ویرایش اطلاعات',
+            _informationRegistrationClick ? 'ویرایش اطلاعات' : 'لطفاً شکیبا باشید.',
           ),
           icon: Icon(
             _registeredInformation
@@ -296,18 +301,17 @@ class _AccountPageState extends State<AccountPage>
       _firstAndLastNameController,
       'لطفاً نام و نام خوانوادگی خود را وارد کنید.',
     );
-    _emailError = UserInformationFormatCheck.checkEmailFormat(
-      _emailController,
-      'لطفاً ایمیل خود را وارد کنید.',
-    );
     _phoneNumberError = UserInformationFormatCheck.checkPhoneNumberFormat(
       _phoneNumberController,
       'لطفاً شماره تلفن همراه خود را وارد کنید.',
     );
 
     if (_firstAndLastNameError == null &&
-        _emailError == null &&
         _phoneNumberError == null) {
+      setState(() {
+        _informationRegistrationClick = false;
+      });
+
       _permissionToEdit = false;
       _registeredInformation = false;
 
@@ -315,7 +319,7 @@ class _AccountPageState extends State<AccountPage>
         'user',
         data: {
           'name': _firstAndLastNameController.text,
-          'email': _emailController.text,
+          'email': '',
           'mobile': _phoneNumberController.text,
         },
       );
@@ -331,6 +335,8 @@ class _AccountPageState extends State<AccountPage>
             ),
           );
         } else {
+          _informationRegistrationClick = true;
+
           ScaffoldMessenger.of(context).showSnackBar(
             customSnackBar(
               context,

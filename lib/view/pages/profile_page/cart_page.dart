@@ -49,6 +49,8 @@ class _CartPageState extends State<CartPage>
   late bool _paymentGateway;
   late bool _showButtons;
 
+  late bool _issuanceOfPurchaseInvoiceClick;
+
   @override
   void initState() {
     super.initState();
@@ -61,6 +63,8 @@ class _CartPageState extends State<CartPage>
     _purchaseInvoiceWasIssued = false;
     _paymentGateway = false;
     _showButtons = true;
+
+    _issuanceOfPurchaseInvoiceClick = true;
   }
 
   Future _initCart() async {
@@ -419,16 +423,22 @@ class _CartPageState extends State<CartPage>
       child: ElevatedButton.icon(
         onPressed: () {
           if (!dataIsLoading) {
-            _issuanceOfPurchaseInvoice();
+            if(_issuanceOfPurchaseInvoiceClick) {
+              _issuanceOfPurchaseInvoice();
+            }
           }
         },
-        label: const Text('صدور فاکتور خرید'),
+        label: Text(_issuanceOfPurchaseInvoiceClick ? 'صدور فاکتور خرید' : 'لطفاً شکیبا باشید.'),
         icon: const Icon(Ionicons.bag_check_outline),
       ),
     );
   }
 
   void _issuanceOfPurchaseInvoice() async {
+    setState(() {
+      _issuanceOfPurchaseInvoiceClick = false;
+    });
+
     List<String> booksId = List<String>.generate(
       _bookCart.length,
       (index) => _bookCart[index].id.toString(),
@@ -477,12 +487,12 @@ class _CartPageState extends State<CartPage>
   void _handleIncomingLinks() {
     if (!kIsWeb) {
       uriLinkStream2 = uriLinkStream.listen((Uri? uri) {
-        verificationPayment(uri!.queryParameters);
+        _verificationPayment(uri!.queryParameters);
       });
     }
   }
 
-  void verificationPayment(Map<String, String> queryParameters) async {
+  void _verificationPayment(Map<String, String> queryParameters) async {
     try {
       customDio = await CustomDio.dio.get(
         'dashboard/invoice_and_pay/callback',

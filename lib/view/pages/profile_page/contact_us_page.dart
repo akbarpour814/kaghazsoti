@@ -42,6 +42,8 @@ class _ContactUsPageState extends State<ContactUsPage>
   TicketData? _firstTicket;
   late bool _displayFirstTicket;
 
+  late bool _ticketRegistrationClick;
+
   @override
   void initState() {
     super.initState();
@@ -49,6 +51,8 @@ class _ContactUsPageState extends State<ContactUsPage>
     _ticketController = TextEditingController();
     _topics = Topic.values;
     _displayFirstTicket = false;
+
+    _ticketRegistrationClick = true;
   }
 
   Future _initFirstTicket() async {
@@ -333,12 +337,14 @@ class _ContactUsPageState extends State<ContactUsPage>
               } else {
                 _errorText = null;
 
-                _ticketRegistration();
+                if(_ticketRegistrationClick) {
+                  _ticketRegistration();
+                }
               }
             });
           },
           label: Text(
-            'ثبت نظر',
+            _ticketRegistrationClick ? 'ثبت نظر' : 'لطفاً شکیبا باشید.',
           ),
           icon: Icon(Ionicons.checkmark_outline),
         ),
@@ -347,6 +353,10 @@ class _ContactUsPageState extends State<ContactUsPage>
   }
 
   void _ticketRegistration() async {
+    setState(() {
+      _ticketRegistrationClick = false;
+    });
+
     customDio = await CustomDio.dio.post(
       'dashboard/tickets/store',
       data: {
@@ -357,6 +367,8 @@ class _ContactUsPageState extends State<ContactUsPage>
 
     setState(() {
       if (customDio.statusCode == 200) {
+        _ticketRegistrationClick = true;
+        
         _topic = null;
         _ticketController = TextEditingController();
         dataIsLoading = true;
@@ -370,6 +382,8 @@ class _ContactUsPageState extends State<ContactUsPage>
           ),
         );
       } else {
+        _ticketRegistrationClick = true;
+
         ScaffoldMessenger.of(context).showSnackBar(
           customSnackBar(
             context,

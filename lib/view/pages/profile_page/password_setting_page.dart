@@ -39,6 +39,8 @@ class _PasswordSettingPageState extends State<PasswordSettingPage>
   late bool _newPasswordRegistered;
   late bool _obscureText;
 
+  late bool _newPasswordRegistrationClick;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +50,8 @@ class _PasswordSettingPageState extends State<PasswordSettingPage>
     _repeatNewPasswordController = TextEditingController();
     _newPasswordRegistered = false;
     _obscureText = true;
+
+    _newPasswordRegistrationClick = true;
   }
 
   @override
@@ -236,11 +240,13 @@ class _PasswordSettingPageState extends State<PasswordSettingPage>
                   _repeatNewPasswordError =
                       'لطفاً رمز عبور جدید را تکرار کنید.';
                 } else {
-                  _newPasswordRegistration();
+                  if(_newPasswordRegistrationClick) {
+                    _newPasswordRegistration();
+                  }
                 }
               });
             },
-            label: const Text('ثبت رمز عبور جدید'),
+            label: Text(_newPasswordRegistrationClick ? 'ثبت رمز عبور جدید' : 'لطفاً شکیبا باشید.'),
             icon: const Icon(Ionicons.checkmark_outline),
           ),
         ),
@@ -266,6 +272,10 @@ class _PasswordSettingPageState extends State<PasswordSettingPage>
       if (_previousPasswordError == null &&
           _newPasswordError == null &&
           _repeatNewPasswordError == null) {
+        setState(() {
+          _newPasswordRegistrationClick = false;
+        });
+
         customDio = await CustomDio.dio.post(
           'dashboard/user/password',
           data: {
@@ -294,11 +304,15 @@ class _PasswordSettingPageState extends State<PasswordSettingPage>
           _previousPasswordController = TextEditingController();
           _newPasswordController = TextEditingController();
           _repeatNewPasswordController = TextEditingController();
+
+          _newPasswordRegistrationClick = true;
         });
       }
     } catch (e) {
       setState(() {
         _previousPasswordError = 'رمز عبور قبلی صحیح نمی باشد.';
+
+        _newPasswordRegistrationClick = true;
       });
     }
   }
