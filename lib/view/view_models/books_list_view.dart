@@ -54,19 +54,9 @@ class BooksListView extends StatelessWidget {
                   border: Border.all(color: Theme.of(context).primaryColor),
                   borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                 ),
-                width: 150.0,
+                 width: 150.0,
                 height: 22.0.h,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _bookCover(index),
-                    Divider(
-                      height: 0.0,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    _bookName(index, context),
-                  ],
-                ),
+                child: _bookCover(index),
               ),
             ),
           ),
@@ -78,11 +68,9 @@ class BooksListView extends StatelessWidget {
   SizedBox _bookCover(int index) {
     return SizedBox(
       width: 150.0,
-      height: 18.0.h,
+      height: 22.0.h,
       child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(5.0),
-        ),
+        borderRadius: const BorderRadius.all(Radius.circular(5.0),),
         child: FadeInImage.assetNetwork(
           placeholder: defaultBookCover,
           image: books[index].bookCoverPath,
@@ -92,20 +80,20 @@ class BooksListView extends StatelessWidget {
     );
   }
 
-  Expanded _bookName(int index, BuildContext context) {
-    return Expanded(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            books[index].name,
-            style: TextStyle(color: Theme.of(context).primaryColor),
-            maxLines: 1,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ),
-    );
-  }
+  // Expanded _bookName(int index, BuildContext context) {
+  //   return Expanded(
+  //     child: Center(
+  //       child: Padding(
+  //         padding: const EdgeInsets.symmetric(horizontal: 8.0),
+  //         child: Text(
+  //           books[index].name,
+  //           style: TextStyle(color: Theme.of(context).primaryColor),
+  //           maxLines: 1,
+  //           textAlign: TextAlign.center,
+  //           overflow: TextOverflow.ellipsis,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 }
