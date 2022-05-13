@@ -207,7 +207,7 @@ class _LoginPageState extends State<LoginPage>
               _informationConfirm();
             }
           },
-          label: Text(_informationConfirmClick ? 'بررسی اطلاعات برای ورود' : 'لطفاً شک باشید.'),
+          label: Text(_informationConfirmClick ? 'بررسی اطلاعات برای ورود' : 'لطفاً شکیبا باشید.'),
           icon: const Icon(Ionicons.checkmark_outline),
         ),
       ),
@@ -328,7 +328,7 @@ class _LoginPageState extends State<LoginPage>
                 _sendCodeOperation();
               }
             },
-            label: Text(_sendCodeClick ? 'ارسال کد تأیید' : 'لطفاً شک باشید.'),
+            label: Text(_sendCodeClick ? 'ارسال کد تأیید' : 'لطفاً شکیبا باشید.'),
             icon: const Icon(Ionicons.checkmark_outline),
           ),
         ),
