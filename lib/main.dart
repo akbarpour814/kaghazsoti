@@ -30,7 +30,7 @@ import '/view/pages/profile_page/purchase_history_page.dart';
 import '/view/view_models/player_bottom_navigation_bar.dart';
 
 //-----/global variables
-String domain = 'https://kaghazsoti.uage.ir/api/';
+String domain = 'https://kaghazsoti.com/api/';
 String defaultBanner = 'assets/images/defaultBanner.jpg';
 String defaultBookCover = 'assets/images/appLogoForOutApp.png';
 String appLogo = 'assets/images/appLogo.jpg';
@@ -61,7 +61,6 @@ int demoInPlayId = -1;
 SharedValue<bool> demoOfBookIsPlaying = SharedValue(value: false);
 
 Future<void> main() async {
-  print("aaaaaaa");
   audioPlayerHandler = await AudioService.init(
     builder: () => AudioPlayerHandlerImplements(),
     config: const AudioServiceConfig(
