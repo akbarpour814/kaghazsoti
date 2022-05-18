@@ -69,7 +69,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
           for (Map<String, dynamic> mediaItem in customDio.data['data']) {
             mediaItems.add(
               MediaItem(
-                id: 'https://kaghazsoti.uage.ir/storage/book-files/${mediaItem['url']}',
+                id: '${storage}book-files/${mediaItem['url']}',
                 album: widget.audiobook.name,
                 title: mediaItem['name'] ?? '',
                 artist: widget.audiobook.author,

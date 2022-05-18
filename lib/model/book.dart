@@ -161,13 +161,13 @@ class Book {
       reviews.insert(0, myReview);
     }
 
-    demo = 'https://kaghazsoti.uage.ir/storage/books/${product['demo'] ?? ''}';
+    demo = '${storage}books/${product['demo'] ?? ''}';
     print(product['demo']);
     print("product['demo']");
 
     bookCoverPath = product['image'] == null
         ? defaultBookCover
-        : 'https://kaghazsoti.uage.ir/storage/books/${product['image']}';
+        : '${storage}books/${product['image']}';
     print(product['image']);
     print("product['image']");
 
@@ -224,6 +224,6 @@ class Part {
   Part.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     time = json['timer'];
-    path = 'https://kaghazsoti.uage.ir/storage/book-files/${json['url']}';
+    path = '${storage}book-files/${json['url']}';
   }
 }

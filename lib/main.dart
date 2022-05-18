@@ -31,6 +31,7 @@ import '/view/view_models/player_bottom_navigation_bar.dart';
 
 //-----/global variables
 String domain = 'https://kaghazsoti.com/api/';
+String storage = 'https://kaghazsoti.com/storage/';
 String defaultBanner = 'assets/images/defaultBanner.jpg';
 String defaultBookCover = 'assets/images/appLogoForOutApp.png';
 String appLogo = 'assets/images/appLogo.jpg';

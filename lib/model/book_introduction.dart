@@ -72,7 +72,7 @@ class BookIntroduction {
 
     bookCoverPath = json['image'] == null
         ? defaultBookCover
-        : 'https://kaghazsoti.uage.ir/storage/books/${json['image']}';
+        : '${storage}books/${json['image']}';
     // print(json['image']);
     // print("json['image']");
   }
