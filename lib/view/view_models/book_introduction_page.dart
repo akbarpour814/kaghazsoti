@@ -248,59 +248,75 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
           ),
         ),
-        Positioned(
-          left: 2.5.w,
-          bottom: 2.5.w,
-          child: !demoOfBookIsPlaying.of(context) || (demoInPlayId != _book.id)
-              ? FloatingActionButton(
-                  child: const Icon(Ionicons.play_outline),
-                  onPressed: () {
-                    setState(() {
-                      demoOfBookIsPlaying.$ = true;
-                      demoInPlayId = _book.id;
-                      demoPlayer.setUrl(_book.demo);
+        Visibility(
+          visible: _book.type == 1,
+          child: Positioned(
+            left: 2.5.w,
+            bottom: 2.5.w,
+            child: !demoOfBookIsPlaying.of(context) || (demoInPlayId != _book.id)
+                ? FloatingActionButton(
+                    child: const Icon(Ionicons.play_outline),
+                    onPressed: () {
+                      setState(() {
+                        demoOfBookIsPlaying.$ = true;
+                        demoInPlayId = _book.id;
+                        demoPlayer.setUrl(_book.demo);
 
-                      audioPlayerHandler.stop();
-                    });
-                  },
-                )
-              : StreamBuilder<PlayerState>(
-                  stream: demoPlayer.playerStateStream,
-                  builder: (context, snapshot) {
-                    final playerState = snapshot.data;
-                    final processingState = playerState?.processingState;
-                    final playing = playerState?.playing;
+                        audioPlayerHandler.stop();
+                      });
+                    },
+                  )
+                : StreamBuilder<PlayerState>(
+                    stream: demoPlayer.playerStateStream,
+                    builder: (context, snapshot) {
+                      final playerState = snapshot.data;
+                      final processingState = playerState?.processingState;
+                      final playing = playerState?.playing;
 
-                    if ((processingState == ProcessingState.loading) ||
-                        (processingState == ProcessingState.buffering)) {
-                      return const FloatingActionButton(
-                        onPressed: null,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                        ),
-                      );
-                    } else if (playing != true) {
-                      return FloatingActionButton(
-                        child: const Icon(Ionicons.play_outline),
-                        onPressed: demoPlayer.play,
-                      );
-                    } else if (processingState == ProcessingState.completed) {
-                      demoOfBookIsPlaying.$ = false;
-                      demoInPlayId = -1;
-                      demoPlayer.stop();
+                      if ((processingState == ProcessingState.loading) ||
+                          (processingState == ProcessingState.buffering)) {
+                        return const FloatingActionButton(
+                          onPressed: null,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),
+                        );
+                      } else if (playing != true) {
+                        return FloatingActionButton(
+                          child: const Icon(Ionicons.play_outline),
+                          onPressed: demoPlayer.play,
+                        );
+                      } else if (processingState == ProcessingState.completed) {
+                        demoOfBookIsPlaying.$ = false;
+                        demoInPlayId = -1;
+                        demoPlayer.stop();
 
-                      return FloatingActionButton(
-                        child: const Icon(Ionicons.play_outline),
-                        onPressed: demoPlayer.play,
-                      );
-                    } else {
-                      return FloatingActionButton(
-                        child: const Icon(Ionicons.pause_outline),
-                        onPressed: demoPlayer.pause,
-                      );
-                    }
-                  },
-                ),
+                        return FloatingActionButton(
+                          child: const Icon(Ionicons.play_outline),
+                          onPressed: demoPlayer.play,
+                        );
+                      } else {
+                        return FloatingActionButton(
+                          child: const Icon(Ionicons.pause_outline),
+                          onPressed: demoPlayer.pause,
+                        );
+                      }
+                    },
+                  ),
+          ),
+        ),
+        Visibility(
+          visible: _book.type != 1,
+          child: Positioned(
+            left: 2.5.w,
+            bottom: 2.5.w,
+            child: FloatingActionButton(
+              child: const Icon(Ionicons.document_text_outline),
+              onPressed: () {
+
+              },
+            ),
+          ),
         ),
       ],
     );
@@ -507,7 +523,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
           ),
           Visibility(
-            visible: _book.announcer.isNotEmpty,
+            visible: _book.announcer.isNotEmpty && _book.type == 1,
             child: Property(
               property: 'گوینده',
               value: _book.announcer,
@@ -543,7 +559,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
           ),
           Visibility(
-            visible: _book.publisherOfAudioVersion.isNotEmpty,
+            visible: _book.publisherOfAudioVersion.isNotEmpty && _book.type == 1,
             child: Property(
               property: 'ناشر صوتی',
               value: _book.publisherOfAudioVersion,
@@ -552,7 +568,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
             ),
           ),
           Visibility(
-            visible: _book.audioVersionYear != 0,
+            visible: _book.audioVersionYear != 0 && _book.type == 1,
             child: Property(
               property: 'سال انتشار صوت',
               value: _book.audioVersionYear.toString(),
