@@ -26,6 +26,9 @@
 // import 'package:just_audio/just_audio.dart';
 // import 'package:zarinpal/zarinpal.dart';
 // import 'package:uni_links/uni_links.dart';
+// import 'package:epub_view/epub_view.dart';
+// import 'package:internet_file/internet_file.dart';
+// import 'package:advance_pdf_viewer/advance_pdf_viewer.dart';
 //
 // //------/controller
 // import '/controller/custom_dio.dart';
@@ -101,6 +104,7 @@
 // import '/view/view_models/custom_snack_bar.dart';
 // import '/view/view_models/display_of_details.dart';
 // import '/view/view_models/no_internet_connection.dart';
+// import '/view/view_models/pdf_reader_page.dart';
 // import '/view/view_models/persistent_bottom_navigation_bar.dart';
 // import '/view/view_models/player_bottom_navigation_bar.dart';
 // import '/view/view_models/property.dart';

@@ -1,129 +1,197 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:advance_pdf_viewer/advance_pdf_viewer.dart';
+import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 
-void main() => runApp(MaterialApp(
-  home: MyApp(),
-));
+void main() => runApp(MyApp());
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  Widget build(BuildContext context) => MaterialApp(
+    home: MyHomePage(),
+    debugShowCheckedModeBanner: false,
+  );
 }
 
-class _MyAppState extends State<MyApp> {
-  bool _isLoading = true;
-  late PDFDocument document;
-
+class MyHomePage extends StatelessWidget {
   @override
-  void initState() {
-    super.initState();
-    loadDocument();
-  }
-
-  loadDocument() async {
-    document = await PDFDocument.fromAsset('assets/sample.pdf');
-
-    setState(() => _isLoading = false);
-  }
-
-  changePDF(value) async {
-    setState(() => _isLoading = true);
-    if (value == 1) {
-      document = await PDFDocument.fromAsset('assets/sample2.pdf');
-    } else if (value == 2) {
-      document = await PDFDocument.fromURL(
-        "https://unec.edu.az/application/uploads/2014/12/pdf-sample.pdf",
-        /* cacheManager: CacheManager(
-          Config(
-            "customCacheKey",
-            stalePeriod: const Duration(days: 2),
-            maxNrOfCacheObjects: 10,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('flutter_cached_pdfview Demo'),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute<dynamic>(
+                builder: (_) => const PDFViewerFromUrl(
+                  url: 'http://africau.edu/images/default/sample.pdf',
+                ),
+              ),
+            ),
+            child: const Text('PDF From Url'),
           ),
-        ), */
-      );
-    } else {
-      document = await PDFDocument.fromAsset('assets/sample.pdf');
-    }
-    setState(() => _isLoading = false);
-    Navigator.pop(context);
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute<dynamic>(
+                builder: (_) => const PDFViewerCachedFromUrl(
+                  url: 'http://africau.edu/images/default/sample.pdf',
+                ),
+              ),
+            ),
+            child: const Text('Cashed PDF From Url'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute<dynamic>(
+                builder: (_) => PDFViewerFromAsset(
+                  pdfAssetPath: 'assets/sample2.pdf',
+                ),
+              ),
+            ),
+            child: const Text('PDF From Asset'),
+          ),
+        ],
+      ),
+    );
   }
+}
+
+class PDFViewerFromUrl extends StatelessWidget {
+  const PDFViewerFromUrl({Key? key, required this.url}) : super(key: key);
+
+  final String url;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
-        child: Column(
-          children: <Widget>[
-            SizedBox(height: 36),
-            ListTile(
-              title: Text('Load from Assets'),
-              onTap: () {
-                changePDF(1);
-              },
-            ),
-            ListTile(
-              title: Text('Load from URL'),
-              onTap: () {
-                changePDF(2);
-              },
-            ),
-            ListTile(
-              title: Text('Restore default'),
-              onTap: () {
-                changePDF(3);
-              },
-            ),
-          ],
-        ),
-      ),
       appBar: AppBar(
-        title: const Text('FlutterPluginPDFViewer'),
+        title: const Text('PDF From Url'),
       ),
-      body: Center(
-        child: _isLoading
-            ? Center(child: CircularProgressIndicator())
-            : PDFViewer(
-          document: document,
-          zoomSteps: 1,
-          //uncomment below line to preload all pages
-          // lazyLoad: false,
-          // uncomment below line to scroll vertically
-          // scrollDirection: Axis.vertical,
+      body: const PDF().fromUrl(
+        url,
+        placeholder: (double progress) => Center(child: Text('$progress %')),
+        errorWidget: (dynamic error) => Center(child: Text(error.toString())),
+      ),
+    );
+  }
+}
 
-          //uncomment below code to replace bottom navigation with your own
-          /* navigationBuilder:
-                          (context, page, totalPages, jumpToPage, animateToPage) {
-                        return ButtonBar(
-                          alignment: MainAxisAlignment.spaceEvenly,
-                          children: <Widget>[
-                            IconButton(
-                              icon: Icon(Icons.first_page),
-                              onPressed: () {
-                                jumpToPage()(page: 0);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.arrow_back),
-                              onPressed: () {
-                                animateToPage(page: page - 2);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.arrow_forward),
-                              onPressed: () {
-                                animateToPage(page: page);
-                              },
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.last_page),
-                              onPressed: () {
-                                jumpToPage(page: totalPages - 1);
-                              },
-                            ),
-                          ],
-                        );
-                      }, */
-        ),
+class PDFViewerCachedFromUrl extends StatelessWidget {
+  const PDFViewerCachedFromUrl({Key? key, required this.url}) : super(key: key);
+
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Cached PDF From Url'),
+      ),
+      body: const PDF().cachedFromUrl(
+        url,
+        placeholder: (double progress) => Center(child: Text('$progress %')),
+        errorWidget: (dynamic error) => Center(child: Text(error.toString())),
+      ),
+    );
+  }
+}
+
+class PDFViewerFromAsset extends StatelessWidget {
+  PDFViewerFromAsset({Key? key, required this.pdfAssetPath}) : super(key: key);
+  final String pdfAssetPath;
+  final Completer<PDFViewController> _pdfViewController =
+  Completer<PDFViewController>();
+  final StreamController<String> _pageCountController =
+  StreamController<String>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('PDF From Asset'),
+        actions: <Widget>[
+          StreamBuilder<String>(
+              stream: _pageCountController.stream,
+              builder: (_, AsyncSnapshot<String> snapshot) {
+                if (snapshot.hasData) {
+                  return Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.blue[900],
+                      ),
+                      child: Text(snapshot.data!),
+                    ),
+                  );
+                }
+                return const SizedBox();
+              }),
+        ],
+      ),
+      body: PDF(
+        enableSwipe: true,
+        swipeHorizontal: true,
+        autoSpacing: false,
+        pageFling: false,
+        onPageChanged: (int? current, int? total) =>
+            _pageCountController.add('${current! + 1} - $total'),
+        onViewCreated: (PDFViewController pdfViewController) async {
+          _pdfViewController.complete(pdfViewController);
+          final int currentPage = await pdfViewController.getCurrentPage() ?? 0;
+          final int? pageCount = await pdfViewController.getPageCount();
+          _pageCountController.add('${currentPage + 1} - $pageCount');
+        },
+      ).fromAsset(
+        pdfAssetPath,
+        errorWidget: (dynamic error) => Center(child: Text(error.toString())),
+      ),
+      floatingActionButton: FutureBuilder<PDFViewController>(
+        future: _pdfViewController.future,
+        builder: (_, AsyncSnapshot<PDFViewController> snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            return Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                FloatingActionButton(
+                  heroTag: '-',
+                  child: const Text('-'),
+                  onPressed: () async {
+                    final PDFViewController pdfController = snapshot.data!;
+                    final int currentPage =
+                        (await pdfController.getCurrentPage())! - 1;
+                    if (currentPage >= 0) {
+                      await pdfController.setPage(currentPage);
+                    }
+                  },
+                ),
+                FloatingActionButton(
+                  heroTag: '+',
+                  child: const Text('+'),
+                  onPressed: () async {
+                    final PDFViewController pdfController = snapshot.data!;
+                    final int currentPage =
+                        (await pdfController.getCurrentPage())! + 1;
+                    final int numberOfPages = await pdfController.getPageCount() ?? 0;
+                    if (numberOfPages > currentPage) {
+                      await pdfController.setPage(currentPage);
+                    }
+                  },
+                ),
+              ],
+            );
+          }
+          return const SizedBox();
+        },
       ),
     );
   }

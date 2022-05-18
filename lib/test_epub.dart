@@ -87,6 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // epubCfi:
       //     'epubcfi(/6/6[chapter-2]!/4/2/1612)', // book_2.epub Chapter 16 paragraph 3
     );
+
     super.initState();
   }
 
@@ -106,13 +107,13 @@ class _MyHomePageState extends State<MyHomePage> {
           textAlign: TextAlign.start,
         ),
       ),
-      actions: <Widget>[
-        IconButton(
-          icon: const Icon(Icons.save_alt),
-          color: Colors.white,
-          onPressed: () => _showCurrentEpubCfi(context),
-        ),
-      ],
+      // actions: <Widget>[
+      //   IconButton(
+      //     icon: const Icon(Icons.save_alt),
+      //     color: Colors.white,
+      //     onPressed: () => _showCurrentEpubCfi(context),
+      //   ),
+      // ],
     ),
     drawer: Drawer(
       child: EpubViewTableOfContents(controller: _epubReaderController),
