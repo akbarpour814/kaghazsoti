@@ -7,6 +7,7 @@ import '/main.dart';
 
 class Book {
   late int id;
+  late int type;
   late String slug;
   late String name;
   late String category;
@@ -40,6 +41,10 @@ class Book {
     id = product['id'] ?? -1;
     print(product['id']);
     print("product['id']");
+
+    type = product['type'] ?? -1;
+    print(product['type']);
+    print("product['type']");
 
     slug = product['slug'] ?? '';
     print(product['slug']);
