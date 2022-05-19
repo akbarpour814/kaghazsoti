@@ -1,31 +1,19 @@
 //------/dart and flutter packages
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:typed_data';
 
 //------/packages
 import 'package:ionicons/ionicons.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:epub_view/epub_view.dart';
 import 'package:internet_file/internet_file.dart';
 
 //------/controller
-import '/controller/custom_dio.dart';
-import '/controller/custom_response.dart';
 import '/controller/internet_connection.dart';
 import '/controller/load_data_from_api.dart';
 
-//------/model
-import '/model/category.dart';
-
-//------/view/pages/category_page
-import '/view/pages/category_page/subcategories_page.dart';
-
 //------/view/view_models
-import '/view/view_models/category_name.dart';
 import '/view/view_models/custom_circular_progress_indicator.dart';
-import '/view/view_models/no_internet_connection.dart';
 
 //------/main
 import '/main.dart';
@@ -48,16 +36,12 @@ class _EpubReaderPageState extends State<EpubReaderPage>
     super.initState();
   }
 
-  Future _initCategories() async {
+  Future _initEpub() async {
     Uint8List _data = await InternetFile.get(widget.path);
 
     _epubController = EpubController(document: EpubDocument.openData(_data,),);
 
-
-    setState(() {
-      dataIsLoading = false;
-    });
-
+    dataIsLoading = false;
 
     return _data;
   }
@@ -68,16 +52,6 @@ class _EpubReaderPageState extends State<EpubReaderPage>
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
-      drawer: dataIsLoading ? FutureBuilder(
-        future: _initCategories(),
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          return  Drawer(
-            child: EpubViewTableOfContents(controller: _epubController),
-          );
-        },
-      ) : Drawer(
-        child: EpubViewTableOfContents(controller: _epubController),
-      ),
     );
   }
 
@@ -103,7 +77,7 @@ class _EpubReaderPageState extends State<EpubReaderPage>
   Widget _body() {
     if (dataIsLoading) {
       return FutureBuilder(
-        future: _initCategories(),
+        future: _initEpub(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           if (snapshot.hasData) {
             return _innerBody();
