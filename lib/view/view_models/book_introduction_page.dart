@@ -1,12 +1,12 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:kaghaze_souti/view/view_models/epub_reader_page.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 //------/controller
 import '/controller/custom_dio.dart';
@@ -25,6 +25,7 @@ import '/view/view_models/custom_circular_progress_indicator.dart';
 import '/view/view_models/custom_snack_bar.dart';
 import '/view/view_models/display_of_details.dart';
 import '/view/view_models/no_internet_connection.dart';
+import '/view/view_models/epub_reader_page.dart';
 import '/view/view_models/pdf_reader_page.dart';
 import '/view/view_models/property.dart';
 import '/view/view_models/show_stars.dart';
@@ -316,13 +317,15 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
               child: const Icon(Ionicons.document_text_outline),
               onPressed: () {
                 if(_book.type == 2) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return PdfReaderPage(path: _book.demo);
-                      },
-                    ),
-                  );
+                  launch(_book.demo);
+
+                  // Navigator.of(context).push(
+                  //   MaterialPageRoute(
+                  //     builder: (context) {
+                  //       return PdfReaderPage(path: _book.demo);
+                  //     },
+                  //   ),
+                  // );
                 } else {
                   Navigator.of(context).push(
                     MaterialPageRoute(
