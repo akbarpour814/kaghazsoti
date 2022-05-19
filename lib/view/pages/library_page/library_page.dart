@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:kaghaze_souti/view/pages/login_pages/splash_page.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -172,6 +173,7 @@ class _MyBookState extends State<MyBook> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+
         if (widget.book.id != previousAudiobookInPlayId) {
           audioPlayerHandler.onTaskRemoved();
           audioPlayerHandler.seek(Duration(microseconds: 0));

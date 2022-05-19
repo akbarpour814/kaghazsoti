@@ -257,6 +257,7 @@ class _CartPageState extends State<CartPage>
                       return BookIntroductionPage(
                         book: BookIntroduction(
                           id: _bookCart[index].id,
+                          type: _bookCart[index].type,
                           slug: _bookCart[index].slug,
                           name: _bookCart[index].name,
                           author: _bookCart[index].author,

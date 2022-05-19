@@ -3,6 +3,7 @@ import '/main.dart';
 
 class BookIntroduction {
   late int id;
+  late int type;
   late String slug;
   late String name;
   late String author;
@@ -15,6 +16,7 @@ class BookIntroduction {
 
   BookIntroduction({
     required this.id,
+    required this.type,
     required this.slug,
     required this.name,
     required this.author,
@@ -30,6 +32,8 @@ class BookIntroduction {
     id = json['id'] ?? -1;
     // print(json['id']);
     // print("json['id']");
+
+    type = json['type'] ?? -1;
 
     slug = json['slug'] ?? '';
     // print(json['slug']);
