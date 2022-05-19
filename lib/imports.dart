@@ -28,7 +28,7 @@
 // import 'package:uni_links/uni_links.dart';
 // import 'package:epub_view/epub_view.dart';
 // import 'package:internet_file/internet_file.dart';
-// import 'package:advance_pdf_viewer/advance_pdf_viewer.dart';
+// import 'package:flutter_cached_pdfview/flutter_cached_pdfview.dart';
 //
 // //------/controller
 // import '/controller/custom_dio.dart';
