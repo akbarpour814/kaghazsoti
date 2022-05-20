@@ -45,7 +45,7 @@ dependencies:
   ionicons: ^0.1.2
   shared_preferences: ^2.0.13
   shared_value: ^2.1.2
-  url_launcher: ^6.0.20
+  url_launcher: ^6.1.2
   share: ^2.0.4
   dio: ^4.0.4
   http: ^0.13.4
@@ -94,7 +94,6 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
    - assets/images/
-   - assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
