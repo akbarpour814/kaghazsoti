@@ -1,6 +1,5 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
-import 'package:kaghaze_souti/view/pages/login_pages/splash_page.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -22,6 +21,7 @@ import '/view/audio_player_models/audiobook_player_page.dart';
 import '/view/view_models/custom_circular_progress_indicator.dart';
 import '/view/view_models/custom_smart_refresher.dart';
 import '/view/view_models/no_internet_connection.dart';
+import '/view/pages/library_page/book_sections_page.dart';
 
 //------/main
 import '/main.dart';
@@ -173,30 +173,40 @@ class _MyBookState extends State<MyBook> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        if(widget.book.type == 1) {
+          if (widget.book.id != previousAudiobookInPlayId) {
+            audioPlayerHandler.onTaskRemoved();
+            audioPlayerHandler.seek(Duration(microseconds: 0));
 
-        if (widget.book.id != previousAudiobookInPlayId) {
-          audioPlayerHandler.onTaskRemoved();
-          audioPlayerHandler.seek(Duration(microseconds: 0));
+            demoOfBookIsPlaying.$ = false;
+            demoInPlayId = -1;
+            demoPlayer.stop();
+            audioPlayerHandler.stop();
 
-          demoOfBookIsPlaying.$ = false;
-          demoInPlayId = -1;
-          demoPlayer.stop();
-          audioPlayerHandler.stop();
+            mediaItems.clear();
 
-          mediaItems.clear();
+            audioPlayerHandler.updateQueue([]);
+            audiobookInPlay = widget.book;
+            audiobookInPlayId = widget.book.id;
+          }
 
-          audioPlayerHandler.updateQueue([]);
-          audiobookInPlay = widget.book;
-          audiobookInPlayId = widget.book.id;
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return AudiobookPlayerPage(audiobook: widget.book);
+              },
+            ),
+          );
+        } else {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) {
+                return BookSectionsPage(book: widget.book);
+              },
+            ),
+          );
         }
 
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              return AudiobookPlayerPage(audiobook: widget.book);
-            },
-          ),
-        );
       },
       child: Card(
         color: Colors.transparent,

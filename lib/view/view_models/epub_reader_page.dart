@@ -30,6 +30,8 @@ class EpubReaderPage extends StatefulWidget {
 class _EpubReaderPageState extends State<EpubReaderPage>
     with InternetConnection, LoadDataFromAPI {
   late EpubController _epubController;
+  final GlobalKey<ScaffoldState> _key = GlobalKey();
+  bool _showDrawer = false;
 
   @override
   void initState() {
@@ -39,9 +41,15 @@ class _EpubReaderPageState extends State<EpubReaderPage>
   Future _initEpub() async {
     Uint8List _data = await InternetFile.get(widget.path);
 
-    _epubController = EpubController(document: EpubDocument.openData(_data,),);
+   if(dataIsLoading) {
+     _epubController = EpubController(document: EpubDocument.openData(_data,),);
 
-    dataIsLoading = false;
+     dataIsLoading = false;
+
+     setState(() {
+       _showDrawer = true;
+     });
+   }
 
     return _data;
   }
@@ -49,15 +57,35 @@ class _EpubReaderPageState extends State<EpubReaderPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _key,
       appBar: _appBar(),
       body: _body(),
       bottomNavigationBar: playerBottomNavigationBar,
+      drawer: _showDrawer ? Drawer(
+        child: EpubViewTableOfContents(controller: _epubController),
+      ) : null,
     );
   }
 
   AppBar _appBar() {
     return AppBar(
       automaticallyImplyLeading: false,
+      leading:  InkWell(
+        child: const Padding(
+          padding: EdgeInsets.all(18.0),
+          child: Icon(
+            Ionicons.menu_outline,
+          ),
+        ),
+        onTap: () => _key.currentState!.openDrawer(),
+      ),
+      title: _showDrawer ? EpubViewActualChapter(
+        controller: _epubController,
+        builder: (chapterValue) => Text(
+          chapterValue?.chapter?.Title?.replaceAll('\n', '').trim() ?? '',
+          textAlign: TextAlign.start,
+        ),
+      ) : null,
       actions: [
         InkWell(
           child: const Padding(
