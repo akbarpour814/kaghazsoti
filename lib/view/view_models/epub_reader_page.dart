@@ -30,12 +30,15 @@ class EpubReaderPage extends StatefulWidget {
 class _EpubReaderPageState extends State<EpubReaderPage>
     with InternetConnection, LoadDataFromAPI {
   late EpubController _epubController;
-  final GlobalKey<ScaffoldState> _key = GlobalKey();
-  bool _showDrawer = false;
+  late GlobalKey<ScaffoldState> _key;
+  late bool _showDrawer;
 
   @override
   void initState() {
     super.initState();
+
+    _key = GlobalKey();
+    _showDrawer = false;
   }
 
   Future _initEpub() async {
