@@ -7,6 +7,7 @@ import 'package:ionicons/ionicons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 //------/controller
+import '/controller/custom_response.dart';
 import '/controller/custom_dio.dart';
 import '/controller/internet_connection.dart';
 import '/controller/load_data_from_api.dart';
@@ -25,6 +26,8 @@ import '/view/pages/library_page/book_sections_page.dart';
 
 //------/main
 import '/main.dart';
+
+bool dataIsLoadingGlobal = true;
 
 class MyLibraryPage extends StatefulWidget {
   static const routeName = '/myLibraryPage';
@@ -75,6 +78,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
         _myBooks.addAll(_myBooksTemp);
 
         dataIsLoading = false;
+        dataIsLoadingGlobal = false;
       });
     }
 
@@ -102,7 +106,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
   }
 
   Widget _body() {
-    if (dataIsLoading) {
+    if (dataIsLoadingGlobal) {
       return FutureBuilder(
         future: _initMyBooks(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -122,6 +126,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
     if (connectionStatus == ConnectivityResult.none) {
       setState(() {
         dataIsLoading = true;
+        dataIsLoadingGlobal = true;
       });
 
       return const Center(
@@ -137,44 +142,26 @@ class _MyLibraryPageState extends State<MyLibraryPage>
           refreshController: refreshController,
           onRefresh: () => onRefresh(() => _initMyBooks()),
           onLoading: () => onLoading(() => _initMyBooks()),
-          list: List<MyBook>.generate(
+          list: List<InkWell>.generate(
             _myBooks.length,
-            (index) => MyBook(
-              book: _myBooks[index],
-            ),
+            (index) => _myBook(_myBooks[index]),
           ),
           listType: 'کتاب',
           refresh: refresh,
           loading: loading,
           lastPage: lastPage,
           currentPage: currentPage,
-          dataIsLoading: dataIsLoading,
+          dataIsLoading: dataIsLoadingGlobal,
         );
       }
     }
   }
-}
 
-// ignore: must_be_immutable
-class MyBook extends StatefulWidget {
-  late BookIntroduction book;
-
-  MyBook({
-    Key? key,
-    required this.book,
-  }) : super(key: key);
-
-  @override
-  _MyBookState createState() => _MyBookState();
-}
-
-class _MyBookState extends State<MyBook> {
-  @override
-  Widget build(BuildContext context) {
+  InkWell _myBook(BookIntroduction book) {
     return InkWell(
       onTap: () {
-        if(widget.book.type == 1) {
-          if (widget.book.id != previousAudiobookInPlayId) {
+        if (book.type == 1) {
+          if (book.id != previousAudiobookInPlayId) {
             audioPlayerHandler.onTaskRemoved();
             audioPlayerHandler.seek(Duration(microseconds: 0));
 
@@ -186,14 +173,14 @@ class _MyBookState extends State<MyBook> {
             mediaItems.clear();
 
             audioPlayerHandler.updateQueue([]);
-            audiobookInPlay = widget.book;
-            audiobookInPlayId = widget.book.id;
+            audiobookInPlay = book;
+            audiobookInPlayId = book.id;
           }
 
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return AudiobookPlayerPage(audiobook: widget.book);
+                return AudiobookPlayerPage(audiobook: book);
               },
             ),
           );
@@ -201,12 +188,11 @@ class _MyBookState extends State<MyBook> {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) {
-                return BookSectionsPage(book: widget.book);
+                return BookSectionsPage(book: book);
               },
             ),
           );
         }
-
       },
       child: Card(
         color: Colors.transparent,
@@ -214,15 +200,15 @@ class _MyBookState extends State<MyBook> {
         shape: Theme.of(context).cardTheme.shape,
         child: Row(
           children: [
-            _bookCover(),
-            _bookShortInformation(),
+            _bookCover(book),
+            _bookShortInformation(book),
           ],
         ),
       ),
     );
   }
 
-  Padding _bookCover() {
+  Padding _bookCover(BookIntroduction book) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Container(
@@ -242,7 +228,7 @@ class _MyBookState extends State<MyBook> {
           ),
           child: FadeInImage.assetNetwork(
             placeholder: defaultBookCover,
-            image: widget.book.bookCoverPath,
+            image: book.bookCoverPath,
             fit: BoxFit.cover,
           ),
         ),
@@ -250,18 +236,188 @@ class _MyBookState extends State<MyBook> {
     );
   }
 
-  Expanded _bookShortInformation() {
+  Expanded _bookShortInformation(BookIntroduction book) {
     return Expanded(
       child: ListTile(
         title: Text(
-          widget.book.name,
+          book.name,
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
-          widget.book.author,
+          book.author,
           overflow: TextOverflow.ellipsis,
+        ),
+        trailing: Visibility(
+          visible: book.price == 'رایگان',
+          child: _removeFreeBookButton(book),
         ),
       ),
     );
   }
+
+  InkWell _removeFreeBookButton(BookIntroduction book) {
+    return InkWell(
+      onTap: () {
+        _removeFreeBook(book);
+      },
+      child: Icon(Ionicons.trash_outline),
+    );
+  }
+
+  void _removeFreeBook(BookIntroduction book) async {
+    customDio = await CustomDio.dio.post(
+      'dashboard/free/remove',
+      data: {'id': book.id},
+    );
+
+    if (customDio.statusCode == 200) {
+      customResponse = CustomResponse.fromJson(customDio.data);
+
+      setState(() {
+        libraryId.remove(book.id);
+
+        dataIsLoadingGlobal = true;
+      });
+    }
+  }
 }
+
+// // ignore: must_be_immutable
+// class MyBook extends StatefulWidget {
+//   late BookIntroduction book;
+//
+//   MyBook({
+//     Key? key,
+//     required this.book,
+//   }) : super(key: key);
+//
+//   @override
+//   _MyBookState createState() => _MyBookState();
+// }
+//
+// class _MyBookState extends State<MyBook> with LoadDataFromAPI {
+//   @override
+//   Widget build(BuildContext context) {
+//     return InkWell(
+//       onTap: () {
+//         if(widget.book.type == 1) {
+//           if (widget.book.id != previousAudiobookInPlayId) {
+//             audioPlayerHandler.onTaskRemoved();
+//             audioPlayerHandler.seek(Duration(microseconds: 0));
+//
+//             demoOfBookIsPlaying.$ = false;
+//             demoInPlayId = -1;
+//             demoPlayer.stop();
+//             audioPlayerHandler.stop();
+//
+//             mediaItems.clear();
+//
+//             audioPlayerHandler.updateQueue([]);
+//             audiobookInPlay = widget.book;
+//             audiobookInPlayId = widget.book.id;
+//           }
+//
+//           Navigator.of(context).push(
+//             MaterialPageRoute(
+//               builder: (context) {
+//                 return AudiobookPlayerPage(audiobook: widget.book);
+//               },
+//             ),
+//           );
+//         } else {
+//           Navigator.of(context).push(
+//             MaterialPageRoute(
+//               builder: (context) {
+//                 return BookSectionsPage(book: widget.book);
+//               },
+//             ),
+//           );
+//         }
+//       },
+//       child: Card(
+//         color: Colors.transparent,
+//         elevation: 0.0,
+//         shape: Theme.of(context).cardTheme.shape,
+//         child: Row(
+//           children: [
+//             _bookCover(),
+//             _bookShortInformation(),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Padding _bookCover() {
+//     return Padding(
+//       padding: const EdgeInsets.all(8.0),
+//       child: Container(
+//         decoration: BoxDecoration(
+//           color: Colors.white,
+//           border: Border.all(color: Theme.of(context).primaryColor),
+//           borderRadius: const BorderRadius.all(
+//             Radius.circular(5.0),
+//           ),
+//           shape: BoxShape.rectangle,
+//         ),
+//         width: 25.0.w,
+//         height: 13.0.h,
+//         child: ClipRRect(
+//           borderRadius: const BorderRadius.all(
+//             Radius.circular(5.0),
+//           ),
+//           child: FadeInImage.assetNetwork(
+//             placeholder: defaultBookCover,
+//             image: widget.book.bookCoverPath,
+//             fit: BoxFit.cover,
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   Expanded _bookShortInformation() {
+//     return Expanded(
+//       child: ListTile(
+//         title: Text(
+//           widget.book.name,
+//           overflow: TextOverflow.ellipsis,
+//         ),
+//         subtitle: Text(
+//           widget.book.author,
+//           overflow: TextOverflow.ellipsis,
+//         ),
+//         trailing: Visibility(
+//           visible: widget.book.price == 'رایگان',
+//           child: _removeFreeBookButton(),
+//         ),
+//       ),
+//     );
+//   }
+//
+//   InkWell _removeFreeBookButton() {
+//     return InkWell(
+//       onTap: () {
+//         _removeFreeBook();
+//       },
+//       child: Icon(Ionicons.trash_outline),
+//     );
+//   }
+//
+//   void _removeFreeBook() async {
+//     customDio = await CustomDio.dio.post(
+//       'dashboard/free/remove',
+//       data: {'id': widget.book.id},
+//     );
+//
+//     if (customDio.statusCode == 200) {
+//       customResponse = CustomResponse.fromJson(customDio.data);
+//
+//       setState(() {
+//         libraryId.remove(widget.book.id);
+//
+//         dataIsLoadingGlobal = true;
+//       });
+//     }
+//   }
+// }
