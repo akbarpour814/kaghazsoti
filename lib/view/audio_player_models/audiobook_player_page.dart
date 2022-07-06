@@ -129,16 +129,18 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
       actions: [
         InkWell(
           onTap: () {
-            setState(() async {
+            setState(() {
               audiobookInPlayId = -1;
               audiobookIsPlaying.$ = false;
-              await audioPlayerHandler.updateQueue([]);
+
               audioPlayerHandler.stop();
               audioPlayerHandler.onTaskRemoved();
               audioPlayerHandler.seek(Duration(microseconds: 0));
               previousAudiobookInPlayId = -1;
               mediaItems.clear();
-              await audioPlayerHandler.dispose();
+
+              _close();
+
               Navigator.of(context).pop();
             });
           },
@@ -151,6 +153,12 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
         ),
       ],
     );
+  }
+
+  Future<void> _close() async {
+    await audioPlayerHandler.updateQueue([]);
+
+    await audioPlayerHandler.dispose();
   }
 
   Widget _body() {
@@ -169,12 +177,20 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
       if (demoOfBookIsPlaying.of(context)) {
         return _innerBody();
       } else {
-        return FutureBuilder(
-          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            return _innerBody();
-          },
-          future: audioPlayerHandler.play(),
-        );
+        audioPlayerHandler.play();
+
+        return _innerBody();
+
+        // try {
+        //   return FutureBuilder(
+        //     builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+        //       return _innerBody();
+        //     },
+        //     future: ,
+        //   );
+        // } catch(e) {
+        //
+        // }
       }
     }
   }
