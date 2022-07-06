@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 //------/packages
 import 'package:ionicons/ionicons.dart';
@@ -69,7 +70,7 @@ class _BookSectionsPageState extends State<BookSectionsPage>
                   launch('${storage}book-files/${data['url']}');
                 } else {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                       builder: (context) {
                         return EpubReaderPage(path: '${storage}book-files/${data['url']}');
                       },

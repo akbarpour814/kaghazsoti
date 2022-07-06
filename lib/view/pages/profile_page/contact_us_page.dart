@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -172,7 +173,7 @@ class _ContactUsPageState extends State<ContactUsPage>
                           child: OutlinedButton(
                             onPressed: () {
                               Navigator.of(context).push(
-                                MaterialPageRoute(
+                                CupertinoPageRoute(
                                   builder: (context) {
                                     return TicketsPage();
                                   },

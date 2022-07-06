@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 
 //------/packages
@@ -426,7 +427,7 @@ class _RegistrationPageState extends State<RegistrationPage>
         Future.delayed(const Duration(microseconds: 2500), () {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
+            CupertinoPageRoute(
               builder: (context) => const PersistentBottomNavigationBar(),
             ),
           );

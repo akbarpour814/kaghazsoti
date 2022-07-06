@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -269,7 +270,7 @@ class _LoginPageState extends State<LoginPage>
         onPressed: () {
           if (!_loginPermission) {
             Navigator.of(context).push(
-              MaterialPageRoute(
+              CupertinoPageRoute(
                 builder: (context) {
                   return const PasswordRecoveryPage();
                 },
@@ -296,7 +297,7 @@ class _LoginPageState extends State<LoginPage>
         onPressed: () {
           if (!_loginPermission) {
             Navigator.of(context).push(
-              MaterialPageRoute(
+              CupertinoPageRoute(
                 builder: (context) {
                   return const RegistrationPage();
                 },
@@ -399,7 +400,7 @@ class _LoginPageState extends State<LoginPage>
       Future.delayed(const Duration(microseconds: 2500), () {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
+          CupertinoPageRoute(
             builder: (context) => const PersistentBottomNavigationBar(),
           ),
         );

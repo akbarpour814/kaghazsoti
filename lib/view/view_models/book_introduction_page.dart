@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -320,7 +321,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                   launch(_book.demo);
 
                   // Navigator.of(context).push(
-                  //   MaterialPageRoute(
+                  //   CupertinoPageRoute(
                   //     builder: (context) {
                   //       return PdfReaderPage(path: _book.demo);
                   //     },
@@ -328,7 +329,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                   // );
                 } else {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
+                    CupertinoPageRoute(
                       builder: (context) {
                         return EpubReaderPage(path: _book.demo);
                       },
@@ -888,7 +889,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                     OutlinedButton(
                       onPressed: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(
+                          CupertinoPageRoute(
                             builder: (context) {
                               return BooksPage(
                                 title:

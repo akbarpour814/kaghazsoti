@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -182,7 +183,7 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar>
       child: InkWell(
         onTap: () {
           Navigator.of(context).push(
-            MaterialPageRoute(
+            CupertinoPageRoute(
               builder: (context) {
                 return AudiobookPlayerPage(
                   audiobook: audiobookInPlay,

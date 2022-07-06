@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -178,7 +179,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
           }
 
           Navigator.of(context).push(
-            MaterialPageRoute(
+            CupertinoPageRoute(
               builder: (context) {
                 return AudiobookPlayerPage(audiobook: book);
               },
@@ -186,7 +187,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
           );
         } else {
           Navigator.of(context).push(
-            MaterialPageRoute(
+            CupertinoPageRoute(
               builder: (context) {
                 return BookSectionsPage(book: book);
               },
@@ -318,7 +319,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
 //           }
 //
 //           Navigator.of(context).push(
-//             MaterialPageRoute(
+//             CupertinoPageRoute(
 //               builder: (context) {
 //                 return AudiobookPlayerPage(audiobook: widget.book);
 //               },
@@ -326,7 +327,7 @@ class _MyLibraryPageState extends State<MyLibraryPage>
 //           );
 //         } else {
 //           Navigator.of(context).push(
-//             MaterialPageRoute(
+//             CupertinoPageRoute(
 //               builder: (context) {
 //                 return BookSectionsPage(book: widget.book);
 //               },

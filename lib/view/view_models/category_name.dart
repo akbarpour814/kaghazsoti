@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 //------/packages
 import 'package:ionicons/ionicons.dart';
@@ -39,7 +40,7 @@ class _CategoryNameState extends State<CategoryName> {
       ),
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
+          CupertinoPageRoute(
             builder: (context) {
               return widget.page;
             },
@@ -51,7 +52,7 @@ class _CategoryNameState extends State<CategoryName> {
     return InkWell(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
+          CupertinoPageRoute(
             builder: (context) {
               return widget.page;
             },

@@ -1,5 +1,7 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+
 import 'dart:async';
 
 //------/packages
@@ -96,7 +98,7 @@ mixin SendVerificationCode<T extends StatefulWidget> on State<T> {
             Future.delayed(const Duration(microseconds: 2500), () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
+                CupertinoPageRoute(
                   builder: (context) => const SplashPage(),
                 ),
               );

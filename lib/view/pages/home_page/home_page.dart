@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -257,7 +258,7 @@ class _HomePageCategoryViewState extends State<HomePageCategoryView> {
             trailing: OutlinedButton(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                     builder: (context) {
                       return BooksPage(
                         title:

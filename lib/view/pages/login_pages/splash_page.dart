@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'dart:io';
 
 //------/packages
@@ -108,14 +109,14 @@ class _SplashPageState extends State<SplashPage>
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
+        CupertinoPageRoute(
           builder: (context) => const PersistentBottomNavigationBar(),
         ),
       );
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
+        CupertinoPageRoute(
           builder: (context) => const LoginPage(),
         ),
       );

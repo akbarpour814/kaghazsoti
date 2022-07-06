@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 //------/packages
@@ -252,7 +253,7 @@ class _CartPageState extends State<CartPage>
         onTap: (!_purchaseInvoiceWasIssued)
             ? () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                     builder: (context) {
                       return BookIntroductionPage(
                         book: BookIntroduction(

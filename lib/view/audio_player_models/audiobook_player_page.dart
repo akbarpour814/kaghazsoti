@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -267,7 +268,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   InkWell _bookCover() {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
+        Navigator.of(context).push(CupertinoPageRoute(
           builder: (context) {
             return BookIntroductionPage(book: widget.audiobook);
           },

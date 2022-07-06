@@ -1,5 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 //------/packages
@@ -308,7 +309,7 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
                 child: TextButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(
+                      CupertinoPageRoute(
                         builder: (context) {
                           return BookIntroductionPage(
                             book: _purchaseHistory[index].books[bookIndex],
