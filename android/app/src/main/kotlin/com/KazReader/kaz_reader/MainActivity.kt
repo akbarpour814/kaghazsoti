@@ -1,4 +1,4 @@
-package com.KazReader.kaghaze_souti
+package com.KazReader.kaz_reader
 
 import io.flutter.embedding.android.FlutterActivity
 
