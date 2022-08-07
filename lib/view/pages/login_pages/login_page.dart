@@ -7,6 +7,7 @@ import 'package:sizer/sizer.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:dio/dio.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 //------/controller
 import '/controller/functions_for_checking_user_information_format.dart';
@@ -113,6 +114,7 @@ class _LoginPageState extends State<LoginPage>
                     children: [
                       _forgotPasswordButton(),
                       _registrationButton(),
+                      _privacyPolicy(),
                     ],
                   ),
                 ),
@@ -307,6 +309,27 @@ class _LoginPageState extends State<LoginPage>
         },
         child: Text(
           'ثبت نام نکرده ام.',
+          style: Theme.of(context)
+              .textTheme
+              .caption!
+              .copyWith(color: Theme.of(context).primaryColor),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+  }
+
+  SizedBox _privacyPolicy() {
+    return SizedBox(
+      width: 50.0.w,
+      child: TextButton(
+        onPressed: () {
+          if (!_loginPermission) {
+            launch('https://kaghazsoti.com/privacy.html');
+          }
+        },
+        child: Text(
+          'سیاست حفظ حریم خصوصی',
           style: Theme.of(context)
               .textTheme
               .caption!
