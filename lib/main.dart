@@ -65,7 +65,7 @@ Future<void> main() async {
   audioPlayerHandler = await AudioService.init(
     builder: () => AudioPlayerHandlerImplements(),
     config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com..KazReader.kaz_reader',
+      androidNotificationChannelId: 'com.KazReader.kaz_reader',
       androidNotificationChannelName: 'Kaz Reader',
       androidNotificationOngoing: true,
     ),
