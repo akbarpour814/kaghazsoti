@@ -1,6 +1,7 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -169,11 +170,12 @@ class _MyLibraryPageState extends State<MyLibraryPage>
             demoOfBookIsPlaying.$ = false;
             demoInPlayId = -1;
             demoPlayer.stop();
-            audioPlayerHandler.stop();
 
+            audioPlayerHandler.stop();
             mediaItems.clear();
 
-            audioPlayerHandler.updateQueue([]);
+            audioPlayerHandler.stop();
+
             audiobookInPlay = book;
             audiobookInPlayId = book.id;
           }

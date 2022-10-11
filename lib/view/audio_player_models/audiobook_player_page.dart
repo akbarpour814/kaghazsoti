@@ -1,6 +1,7 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -137,6 +138,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
               audioPlayerHandler.stop();
               audioPlayerHandler.onTaskRemoved();
               audioPlayerHandler.seek(Duration(microseconds: 0));
+
               previousAudiobookInPlayId = -1;
               mediaItems.clear();
 

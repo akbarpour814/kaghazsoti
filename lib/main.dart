@@ -65,8 +65,8 @@ Future<void> main() async {
   audioPlayerHandler = await AudioService.init(
     builder: () => AudioPlayerHandlerImplements(),
     config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.ryanheise.myapp.channel.audio',
-      androidNotificationChannelName: 'Audio playback',
+      androidNotificationChannelId: 'com..KazReader.kaz_reader',
+      androidNotificationChannelName: 'Kaz Reader',
       androidNotificationOngoing: true,
     ),
   );
@@ -81,19 +81,19 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  static final ValueNotifier<ThemeMode> themeNotifier =
-      ValueNotifier(ThemeMode.light);
-  final Color _primaryColor = const Color(0xFF005C6B);
+  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
 
   const MyApp({Key? key}) : super(key: key);
+
+  final Color _primaryColor = const Color(0xFF005C6B);
 
   @override
   Widget build(BuildContext context) {
     return Sizer(
-      builder: (context, orientation, deviceType) {
+      builder: (BuildContext context, Orientation orientation, DeviceType deviceType) {
         return ValueListenableBuilder<ThemeMode>(
           valueListenable: themeNotifier,
-          builder: (_, ThemeMode currentMode, __) {
+          builder: (BuildContext context, value, Widget? child) {
             return MaterialApp(
               title: 'Kaghaze souti',
               localizationsDelegates: [
@@ -102,23 +102,20 @@ class MyApp extends StatelessWidget {
                 GlobalCupertinoLocalizations.delegate,
               ],
               supportedLocales: [
-                Locale('fa', ''),
+                Locale('fa', 'IR'),
               ],
               debugShowCheckedModeBanner: false,
               routes: {
                 CartPage.routeName: (context) => const CartPage(),
                 PurchaseHistoryPage.routeName: (context) =>
-                    const PurchaseHistoryPage(),
+                const PurchaseHistoryPage(),
                 MyLibraryPage.routeName: (context) => const MyLibraryPage(),
               },
               theme: _theme(context),
               darkTheme: _darkTheme(context),
-              themeMode: currentMode,
-              builder: (context, child) => Directionality(
-                textDirection: TextDirection.rtl,
-                child: child!,
-              ),
+              themeMode: value,
               home: const SplashPage(),
+
             );
           },
         );

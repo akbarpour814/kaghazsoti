@@ -363,7 +363,9 @@ class _PurchaseHistoryPageState extends State<PurchaseHistoryPage>
 
   void _handleIncomingLinks() {
     if (!kIsWeb) {
+
       uriLinkStream2 = uriLinkStream.listen((Uri? uri) {
+
         _verificationPayment(uri!.queryParameters);
       });
     }
