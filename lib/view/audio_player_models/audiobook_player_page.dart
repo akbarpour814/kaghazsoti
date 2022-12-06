@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:just_audio/just_audio.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -92,11 +93,12 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
 
           dataIsLoading = false;
 
-          audioPlayerHandler.audioPlayer
-              .seek(Duration(microseconds: 0), index: 0);
+          audioPlayerHandler.audioPlayer.seek(Duration(microseconds: 0), index: 0);
+
         });
 
         await audioPlayerHandler.updateQueue(mediaItems);
+
       }
     }
 
@@ -136,7 +138,9 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
               audiobookIsPlaying.$ = false;
 
               audioPlayerHandler.stop();
+
               audioPlayerHandler.onTaskRemoved();
+
               audioPlayerHandler.seek(Duration(microseconds: 0));
 
               previousAudiobookInPlayId = -1;
@@ -160,6 +164,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
 
   Future<void> _close() async {
     await audioPlayerHandler.updateQueue([]);
+
 
     await audioPlayerHandler.dispose();
   }
@@ -301,7 +306,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     );
   }
 
-  StreamBuilder _bookIntroduction() {
+  Widget _bookIntroduction() {
     return StreamBuilder<MediaItem?>(
       stream: audioPlayerHandler.mediaItem,
       builder: (context, snapshot) {
@@ -337,7 +342,8 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     );
   }
 
-  StreamBuilder<QueueState> _nextButton() {
+  Widget _nextButton() {
+
     return StreamBuilder<QueueState>(
       stream: audioPlayerHandler.queueState,
       builder: (context, snapshot) {
@@ -357,11 +363,17 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
 
   StreamBuilder<PlaybackState> _playButton() {
     return StreamBuilder<PlaybackState>(
+
       stream: audioPlayerHandler.playbackState,
+
       builder: (context, snapshot) {
         final playbackState = snapshot.data;
         final processingState = playbackState?.processingState;
+
         final playing = playbackState?.playing;
+
+
+
         if (processingState == AudioProcessingState.loading ||
             processingState == AudioProcessingState.buffering) {
           return FloatingActionButton(
@@ -393,7 +405,8 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     );
   }
 
-  StreamBuilder<QueueState> _previousButton() {
+  Widget _previousButton() {
+
     return StreamBuilder<QueueState>(
       stream: audioPlayerHandler.queueState,
       builder: (context, snapshot) {
@@ -436,7 +449,8 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     );
   }
 
-  StreamBuilder<AudioServiceRepeatMode> _cycleModes() {
+  Widget _cycleModes() {
+
     return StreamBuilder<AudioServiceRepeatMode>(
       stream: audioPlayerHandler.playbackState
           .map((state) => state.repeatMode)
@@ -481,7 +495,8 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
     );
   }
 
-  StreamBuilder<double> _speedPlay() {
+  Widget _speedPlay() {
+
     return StreamBuilder<double>(
       stream: audioPlayerHandler.speed,
       builder: (context, snapshot) => InkWell(
@@ -531,6 +546,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   }
 
   Widget _bookIndex() {
+
     StreamBuilder _bookIndex = StreamBuilder<QueueState>(
       stream: audioPlayerHandler.queueState,
       builder: (context, snapshot) {

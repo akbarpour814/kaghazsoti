@@ -1,5 +1,7 @@
 //------/dart and flutter packages
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_icons/flutter_app_icons.dart';
 
 //------/packages
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -50,8 +52,9 @@ late List<String> bookCartSlug = [];
 PlayerBottomNavigationBar playerBottomNavigationBar =
     const PlayerBottomNavigationBar();
 
+late AudioPlayer audioPlayerWeb = AudioPlayer();
 late AudioPlayerHandler audioPlayerHandler;
-late AudioPlayer demoPlayer;
+AudioPlayer demoPlayer = AudioPlayer();
 
 int audiobookInPlayId = -1;
 int previousAudiobookInPlayId = -1;
@@ -62,6 +65,8 @@ int demoInPlayId = -1;
 SharedValue<bool> demoOfBookIsPlaying = SharedValue(value: false);
 
 Future<void> main() async {
+  FlutterAppIcons().setIcon(icon: 'assets/images/appLogoForOutApp.png');
+
   audioPlayerHandler = await AudioService.init(
     builder: () => AudioPlayerHandlerImplements(),
     config: const AudioServiceConfig(
@@ -70,8 +75,6 @@ Future<void> main() async {
       androidNotificationOngoing: true,
     ),
   );
-
-  demoPlayer = AudioPlayer();
 
   runApp(
     SharedValue.wrapApp(
@@ -95,7 +98,7 @@ class MyApp extends StatelessWidget {
           valueListenable: themeNotifier,
           builder: (BuildContext context, value, Widget? child) {
             return MaterialApp(
-              title: 'Kaghaze souti',
+              title: 'کاغذ صوتی',
               localizationsDelegates: [
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,

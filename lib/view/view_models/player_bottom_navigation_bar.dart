@@ -222,7 +222,9 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar>
         builder: (context, snapshot) {
           final playbackState = snapshot.data;
           final processingState = playbackState?.processingState;
+
           final playing = playbackState?.playing;
+
           if (processingState == AudioProcessingState.loading ||
               processingState == AudioProcessingState.buffering) {
             return InkWell(

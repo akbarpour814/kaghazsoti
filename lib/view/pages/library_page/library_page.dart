@@ -164,8 +164,8 @@ class _MyLibraryPageState extends State<MyLibraryPage>
       onTap: () {
         if (book.type == 1) {
           if (book.id != previousAudiobookInPlayId) {
+
             audioPlayerHandler.onTaskRemoved();
-            audioPlayerHandler.seek(Duration(microseconds: 0));
 
             demoOfBookIsPlaying.$ = false;
             demoInPlayId = -1;

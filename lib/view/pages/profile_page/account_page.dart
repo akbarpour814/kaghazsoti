@@ -54,6 +54,7 @@ class _AccountPageState extends State<AccountPage>
     customDio = await CustomDio.dio.get('user');
 
     if (customDio.statusCode == 200) {
+      print(customDio.headers);
       setState(() {
         _firstAndLastNameController =
             TextEditingController(text: customDio.data['name']);
