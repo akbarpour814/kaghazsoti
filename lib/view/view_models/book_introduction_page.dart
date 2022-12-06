@@ -1,6 +1,7 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:kaghaze_souti/view/pages/profile_page/cart_page.dart';
 
 //------/packages
 import 'package:sizer/sizer.dart';
@@ -213,6 +214,7 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
                   _bookPricesAndVotes(),
                   _cartButton(),
                   _addToLibraryButton(),
+                  _goToCartPageButton(),
                   _tabsTopic(),
                   _tab(_tabIndex),
                 ],
@@ -421,6 +423,42 @@ class _BookIntroductionPageState extends State<BookIntroductionPage>
     });
 
     await sharedPreferences.setStringList('bookCartSlug', bookCartSlug);
+  }
+  
+  Visibility _goToCartPageButton() {
+    return Visibility(
+      visible:
+      _availableInBookCart,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: SizedBox(
+          width: 100.0.w - (2 * 5.0.w),
+          height: 5.5.h,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) {
+                    return CartPage();
+                  },
+                ),
+              );
+            },
+            label: Text('رفتن به سبد خرید'),
+            icon: Icon(
+              Ionicons.bag_outline,
+            ),
+            style: ButtonStyle(
+              shape: MaterialStateProperty.all(
+                const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Visibility _addToLibraryButton() {
