@@ -2,7 +2,7 @@
 import 'package:dio/dio.dart';
 
 //------/view/pages/login_pages
-import '/view/pages/login_pages/splash_page.dart';
+import '../pages/splash/splash_page.dart';
 
 //------/main
 import '/main.dart';

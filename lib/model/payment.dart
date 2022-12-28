@@ -6,14 +6,14 @@ import 'dart:async';
 //------/packages
 import 'package:url_launcher/url_launcher.dart';
 import 'package:zarinpal/zarinpal.dart';
-import 'package:uni_links/uni_links.dart';
+// import 'package:uni_links/uni_links.dart';
 
 //------/controller
 import '/controller/custom_dio.dart';
 import '/controller/load_data_from_api.dart';
 
 //------/model
-import '/model/purchase.dart';
+import '../pages/purchase_history/purchase_history_model.dart';
 
 
 PaymentRequest paymentRequest = PaymentRequest();
@@ -74,7 +74,7 @@ enum PaymentStatus {
 
 mixin CustomVerificationPayment<T extends StatefulWidget> on State<T> {
   late  Payment payment;
-  void startPayment(Purchase purchase, String routeNamePage) async {
+  void startPayment(PurchaseHistoryModel purchase, String routeNamePage) async {
     String description = '';
 
     for(int i = 0; i < purchase.books.length; ++i) {
@@ -108,22 +108,22 @@ mixin CustomVerificationPayment<T extends StatefulWidget> on State<T> {
 
 
   Future<void> _handleInitialUri() async {
-    if (!initialUriIsHandled) {
-      initialUriIsHandled = true;
-      try {
-        final uri = await getInitialUri();
-        if (uri == null) {
-          print('no initial uri');
-        } else {
-          print('got initial uri: $uri');
-        }
-        if (!mounted) return;
-      } on PlatformException {
-        print('failed to get initial uri');
-      } on FormatException catch (err) {
-        if (!mounted) return;
-        print('malformed initial uri, $err');
-      }
-    }
+    // if (!initialUriIsHandled) {
+    //   initialUriIsHandled = true;
+    //   try {
+    //     final uri = await getInitialUri();
+    //     if (uri == null) {
+    //       print('no initial uri');
+    //     } else {
+    //       print('got initial uri: $uri');
+    //     }
+    //     if (!mounted) return;
+    //   } on PlatformException {
+    //     print('failed to get initial uri');
+    //   } on FormatException catch (err) {
+    //     if (!mounted) return;
+    //     print('malformed initial uri, $err');
+    //   }
+    // }
   }
 }

@@ -1,11 +1,16 @@
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+
+
 //------/dart and flutter packages
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_icons/flutter_app_icons.dart';
 
 //------/packages
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:sizer/sizer.dart';
+import 'package:kaz_reader/themes/dark_theme.dart';
+import 'package:kaz_reader/themes/light_theme.dart';
+import 'package:kaz_reader/widgets/persistent_bottom_navigation_bar.dart';
+export 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:material_color_generator/material_color_generator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_value/shared_value.dart';
@@ -13,23 +18,24 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
 //------/model
-import '/model/book_introduction.dart';
+import 'widgets/book_introduction/book_introduction_model.dart';
 
 //------/view/audio_player_models
-import '/view/audio_player_models/audio_player_handler.dart';
+import 'pages/audiobook/audio_player_handler.dart';
 
 //------/view/pages/library_page
-import '/view/pages/library_page/library_page.dart';
+import 'pages/library/library_page.dart';
 
 //------/view/pages/login_pages
-import '/view/pages/login_pages/splash_page.dart';
+import 'pages/splash/splash_page.dart';
 
 //------/view/pages/profile_page
-import '/view/pages/profile_page/cart_page.dart';
-import '/view/pages/profile_page/purchase_history_page.dart';
+import 'pages/cart/cart_page.dart';
+import 'pages/purchase_history/purchase_history_page.dart';
 
 //------/view/view_models
-import '/view/view_models/player_bottom_navigation_bar.dart';
+import '/widgets/player_bottom_navigation_bar.dart';
+import 'initial_binding.dart';
 
 //-----/global variables
 String domain = 'https://kaghazsoti.com/api/';
@@ -52,29 +58,28 @@ late List<String> bookCartSlug = [];
 PlayerBottomNavigationBar playerBottomNavigationBar =
     const PlayerBottomNavigationBar();
 
-late AudioPlayer audioPlayerWeb = AudioPlayer();
 late AudioPlayerHandler audioPlayerHandler;
-AudioPlayer demoPlayer = AudioPlayer();
+late AudioPlayer demoPlayer;
 
 int audiobookInPlayId = -1;
 int previousAudiobookInPlayId = -1;
 SharedValue<bool> audiobookIsPlaying = SharedValue(value: false);
-late BookIntroduction audiobookInPlay;
+late BookIntroductionModel audiobookInPlay;
 
 int demoInPlayId = -1;
 SharedValue<bool> demoOfBookIsPlaying = SharedValue(value: false);
 
 Future<void> main() async {
-  FlutterAppIcons().setIcon(icon: 'assets/images/appLogoForOutApp.png');
+  // audioPlayerHandler = await AudioService.init(
+  //   builder: () => AudioPlayerHandlerImplements(),
+  //   config: const AudioServiceConfig(
+  //     androidNotificationChannelId: 'com.KazReader.kaz_reader',
+  //     androidNotificationChannelName: 'Kaz Reader',
+  //     androidNotificationOngoing: true,
+  //   ),
+  // );
 
-  audioPlayerHandler = await AudioService.init(
-    builder: () => AudioPlayerHandlerImplements(),
-    config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.KazReader.kaz_reader',
-      androidNotificationChannelName: 'Kaz Reader',
-      androidNotificationOngoing: true,
-    ),
-  );
+  demoPlayer = AudioPlayer();
 
   runApp(
     SharedValue.wrapApp(
@@ -92,13 +97,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Sizer(
-      builder: (BuildContext context, Orientation orientation, DeviceType deviceType) {
+    return ScreenUtilInit(
+      designSize: const Size(411.0, 866.0),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (BuildContext context, widget) {
         return ValueListenableBuilder<ThemeMode>(
           valueListenable: themeNotifier,
           builder: (BuildContext context, value, Widget? child) {
-            return MaterialApp(
-              title: 'کاغذ صوتی',
+            return GetMaterialApp(
+              textDirection: TextDirection.rtl,
+              initialBinding: InitialBinding(),
+
+              title: 'Kaghaze souti',
               localizationsDelegates: [
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
@@ -108,14 +119,43 @@ class MyApp extends StatelessWidget {
                 Locale('fa', 'IR'),
               ],
               debugShowCheckedModeBanner: false,
-              routes: {
-                CartPage.routeName: (context) => const CartPage(),
-                PurchaseHistoryPage.routeName: (context) =>
-                const PurchaseHistoryPage(),
-                MyLibraryPage.routeName: (context) => const MyLibraryPage(),
-              },
+              // theme: LightTheme.lightTheme(context),
+              // darkTheme: DarkTheme.darkTheme(context),
               theme: _theme(context),
               darkTheme: _darkTheme(context),
+              themeMode: value,
+              home: const SplashPage(),
+              //home: const PersistentBottomNavigationBar(),
+
+            );
+          },
+        );
+      },
+    );
+
+   /* return Sizer(
+      builder: (BuildContext context, Orientation orientation, DeviceType deviceType) {
+        return ValueListenableBuilder<ThemeMode>(
+          valueListenable: themeNotifier,
+          builder: (BuildContext context, value, Widget? child) {
+            return GetMaterialApp(
+              textDirection: TextDirection.rtl,
+              initialBinding: InitialBinding(),
+
+              title: 'Kaghaze souti',
+              localizationsDelegates: [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: [
+                Locale('fa', 'IR'),
+              ],
+              debugShowCheckedModeBanner: false,
+              theme: LightTheme.lightTheme(context),
+              darkTheme: DarkTheme.darkTheme(context),
+              // theme: _theme(context),
+              // darkTheme: _darkTheme(context),
               themeMode: value,
               home: const SplashPage(),
 
@@ -123,7 +163,7 @@ class MyApp extends StatelessWidget {
           },
         );
       },
-    );
+    );*/
   }
 
   ThemeData _theme(BuildContext context) {
@@ -177,6 +217,8 @@ class MyApp extends StatelessWidget {
 
   CardTheme _cardTheme() {
     return const CardTheme(
+      color: Colors.transparent,
+      elevation: 0.0,
       shape: Border(
         bottom: BorderSide(
           color: Colors.grey,

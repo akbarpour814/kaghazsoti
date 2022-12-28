@@ -64,13 +64,6 @@ packages:
       url: "https://mirror.flutterfarsi.ir"
     source: hosted
     version: "2.1.0"
-  change_app_package_name:
-    dependency: "direct dev"
-    description:
-      name: change_app_package_name
-      url: "https://mirror.flutterfarsi.ir"
-    source: hosted
-    version: "1.1.0"
   characters:
     dependency: transitive
     description:
@@ -216,13 +209,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_app_icons:
-    dependency: "direct main"
-    description:
-      name: flutter_app_icons
-      url: "https://mirror.flutterfarsi.ir"
-    source: hosted
-    version: "0.0.8"
   flutter_cache_manager:
     dependency: transitive
     description:
@@ -237,18 +223,25 @@ packages:
       url: "https://mirror.flutterfarsi.ir"
     source: hosted
     version: "3.0.0-alpha.6"
-  flutter_launcher_icons:
+  flutter_lints:
     dependency: "direct dev"
     description:
-      name: flutter_launcher_icons
+      name: flutter_lints
       url: "https://mirror.flutterfarsi.ir"
     source: hosted
-    version: "0.9.3"
+    version: "2.0.1"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_screenutil:
+    dependency: "direct main"
+    description:
+      name: flutter_screenutil
+      url: "https://mirror.flutterfarsi.ir"
+    source: hosted
+    version: "5.6.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -259,6 +252,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  get:
+    dependency: "direct main"
+    description:
+      name: get
+      url: "https://mirror.flutterfarsi.ir"
+    source: hosted
+    version: "4.6.5"
   html:
     dependency: "direct main"
     description:
@@ -336,6 +336,13 @@ packages:
       url: "https://mirror.flutterfarsi.ir"
     source: hosted
     version: "0.4.7"
+  lints:
+    dependency: transitive
+    description:
+      name: lints
+      url: "https://mirror.flutterfarsi.ir"
+    source: hosted
+    version: "2.0.1"
   localization:
     dependency: "direct main"
     description:
@@ -644,13 +651,6 @@ packages:
       url: "https://mirror.flutterfarsi.ir"
     source: hosted
     version: "2.1.3"
-  sizer:
-    dependency: "direct main"
-    description:
-      name: sizer
-      url: "https://mirror.flutterfarsi.ir"
-    source: hosted
-    version: "2.0.15"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -740,27 +740,6 @@ packages:
       url: "https://mirror.flutterfarsi.ir"
     source: hosted
     version: "1.3.1"
-  uni_links:
-    dependency: "direct main"
-    description:
-      name: uni_links
-      url: "https://mirror.flutterfarsi.ir"
-    source: hosted
-    version: "0.5.1"
-  uni_links_platform_interface:
-    dependency: transitive
-    description:
-      name: uni_links_platform_interface
-      url: "https://mirror.flutterfarsi.ir"
-    source: hosted
-    version: "1.0.0"
-  uni_links_web:
-    dependency: transitive
-    description:
-      name: uni_links_web
-      url: "https://mirror.flutterfarsi.ir"
-    source: hosted
-    version: "0.1.0"
   universal_file:
     dependency: transitive
     description:
@@ -768,13 +747,6 @@ packages:
       url: "https://mirror.flutterfarsi.ir"
     source: hosted
     version: "1.0.0"
-  universal_io:
-    dependency: transitive
-    description:
-      name: universal_io
-      url: "https://mirror.flutterfarsi.ir"
-    source: hosted
-    version: "2.0.4"
   url_launcher:
     dependency: "direct main"
     description:
@@ -866,13 +838,6 @@ packages:
       url: "https://mirror.flutterfarsi.ir"
     source: hosted
     version: "5.4.1"
-  yaml:
-    dependency: transitive
-    description:
-      name: yaml
-      url: "https://mirror.flutterfarsi.ir"
-    source: hosted
-    version: "3.1.1"
   zarinpal:
     dependency: "direct main"
     description:
@@ -881,5 +846,5 @@ packages:
     source: hosted
     version: "1.0.4+1"
 sdks:
-  dart: ">=2.18.0 <3.0.0"
+  dart: ">=2.18.2 <3.0.0"
   flutter: ">=3.3.0"
