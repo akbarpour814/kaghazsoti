@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 //------/packages
-import 'package:sizer/sizer.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -11,6 +10,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 
 //------/controller
+import '../../model/book_introduction.dart';
 import '/controller/internet_connection.dart';
 
 //------/view/audio_player_models/progress_bar
@@ -186,7 +186,19 @@ class _PlayerBottomNavigationBarState extends State<PlayerBottomNavigationBar>
             CupertinoPageRoute(
               builder: (context) {
                 return AudiobookPlayerPage(
-                  audiobook: audiobookInPlay,
+                  audiobook: BookIntroduction(
+                      author: audiobookInPlay.author,
+                      bookCoverPath: audiobookInPlay.bookCoverPath,
+                      duration: audiobookInPlay.duration,
+                      id: audiobookInPlay.id,
+                      name: audiobookInPlay.name,
+                      price: audiobookInPlay.price,
+                      publisherOfPrintedVersion:
+                          audiobookInPlay.publisherOfPrintedVersion,
+                      slug: audiobookInPlay.slug,
+                      type: audiobookInPlay.type,
+                      numberOfStars: audiobookInPlay.stars,
+                      numberOfVotes: audiobookInPlay.votes),
                 );
               },
             ),

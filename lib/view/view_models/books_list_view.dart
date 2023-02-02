@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
 //------/packages
-import 'package:sizer/sizer.dart';
 
 //------/model
 import '/model/book_introduction.dart';

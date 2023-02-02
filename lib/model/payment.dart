@@ -1,6 +1,7 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kaz_reader/model/purchase.dart';
 import 'dart:async';
 
 //------/packages
@@ -74,7 +75,7 @@ enum PaymentStatus {
 
 mixin CustomVerificationPayment<T extends StatefulWidget> on State<T> {
   late  Payment payment;
-  void startPayment(PurchaseHistoryModel purchase, String routeNamePage) async {
+  void startPayment(Purchase purchase, String routeNamePage) async {
     String description = '';
 
     for(int i = 0; i < purchase.books.length; ++i) {

@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 
 //------/model
+import '../../model/purchase.dart';
 import '../../widgets/book_introduction/book_introduction_model.dart';
 import '/model/date_time_format.dart';
 import '/model/price_format.dart';
@@ -38,8 +39,6 @@ class PurchaseHistoryModel {
     }
   }
 }
-
-enum PurchaseStatus { bought, waiting, cancelled }
 
 extension PurchaseStatusExtension on PurchaseStatus {
   static const Map<PurchaseStatus, String> statusOfPurchases = {

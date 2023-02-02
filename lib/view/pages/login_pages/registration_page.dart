@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 
 //------/packages
-import 'package:sizer/sizer.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as HTTP;

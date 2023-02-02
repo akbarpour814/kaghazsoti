@@ -16,6 +16,25 @@ class Purchase {
   late PurchaseStatus status;
   late List<BookIntroduction> books;
 
+  Purchase.fill(
+      {required int idp,
+      required String couponDiscountp,
+      required String totalPricep,
+      required String finalPricep,
+      required int finalPriceIntp,
+      required String datep,
+      required PurchaseStatus statusp,
+      required List<BookIntroduction> booksp}){
+        id = idp;
+        couponDiscount = couponDiscountp;
+        totalPrice = totalPricep;
+        finalPrice = finalPricep;
+        finalPriceInt = finalPriceIntp;
+        date = datep;
+        status = statusp;
+        books = booksp;
+      }
+
   Purchase.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     couponDiscount = PriceFormat.priceFormat(

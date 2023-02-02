@@ -1,16 +1,15 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:kaghaze_souti/view/pages/profile_page/cart_page.dart';
 
 //------/packages
-import 'package:sizer/sizer.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 //------/controller
+import '../../pages/cart/cart_page.dart';
 import '/controller/custom_dio.dart';
 import '/controller/custom_response.dart';
 import '/controller/internet_connection.dart';

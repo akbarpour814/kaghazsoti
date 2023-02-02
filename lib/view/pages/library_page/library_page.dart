@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 
 //------/packages
-import 'package:sizer/sizer.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:kaz_reader/widgets/book_introduction/book_introduction_model.dart';
 
 //------/controller
 import '/controller/custom_response.dart';
@@ -164,7 +164,6 @@ class _MyLibraryPageState extends State<MyLibraryPage>
       onTap: () {
         if (book.type == 1) {
           if (book.id != previousAudiobookInPlayId) {
-
             audioPlayerHandler.onTaskRemoved();
 
             demoOfBookIsPlaying.$ = false;
@@ -176,7 +175,18 @@ class _MyLibraryPageState extends State<MyLibraryPage>
 
             audioPlayerHandler.stop();
 
-            audiobookInPlay = book;
+            audiobookInPlay = BookIntroductionModel(
+                author: book.author,
+                bookCoverPath: book.bookCoverPath,
+                duration: book.duration,
+                id: book.id,
+                name: book.name,
+                price: book.price,
+                publisherOfPrintedVersion: book.publisherOfPrintedVersion,
+                slug: book.slug,
+                type: book.type,
+                stars: book.numberOfStars,
+                votes: book.numberOfVotes);
             audiobookInPlayId = book.id;
           }
 

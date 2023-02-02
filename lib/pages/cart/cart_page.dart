@@ -7,9 +7,11 @@ import 'package:flutter/foundation.dart';
 export 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:kaz_reader/model/purchase.dart';
 // import 'package:uni_links/uni_links.dart';
 
 //------/controller
+import '../../model/book_introduction.dart';
 import '../../widgets/fade_in_image_widget.dart';
 import '/controller/custom_dio.dart';
 import '/controller/custom_response.dart';
@@ -79,7 +81,8 @@ class _CartPageState extends State<CartPage>
         if (customDio.statusCode == 200) {
           customResponse = CustomResponse.fromJson(customDio.data);
 
-          _bookCartTemp[_bookCartSlug[i]] = BookModel.fromJson(customResponse.data);
+          _bookCartTemp[_bookCartSlug[i]] =
+              BookModel.fromJson(customResponse.data);
         }
       }
 
@@ -424,12 +427,14 @@ class _CartPageState extends State<CartPage>
       child: ElevatedButton.icon(
         onPressed: () {
           if (!dataIsLoading) {
-            if(_issuanceOfPurchaseInvoiceClick) {
+            if (_issuanceOfPurchaseInvoiceClick) {
               _issuanceOfPurchaseInvoice();
             }
           }
         },
-        label: Text(_issuanceOfPurchaseInvoiceClick ? 'صدور فاکتور خرید' : 'لطفاً شکیبا باشید.'),
+        label: Text(_issuanceOfPurchaseInvoiceClick
+            ? 'صدور فاکتور خرید'
+            : 'لطفاً شکیبا باشید.'),
         icon: const Icon(Ionicons.bag_check_outline),
       ),
     );
@@ -471,7 +476,31 @@ class _CartPageState extends State<CartPage>
       child: ElevatedButton.icon(
         onPressed: () async {
           if (!dataIsLoading) {
-            startPayment(_purchaseInvoice!, CartPage.routeName);
+            startPayment(
+                Purchase.fill(
+                    idp: _purchaseInvoice!.id,
+                    couponDiscountp: _purchaseInvoice!.couponDiscount,
+                    totalPricep: _purchaseInvoice!.totalPrice,
+                    finalPricep: _purchaseInvoice!.finalPrice,
+                    finalPriceIntp: _purchaseInvoice!.finalPriceInt,
+                    datep: _purchaseInvoice!.date,
+                    statusp: _purchaseInvoice!.status,
+                    booksp: _purchaseInvoice!.books
+                        .map((e) => BookIntroduction(
+                            author: e.author,
+                            bookCoverPath: e.bookCoverPath,
+                            duration: e.duration,
+                            id: e.id,
+                            name: e.name,
+                            numberOfStars: e.stars,
+                            numberOfVotes: e.votes,
+                            price: e.price,
+                            publisherOfPrintedVersion:
+                                e.publisherOfPrintedVersion,
+                            slug: e.slug,
+                            type: e.type))
+                        .toList()),
+                CartPage.routeName);
 
             setState(() {
               _showButtons = false;

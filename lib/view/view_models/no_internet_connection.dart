@@ -1,8 +1,6 @@
 //------/dart and flutter packages
 import 'package:flutter/material.dart';
-
-//------/packages
-import 'package:sizer/sizer.dart';
+import 'package:kaz_reader/main.dart';
 
 class NoInternetConnection extends StatefulWidget {
   const NoInternetConnection({Key? key}) : super(key: key);

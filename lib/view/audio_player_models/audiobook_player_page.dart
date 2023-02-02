@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 
 //------/packages
-import 'package:sizer/sizer.dart';
+
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -345,7 +345,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   Widget _nextButton() {
 
     return StreamBuilder<QueueState>(
-      stream: audioPlayerHandler.queueState,
+      stream: audioPlayerHandler.queueState as Stream<QueueState>?,
       builder: (context, snapshot) {
         final queueState = snapshot.data ?? QueueState.empty;
         return InkWell(
@@ -408,7 +408,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   Widget _previousButton() {
 
     return StreamBuilder<QueueState>(
-      stream: audioPlayerHandler.queueState,
+      stream: audioPlayerHandler.queueState as Stream<QueueState>?,
       builder: (context, snapshot) {
         final queueState = snapshot.data ?? QueueState.empty;
         return InkWell(
@@ -548,7 +548,7 @@ class _AudiobookPlayerPageState extends State<AudiobookPlayerPage>
   Widget _bookIndex() {
 
     StreamBuilder _bookIndex = StreamBuilder<QueueState>(
-      stream: audioPlayerHandler.queueState,
+      stream: audioPlayerHandler.queueState as Stream<QueueState>?,
       builder: (context, snapshot) {
         final queueState = snapshot.data ?? QueueState.empty;
         final queue = queueState.queue;

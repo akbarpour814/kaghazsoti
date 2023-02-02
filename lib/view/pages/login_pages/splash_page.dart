@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'dart:io';
 
 //------/packages
-import 'package:sizer/sizer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_value/shared_value.dart';
 import 'package:url_launcher/url_launcher.dart';

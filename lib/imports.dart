@@ -3,7 +3,7 @@
 //
 // //------/packages
 // import 'package:localization/localization.dart';
-// import 'package:sizer/sizer.dart';
+// 
 // import 'package:material_color_generator/material_color_generator.dart';
 // import 'package:pull_to_refresh/pull_to_refresh.dart';
 // import 'package:smooth_page_indicator/smooth_page_indicator.dart';
